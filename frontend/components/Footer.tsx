@@ -11,7 +11,7 @@ export default function Footer() {
               V
             </span>
             <span className="text-lg font-bold tracking-tight text-slate-900">
-              Verdix
+              VerBnb
             </span>
           </div>
           <p className="mt-4 max-w-xs text-sm text-slate-500">
@@ -61,7 +61,7 @@ export default function Footer() {
       </div>
       <div className="border-t border-surface-border">
         <div className="container-page flex flex-col items-center justify-between gap-2 py-6 text-xs text-slate-400 sm:flex-row">
-          <span>© {new Date().getFullYear()} Verdix · VerBnb</span>
+          <span>© {new Date().getFullYear()} VerBnb</span>
           <span>Powered by GenLayer Optimistic Democracy</span>
         </div>
       </div>

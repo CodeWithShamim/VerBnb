@@ -33,13 +33,8 @@ export default function Navbar() {
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand to-violet-500 font-black text-white shadow-soft transition-transform duration-300 group-hover:scale-105">
             V
           </span>
-          <span className="flex items-baseline gap-1.5">
-            <span className="text-lg font-bold tracking-tight text-slate-900">
-              Verdix
-            </span>
-            <span className="rounded-md bg-brand-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-600">
-              VerBnb
-            </span>
+          <span className="text-lg font-bold tracking-tight text-slate-900">
+            VerBnb
           </span>
         </Link>
 
