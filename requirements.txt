@@ -1,0 +1,6 @@
+# Python toolchain for Verdix / VerBnb intelligent contracts
+# Install with:  pip install -r requirements.txt
+genlayer-test[sim]==0.29.2
+genvm-linter==0.11.0
+genlayer-py==0.16.3
+python-dotenv==1.0.1
