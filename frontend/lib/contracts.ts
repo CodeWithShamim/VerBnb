@@ -152,6 +152,24 @@ export const CONTRACT_BY_ADDRESS: Record<
   return acc;
 }, {} as Record<string, { key: string; category: Category | null }>);
 
+/** The registry contract address (env-overridable). */
+export const REGISTRY_CONTRACT =
+  CONTRACTS.find((c) => c.key === "Registry")?.address || "";
+
+// Active network metadata for display. Mirrors the genlayer-js chain objects so
+// the UI can show the network name + chain id without loading the SDK client.
+const NETWORKS: Record<string, { name: string; chainId: number; short: string }> = {
+  testnet_bradbury: { name: "GenLayer Bradbury Testnet", chainId: 4221, short: "Bradbury" },
+  localnet: { name: "GenLayer Localnet", chainId: 61127, short: "Localnet" },
+  studionet: { name: "GenLayer Studio Network", chainId: 61999, short: "Studionet" },
+};
+
+/** The network the app is configured to talk to. */
+export function getChainInfo() {
+  const key = process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury";
+  return NETWORKS[key] || NETWORKS.testnet_bradbury;
+}
+
 /** Explorer URL for a transaction hash (empty string if no hash). */
 export function explorerTx(hash?: string): string {
   if (!hash) return "";

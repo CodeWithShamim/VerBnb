@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { CATEGORIES } from "@/lib/contracts";
+import { CATEGORIES, explorerAddress, REGISTRY_CONTRACT } from "@/lib/contracts";
 
 export default function Footer() {
+  const registryUrl = explorerAddress(REGISTRY_CONTRACT);
   return (
     <footer className="mt-24 border-t border-surface-border bg-white">
       <div className="container-page grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
@@ -38,6 +39,18 @@ export default function Footer() {
           <ul className="mt-4 space-y-2.5 text-sm text-slate-500">
             <li>GenLayer Bradbury testnet</li>
             <li>Chain ID 4221</li>
+            {registryUrl && (
+              <li>
+                <a
+                  href={registryUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 hover:text-brand"
+                >
+                  Registry contract ↗
+                </a>
+              </li>
+            )}
             <li>
               <a
                 href="https://testnet-faucet.genlayer.foundation"

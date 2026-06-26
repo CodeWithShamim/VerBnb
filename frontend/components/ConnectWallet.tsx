@@ -3,13 +3,26 @@
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { explorerAddress } from "@/lib/contracts";
+import {
+  explorerAddress,
+  getChainInfo,
+  REGISTRY_CONTRACT,
+  EXPLORER_BASE,
+} from "@/lib/contracts";
 
 const HAS_PRIVY = Boolean(process.env.NEXT_PUBLIC_PRIVY_APP_ID);
 
 function short(addr?: string) {
   if (!addr) return "";
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+}
+
+/** Parse a Privy/CAIP wallet chainId ("eip155:4221" | "4221" | 4221) → number. */
+function parseChainId(raw?: string | number): number | null {
+  if (raw == null) return null;
+  const s = String(raw);
+  const n = Number(s.includes(":") ? s.split(":").pop() : s);
+  return Number.isFinite(n) ? n : null;
 }
 
 export default function ConnectWallet() {
@@ -23,7 +36,13 @@ function ConnectWalletInner() {
   const { wallets } = useWallets();
   const [open, setOpen] = useState(false);
 
-  const address = wallets[0]?.address || user?.wallet?.address || "";
+  const wallet = wallets[0];
+  const address = wallet?.address || user?.wallet?.address || "";
+
+  const expected = getChainInfo();
+  const walletChainId = parseChainId((wallet as any)?.chainId);
+  const wrongNetwork =
+    walletChainId != null && walletChainId !== expected.chainId;
 
   if (!ready) {
     return (
@@ -53,7 +72,23 @@ function ConnectWalletInner() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center gap-2">
+      {/* Only surface a network chip when the wallet is on the wrong chain;
+          the navbar shows the active network name otherwise. Links to the
+          expected network on the explorer. */}
+      {wrongNetwork && (
+        <a
+          href={EXPLORER_BASE}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 sm:inline-flex"
+          title={`Wallet is on chain ${walletChainId}. Switch to ${expected.name}.`}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+          Wrong network · use {expected.short}
+        </a>
+      )}
+
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -75,7 +110,7 @@ function ConnectWalletInner() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-surface-border bg-white p-1.5 shadow-lift"
+              className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-xl border border-surface-border bg-white p-1.5 shadow-lift"
             >
               <div className="px-3 py-2">
                 <p className="text-xs text-slate-400">Connected</p>
@@ -83,6 +118,45 @@ function ConnectWalletInner() {
                   {address}
                 </p>
               </div>
+
+              {/* Network */}
+              <div className="mx-1.5 mb-1 flex items-center justify-between rounded-lg bg-surface-subtle px-3 py-2">
+                <span className="text-xs text-slate-400">Network</span>
+                <span
+                  className={`inline-flex items-center gap-1.5 text-xs font-semibold ${
+                    wrongNetwork ? "text-amber-600" : "text-slate-700"
+                  }`}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      wrongNetwork ? "bg-amber-500" : "bg-emerald-500"
+                    }`}
+                  />
+                  {wrongNetwork ? `Chain ${walletChainId}` : expected.short}
+                </span>
+              </div>
+
+              {REGISTRY_CONTRACT && (
+                <a
+                  href={explorerAddress(REGISTRY_CONTRACT)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm text-slate-600 hover:bg-surface-subtle"
+                >
+                  Registry contract
+                  <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 text-slate-400">
+                    <path
+                      d="M7 17 17 7M9 7h8v8"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </a>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
