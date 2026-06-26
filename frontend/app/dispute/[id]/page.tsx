@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
@@ -19,6 +19,7 @@ export default function DisputePage() {
   const [status, setStatus] = useState<string>("SUBMITTED");
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [copied, setCopied] = useState(false);
+  const markedRef = useRef(false);
 
   const poll = useCallback(async () => {
     // 1. Transaction status (drives the consensus tracker).
@@ -39,7 +40,23 @@ export default function DisputePage() {
         )}`
       );
       const d = await r.json();
-      if (d.verdict) setVerdict(d.verdict);
+      if (d.verdict) {
+        setVerdict(d.verdict);
+        // 3. Once the specialist has a resolved verdict, mark it resolved in the
+        // registry (idempotent) so platform stats stay accurate. Fire once.
+        const isResolved =
+          d.verdict?.resolved === true && !d.verdict?.error;
+        if (isResolved && !markedRef.current) {
+          markedRef.current = true;
+          fetch("/api/resolve", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ disputeId: id }),
+          }).catch(() => {
+            markedRef.current = false; // allow retry on failure
+          });
+        }
+      }
     } catch {
       /* not resolved yet */
     }

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useState } from "react";
 import { CATEGORIES } from "@/lib/contracts";
+import ConnectWallet from "@/components/ConnectWallet";
 
 const NAV = Object.values(CATEGORIES).map((c) => ({
   href: `/${c.slug}`,
@@ -62,9 +63,15 @@ export default function Navbar() {
           })}
         </div>
 
-        <Link href="/#categories" className="btn-primary px-4 py-2 text-sm">
-          Raise a dispute
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/#categories"
+            className="hidden btn-primary px-4 py-2 text-sm sm:inline-flex"
+          >
+            Raise a dispute
+          </Link>
+          <ConnectWallet />
+        </div>
       </nav>
     </motion.header>
   );

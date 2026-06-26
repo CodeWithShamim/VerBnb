@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { uploadEvidence } from "@/lib/uploadEvidence";
-import { CATEGORIES, newDisputeId, type Category } from "@/lib/contracts";
+import { CATEGORIES, type Category } from "@/lib/contracts";
+import SubmitButton from "@/components/SubmitButton";
 
 export type FieldType = "text" | "number" | "url" | "textarea" | "file";
 
@@ -30,7 +31,6 @@ export default function DisputeForm({
   const [values, setValues] = useState<Record<string, string>>({});
   const [uploadPct, setUploadPct] = useState<Record<string, number>>({});
   const [uploading, setUploading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const meta = CATEGORIES[category];
@@ -64,34 +64,9 @@ export default function DisputeForm({
     return null;
   }
 
-  async function submit() {
-    const v = validate();
-    if (v) {
-      setError(v);
-      return;
-    }
-    setError(null);
-    setSubmitting(true);
-    const disputeId = newDisputeId(category);
-    try {
-      const res = await fetch("/api/dispute", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category, disputeId, ...values }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Submission failed");
-      const params = new URLSearchParams({
-        category,
-        tx: data.specialistTx || "",
-      });
-      router.push(
-        `/dispute/${encodeURIComponent(disputeId)}?${params.toString()}`
-      );
-    } catch (e: any) {
-      setError(e?.message || "Submission failed");
-      setSubmitting(false);
-    }
+  function onSuccess(disputeId: string, specialistTx: string) {
+    const params = new URLSearchParams({ category, tx: specialistTx || "" });
+    router.push(`/dispute/${encodeURIComponent(disputeId)}?${params.toString()}`);
   }
 
   return (
@@ -217,21 +192,15 @@ export default function DisputeForm({
           </motion.div>
         )}
 
-        <button
-          type="button"
-          className="btn-primary w-full py-3.5 text-base"
-          disabled={submitting || uploading}
-          onClick={submit}
-        >
-          {submitting ? (
-            <>
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              Submitting to validators…
-            </>
-          ) : (
-            "Submit dispute"
-          )}
-        </button>
+        <SubmitButton
+          category={category}
+          getValues={() => values}
+          validate={validate}
+          onError={setError}
+          onSuccess={onSuccess}
+          disabled={uploading}
+        />
+
         <p className="text-center text-xs text-slate-400">
           Evidence is pinned to IPFS, then validators independently fetch it and
           reach consensus on-chain.
