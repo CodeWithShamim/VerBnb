@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CategoryCard from "@/components/CategoryCard";
 import PlatformStats from "@/components/PlatformStats";
+import LiveTransactions from "@/components/LiveTransactions";
 import MeshBackground from "@/components/MeshBackground";
 import Reveal, { RevealGroup } from "@/components/Reveal";
 import { CATEGORIES } from "@/lib/contracts";
@@ -92,6 +93,38 @@ export default function Home() {
             <CategoryCard key={meta.key} meta={meta} />
           ))}
         </RevealGroup>
+      </section>
+
+      {/* LIVE ACTIVITY */}
+      <section id="activity" className="container-page scroll-mt-24 py-16">
+        <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <span className="chip">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              </span>
+              Live from the chain
+            </span>
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+              On-chain activity
+            </h2>
+            <p className="mt-2 max-w-md text-slate-500">
+              Status and block are pulled live from GenLayer as validators reach
+              consensus.
+            </p>
+          </div>
+          <Link
+            href="/activity"
+            className="btn-ghost px-4 py-2 text-sm"
+          >
+            View all activity →
+          </Link>
+        </Reveal>
+
+        <Reveal delay={0.05} className="mx-auto max-w-3xl">
+          <LiveTransactions limit={5} />
+        </Reveal>
       </section>
 
       {/* HOW IT WORKS */}

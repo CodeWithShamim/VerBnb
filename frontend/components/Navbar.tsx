@@ -7,10 +7,13 @@ import { useState } from "react";
 import { CATEGORIES } from "@/lib/contracts";
 import ConnectWallet from "@/components/ConnectWallet";
 
-const NAV = Object.values(CATEGORIES).map((c) => ({
-  href: `/${c.slug}`,
-  label: c.title,
-}));
+const NAV = [
+  ...Object.values(CATEGORIES).map((c) => ({
+    href: `/${c.slug}`,
+    label: c.title,
+  })),
+  { href: "/activity", label: "Activity" },
+];
 
 export default function Navbar() {
   const pathname = usePathname();

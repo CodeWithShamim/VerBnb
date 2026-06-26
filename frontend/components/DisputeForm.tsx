@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { uploadEvidence } from "@/lib/uploadEvidence";
 import { CATEGORIES, type Category } from "@/lib/contracts";
+import { recordDispute } from "@/lib/recentDisputes";
 import SubmitButton from "@/components/SubmitButton";
 
 export type FieldType = "text" | "number" | "url" | "textarea" | "file";
@@ -65,6 +66,9 @@ export default function DisputeForm({
   }
 
   function onSuccess(disputeId: string, specialistTx: string) {
+    // Index this dispute locally so the live activity feed can pick it up and
+    // enrich it straight from the chain.
+    recordDispute({ id: disputeId, category, tx: specialistTx || undefined });
     const params = new URLSearchParams({ category, tx: specialistTx || "" });
     router.push(`/dispute/${encodeURIComponent(disputeId)}?${params.toString()}`);
   }

@@ -87,3 +87,103 @@ export function newDisputeId(category: Category): string {
   const rand = Math.random().toString(36).slice(2, 8);
   return `${category.toLowerCase()}-${Date.now().toString(36)}-${rand}`;
 }
+
+// Block explorer for the active GenLayer network. genlayer-js ships the URL on
+// the chain object; we default to the Bradbury explorer so links work even
+// before the chain object is loaded client-side.
+export const EXPLORER_BASE = (
+  process.env.NEXT_PUBLIC_GL_EXPLORER || "https://explorer-bradbury.genlayer.com"
+).replace(/\/+$/, "");
+
+// The explorer's JSON API — exposes per-address transaction history with live
+// status, block and decoded calldata. Used by /api/transactions to build the
+// platform-wide live feed across every specialist + the registry.
+export const EXPLORER_API_BASE = `${EXPLORER_BASE}/api/v1`;
+
+/**
+ * Deployed specialist + registry addresses (deployments/bradbury.json). The
+ * live feed pulls transactions for each of these. Env vars override so the
+ * same UI works against a re-deploy without a code change.
+ */
+export const CONTRACTS: { key: string; address: string; category: Category | null }[] = [
+  {
+    key: "Registry",
+    address:
+      process.env.NEXT_PUBLIC_VERBNB_REGISTRY ||
+      "0x8aA6527B539814c454ee178dd7CE8cAd011834eB",
+    category: null,
+  },
+  {
+    key: "Rental",
+    address:
+      process.env.NEXT_PUBLIC_VERBNB_RENTAL ||
+      "0x76e3Ff31Ca5cB4e6ce46EF109c52272F27151b32",
+    category: "RENTAL",
+  },
+  {
+    key: "Marketplace",
+    address:
+      process.env.NEXT_PUBLIC_VERBNB_PRODUCT ||
+      "0xBF6Efed489B28c2680FE0b3eF8Dffe4288e50548",
+    category: "PRODUCT",
+  },
+  {
+    key: "Sourcing",
+    address:
+      process.env.NEXT_PUBLIC_VERBNB_SOURCING ||
+      "0xb516DB96E8DefE26dE624dfF1f7D0802a828996D",
+    category: "SOURCING",
+  },
+  {
+    key: "Delivery",
+    address:
+      process.env.NEXT_PUBLIC_VERBNB_DELIVERY ||
+      "0x63FFE6DE2988ABC6f49F3b3fd56415ef2A16d3AF",
+    category: "DELIVERY",
+  },
+];
+
+/** Lower-cased address → its contract config (category lookup for feed rows). */
+export const CONTRACT_BY_ADDRESS: Record<
+  string,
+  { key: string; category: Category | null }
+> = CONTRACTS.reduce((acc, c) => {
+  acc[c.address.toLowerCase()] = { key: c.key, category: c.category };
+  return acc;
+}, {} as Record<string, { key: string; category: Category | null }>);
+
+/** Explorer URL for a transaction hash (empty string if no hash). */
+export function explorerTx(hash?: string): string {
+  if (!hash) return "";
+  return `${EXPLORER_BASE}/tx/${hash}`;
+}
+
+/** Explorer URL for an address/contract (empty string if no address). */
+export function explorerAddress(address?: string): string {
+  if (!address) return "";
+  return `${EXPLORER_BASE}/address/${address}`;
+}
+
+/** One transaction in the live feed, normalized from the explorer API. */
+export interface ChainTxRow {
+  /** GenLayer transaction hash. */
+  hash: string;
+  /** Contract method called (decoded from calldata). */
+  method: string;
+  /** Dispute id (args[0]) when the method carries one, else null. */
+  disputeId: string | null;
+  /** Category inferred from the contract or register_dispute args. */
+  category: Category | null;
+  /** Human label for the contract that received the tx. */
+  contractKey: string;
+  /** Contract address the tx was sent to. */
+  contract: string;
+  /** Sender address. */
+  from: string;
+  /** Live transaction status (e.g. finalized, accepted, committing). */
+  status: string;
+  /** Starting block number. */
+  block: number | null;
+  /** Best-known seconds epoch (finalization → activation → submission). */
+  timestamp: number | null;
+}
