@@ -38,6 +38,13 @@ class VerBnbRegistry(gl.Contract):
     not_described_address: str
     sourcing_address: str
     delivery_address: str
+    # Phase 2 extension contracts (appeal/reputation/fraud/analytics). Optional
+    # so the original 4-arg constructor and existing deploys keep working; set
+    # post-deploy via set_extension_addresses.
+    appeal_manager_address: str
+    reputation_tracker_address: str
+    fraud_detector_address: str
+    analytics_tracker_address: str
     all_disputes: TreeMap[str, DisputeRecord]
     user_disputes: TreeMap[str, DynArray[str]]
     total_disputes: u256
@@ -49,11 +56,19 @@ class VerBnbRegistry(gl.Contract):
         not_described_address: str,
         sourcing_address: str,
         delivery_address: str,
+        appeal_manager_address: str = "",
+        reputation_tracker_address: str = "",
+        fraud_detector_address: str = "",
+        analytics_tracker_address: str = "",
     ) -> None:
         self.listing_judge_address = listing_judge_address
         self.not_described_address = not_described_address
         self.sourcing_address = sourcing_address
         self.delivery_address = delivery_address
+        self.appeal_manager_address = appeal_manager_address
+        self.reputation_tracker_address = reputation_tracker_address
+        self.fraud_detector_address = fraud_detector_address
+        self.analytics_tracker_address = analytics_tracker_address
         self.total_disputes = u256(0)
         self.total_resolved = u256(0)
 
@@ -102,6 +117,29 @@ class VerBnbRegistry(gl.Contract):
             return
         record.resolved = True
         self.total_resolved += u256(1)
+
+    @gl.public.write
+    def set_extension_addresses(
+        self,
+        appeal_manager_address: str,
+        reputation_tracker_address: str,
+        fraud_detector_address: str,
+        analytics_tracker_address: str,
+    ) -> None:
+        """Wire the Phase 2 extension contracts after they're deployed.
+
+        Lets an existing registry adopt the appeal/reputation/fraud/analytics
+        trackers without a redeploy. Empty strings are ignored so callers can
+        update a subset.
+        """
+        if appeal_manager_address:
+            self.appeal_manager_address = appeal_manager_address
+        if reputation_tracker_address:
+            self.reputation_tracker_address = reputation_tracker_address
+        if fraud_detector_address:
+            self.fraud_detector_address = fraud_detector_address
+        if analytics_tracker_address:
+            self.analytics_tracker_address = analytics_tracker_address
 
     # ----------------------------------------------------------------- views
 
@@ -152,5 +190,17 @@ class VerBnbRegistry(gl.Contract):
                 "PRODUCT": self.not_described_address,
                 "SOURCING": self.sourcing_address,
                 "DELIVERY": self.delivery_address,
+            }
+        )
+
+    @gl.public.view
+    def get_extension_addresses(self) -> str:
+        """The Phase 2 tracker contract addresses the frontend orchestrates."""
+        return json.dumps(
+            {
+                "appeal_manager": self.appeal_manager_address,
+                "reputation_tracker": self.reputation_tracker_address,
+                "fraud_detector": self.fraud_detector_address,
+                "analytics_tracker": self.analytics_tracker_address,
             }
         )
