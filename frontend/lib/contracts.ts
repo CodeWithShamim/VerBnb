@@ -156,6 +156,19 @@ export const CONTRACT_BY_ADDRESS: Record<
 export const REGISTRY_CONTRACT =
   CONTRACTS.find((c) => c.key === "Registry")?.address || "";
 
+/**
+ * Phase 2 extension tracker addresses (appeal/reputation/fraud/analytics).
+ * Standalone contracts orchestrated off-chain; the registry also exposes these
+ * via get_extension_addresses. Env vars override after a re-deploy.
+ */
+export const CONTRACT_ADDRESSES = {
+  registry: REGISTRY_CONTRACT,
+  appeal_manager: (process.env.NEXT_PUBLIC_APPEAL_MANAGER || "") as string,
+  reputation_tracker: (process.env.NEXT_PUBLIC_REPUTATION_TRACKER || "") as string,
+  fraud_detector: (process.env.NEXT_PUBLIC_FRAUD_DETECTOR || "") as string,
+  analytics_tracker: (process.env.NEXT_PUBLIC_ANALYTICS_TRACKER || "") as string,
+};
+
 // Active network metadata for display. Mirrors the genlayer-js chain objects so
 // the UI can show the network name + chain id without loading the SDK client.
 const NETWORKS: Record<string, { name: string; chainId: number; short: string }> = {

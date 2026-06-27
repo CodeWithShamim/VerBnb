@@ -6,6 +6,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import ConsensusTracker from "@/components/ConsensusTracker";
 import VerdictCard, { type Verdict } from "@/components/VerdictCard";
+import FraudAlert from "@/components/FraudAlert";
 import { CATEGORIES, explorerTx, type Category } from "@/lib/contracts";
 
 export default function DisputePage() {
@@ -18,6 +19,7 @@ export default function DisputePage() {
 
   const [status, setStatus] = useState<string>("SUBMITTED");
   const [verdict, setVerdict] = useState<Verdict | null>(null);
+  const [submitter, setSubmitter] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const markedRef = useRef(false);
 
@@ -42,7 +44,7 @@ export default function DisputePage() {
       const d = await r.json();
       if (d.verdict) {
         setVerdict(d.verdict);
-        // 3. Once the specialist has a resolved verdict, mark it resolved in the
+        if (d.record?.submitter) setSubmitter(d.record.submitter);        // 3. Once the specialist has a resolved verdict, mark it resolved in the
         // registry (idempotent) so platform stats stay accurate. Fire once.
         const isResolved =
           d.verdict?.resolved === true && !d.verdict?.error;
@@ -147,6 +149,34 @@ export default function DisputePage() {
           <ConsensusTracker status={status} />
           <VerdictCard verdict={verdict} />
         </div>
+
+        {/* Fraud flag badge for the disputant (if any). */}
+        {submitter && (
+          <div className="mt-6">
+            <FraudAlert address={submitter} />
+          </div>
+        )}
+
+        {/* Appeal CTA — visible once a verdict is resolved (window is enforced
+            on the appeals page itself). */}
+        {verdict?.resolved && !verdict?.error && (
+          <div className="card mt-6 flex flex-wrap items-center justify-between gap-4 p-6">
+            <div>
+              <p className="text-sm font-semibold text-slate-800">
+                Disagree with this verdict?
+              </p>
+              <p className="text-sm text-slate-500">
+                You can appeal within 7 days — a larger validator panel re-evaluates.
+              </p>
+            </div>
+            <Link
+              href={`/appeals/${encodeURIComponent(id)}?category=${category}`}
+              className="btn-primary px-5 py-2.5 text-sm"
+            >
+              Appeal this verdict
+            </Link>
+          </div>
+        )}
 
         <p className="mt-6 flex items-center justify-center gap-2 text-center text-xs text-slate-400">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />

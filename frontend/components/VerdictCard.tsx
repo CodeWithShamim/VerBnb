@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import TrustScoreBadge from "./TrustScoreBadge";
+import ReputationBadge from "./ReputationBadge";
 
 export interface Verdict {
   resolved?: boolean;
@@ -28,7 +29,17 @@ function tone(verdict?: string) {
   return "border-amber-200 bg-amber-50 text-amber-600";
 }
 
-export default function VerdictCard({ verdict }: { verdict: Verdict | null }) {
+export default function VerdictCard({
+  verdict,
+  disputant,
+  counterparty,
+  consensusRate,
+}: {
+  verdict: Verdict | null;
+  disputant?: string;
+  counterparty?: string;
+  consensusRate?: number;
+}) {
   if (!verdict || verdict.error) {
     return (
       <div className="card flex min-h-[220px] flex-col items-center justify-center gap-3 p-6 text-center">
@@ -126,6 +137,34 @@ export default function VerdictCard({ verdict }: { verdict: Verdict | null }) {
       {(verdict.reasoning || verdict.summary) && (
         <div className="mt-5 rounded-xl border border-surface-border bg-surface-subtle p-4 text-sm leading-relaxed text-slate-600">
           {verdict.reasoning || verdict.summary}
+        </div>
+      )}
+
+      {typeof consensusRate === "number" && (
+        <div className="mt-5 flex items-center justify-between rounded-xl bg-surface-subtle px-4 py-3 text-sm">
+          <span className="text-slate-500">Validators agree</span>
+          <span className="font-semibold text-emerald-600">{consensusRate}%</span>
+        </div>
+      )}
+
+      {(disputant || counterparty) && (
+        <div className="mt-5 flex flex-wrap items-center gap-6 border-t border-surface-border pt-5">
+          {disputant && (
+            <div>
+              <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+                Disputant
+              </p>
+              <ReputationBadge address={disputant} size="small" />
+            </div>
+          )}
+          {counterparty && (
+            <div>
+              <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+                Counterparty
+              </p>
+              <ReputationBadge address={counterparty} size="small" />
+            </div>
+          )}
         </div>
       )}
     </motion.div>

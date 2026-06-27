@@ -13,6 +13,8 @@ const NAV = [
     label: c.title,
   })),
   { href: '/activity', label: 'Activity' },
+  { href: '/analytics', label: 'Analytics' },
+  { href: '/validator', label: 'Validators' },
 ];
 
 export default function Navbar() {

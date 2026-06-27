@@ -20,6 +20,27 @@ Four dispute categories, one registry:
 | **DELIVERY** | `delivery_adjudicator.py` | Courier delivery-proof adjudication |
 | *(router)* | `verBnb_registry.py` | Routes every dispute + tracks platform stats |
 
+### Phase 2 — advanced trackers (new)
+
+Four standalone contracts layer appeals, reputation, fraud detection, and
+analytics on top of the existing flow **without modifying the 5 contracts above**:
+
+| Contract | What it adds |
+| --- | --- |
+| `appeal_manager.py` | 7-day appeal window; each appeal opens a round with **N + 2** validators |
+| `reputation_tracker.py` | Per-address win rate, validator accuracy, appeal success → 0–100 credibility |
+| `fraud_detector.py` | Pattern flags: `REPEAT_DISPUTANT`, `SKEWED_VERDICTS`, `RAPID_CYCLING` (LOW/MEDIUM/HIGH) |
+| `analytics_tracker.py` | Per-category outcome stats, consensus rate, similar-case keyword search |
+
+**Integration model.** The GenLayer registry is deterministic-only and the
+specialists are standalone contracts the frontend calls directly, so the four
+trackers are likewise **standalone and orchestrated off-chain** — the server-side
+API routes write to them at the existing lifecycle points (mirroring
+`register_dispute` / `mark_resolved`). The registry stores their addresses and
+exposes them via `get_extension_addresses` so the UI can discover them; its
+original interface is unchanged (the 4 new constructor args are optional and can
+also be set post-deploy via `set_extension_addresses`).
+
 ---
 
 ## Deployed contracts (GenLayer Bradbury testnet)
@@ -37,6 +58,12 @@ Chain ID `4221` · RPC `https://rpc-bradbury.genlayer.com`
 The frontend connects **only** to the registry; specialist addresses are
 discovered at runtime via `get_contract_for_category`. The canonical record
 lives in [`deployments/bradbury.json`](deployments/bradbury.json).
+
+The 4 Phase 2 trackers are deployed with `--add-contracts` (see **Deploying**)
+and recorded in the same `deployments/bradbury.json`, for a total of **9
+contracts**. The frontend reads them via `NEXT_PUBLIC_APPEAL_MANAGER`,
+`NEXT_PUBLIC_REPUTATION_TRACKER`, `NEXT_PUBLIC_FRAUD_DETECTOR`, and
+`NEXT_PUBLIC_ANALYTICS_TRACKER`.
 
 ---
 
@@ -126,11 +153,12 @@ genvm-lint check contracts/not_as_described.py --json
 genvm-lint check contracts/ethical_sourcing.py --json
 genvm-lint check contracts/delivery_adjudicator.py --json
 
-# 2. Direct tests (fast, mocked, no network) — 34 tests
+# 2. Direct tests (fast, mocked, no network) — 78 tests
 pytest tests/direct/ -v
 
 # 3. Integration test (needs a live GenLayer env)
 gltest tests/integration/ -v -s --network localnet
+gltest tests/integration/test_full_flow_with_appeals.py -v -s --network localnet
 
 # 4. Frontend build
 cd frontend && npm run build
@@ -151,8 +179,20 @@ cd frontend && npm run build
 python tools/deploy.py --network testnet_bradbury
 ```
 
-The script deploys the 4 specialists, then the registry (wired to their
-addresses), writing all 5 to `deployments/bradbury.json` incrementally.
+The script deploys the 4 specialists and the 4 Phase 2 trackers, then the
+registry (wired to all 8 dependency addresses), writing all 9 to
+`deployments/bradbury.json` incrementally.
+
+To add the Phase 2 trackers to an **already-deployed** 5-contract setup without
+redeploying the registry:
+
+```bash
+python tools/deploy.py --network testnet_bradbury --add-contracts
+```
+
+This deploys only the 4 trackers and wires them into the existing registry via
+`set_extension_addresses`. Afterwards, copy the 4 new addresses from
+`deployments/bradbury.json` into `frontend/.env.local`.
 
 ---
 
@@ -203,15 +243,31 @@ emerges from the validator set.
 
 ```
 VerBnb/
-├── contracts/            # 5 intelligent contracts
+├── contracts/            # 9 intelligent contracts (5 core + 4 Phase 2 trackers)
 ├── tests/
-│   ├── direct/           # 34 fast mocked tests (pytest)
-│   └── integration/      # full registry-routed flow (gltest)
-├── tools/deploy.py       # Bradbury deploy script
+│   ├── direct/           # 78 fast mocked tests (pytest)
+│   └── integration/      # full registry-routed flow + appeals flow (gltest)
+├── tools/deploy.py       # Bradbury deploy script (--add-contracts mode)
 ├── deployments/bradbury.json
-├── frontend/             # Next.js 14 app (landing, 4 forms, dispute page)
+├── frontend/             # Next.js 14 app
 ├── gltest.config.yaml
 ├── requirements.txt
 └── .env.example
 ```
+
+### Frontend pages (Phase 2 additions)
+
+The App Router serves these at the route path (each is a `page.tsx`):
+
+| Route | What it shows |
+| --- | --- |
+| `/analytics` | Platform KPIs, category pie/bar charts (recharts), per-category deep dives |
+| `/validator` | Per-validator stats, agreement rate, estimated earnings chart |
+| `/user` | Reputation summary, activity timeline, dispute history (lookup by address) |
+| `/appeals/[id]` | Original verdict, 7-day window, appeal form / appeal status tracker |
+
+Reusable components: `ReputationBadge`, `AppealForm`, `FraudAlert`,
+`SimilarCases`. The dispute page (`/dispute/[id]`) gains an **Appeal this
+verdict** CTA and a fraud badge; `VerdictCard` gains reputation badges and a
+"validators agree" line.
 # VerBnb
