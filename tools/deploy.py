@@ -49,6 +49,14 @@ SPECIALISTS = [
     ("ethical_sourcing", "ethical_sourcing.py"),
     ("delivery_adjudicator", "delivery_adjudicator.py"),
 ]
+# Phase 2 extension trackers (standalone; orchestrated off-chain). Deployed
+# before the registry so their addresses can be passed into its constructor.
+EXTENSIONS = [
+    ("appeal_manager", "appeal_manager.py"),
+    ("reputation_tracker", "reputation_tracker.py"),
+    ("fraud_detector", "fraud_detector.py"),
+    ("analytics_tracker", "analytics_tracker.py"),
+]
 REGISTRY = ("verBnb_registry", "verBnb_registry.py")
 
 
@@ -88,6 +96,15 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--network", default=os.getenv("GENLAYER_NETWORK", "testnet_bradbury"))
     parser.add_argument("--env", default=str(ROOT / ".env"))
+    parser.add_argument(
+        "--add-contracts",
+        action="store_true",
+        help=(
+            "Deploy only the Phase 2 extension trackers and wire them into the "
+            "registry already recorded in deployments/bradbury.json (via "
+            "set_extension_addresses). Leaves the 5 existing contracts untouched."
+        ),
+    )
     args = parser.parse_args()
 
     load_dotenv(args.env, override=True)
@@ -106,7 +123,13 @@ def main() -> int:
     client = create_client(chain=chain, account=account)
     print(f"Deploying Verdix to {args.network} as {account.address}")
 
+    deployment_path = DEPLOYMENTS / "bradbury.json"
     addresses: dict[str, str] = {}
+    if deployment_path.exists():
+        try:
+            addresses = json.loads(deployment_path.read_text()).get("contracts", {})
+        except (json.JSONDecodeError, OSError):
+            addresses = {}
 
     def persist():
         rpc = chain.rpc_urls["default"]["http"][0]
@@ -118,24 +141,69 @@ def main() -> int:
             "contracts": addresses,
         }
         DEPLOYMENTS.mkdir(exist_ok=True)
-        (DEPLOYMENTS / "bradbury.json").write_text(json.dumps(out, indent=2) + "\n")
+        deployment_path.write_text(json.dumps(out, indent=2) + "\n")
+
+    if args.add_contracts:
+        registry_addr = addresses.get(REGISTRY[0])
+        if not registry_addr:
+            print(
+                "ERROR: --add-contracts needs an existing registry in "
+                "deployments/bradbury.json. Run a full deploy first.",
+                file=sys.stderr,
+            )
+            return 1
+
+        print("Deploying Phase 2 extension trackers...")
+        for name, filename in EXTENSIONS:
+            addresses[name] = deploy_one(client, account, filename, args=[])
+            persist()
+
+        print("Wiring extensions into the existing registry...")
+        tx_hash = client.write_contract(
+            address=registry_addr,
+            function_name="set_extension_addresses",
+            account=account,
+            args=[
+                addresses["appeal_manager"],
+                addresses["reputation_tracker"],
+                addresses["fraud_detector"],
+                addresses["analytics_tracker"],
+            ],
+        )
+        client.wait_for_transaction_receipt(
+            transaction_hash=tx_hash, status=TransactionStatus.ACCEPTED, interval=8000, retries=45
+        )
+        print(f"  registry {registry_addr} updated with 4 extension addresses")
+        persist()
+        print(f"\nWrote {deployment_path} ({len(addresses)} contracts)")
+        return 0
 
     print("Deploying specialist contracts...")
     for name, filename in SPECIALISTS:
         addresses[name] = deploy_one(client, account, filename, args=[])
         persist()  # incremental: survive a mid-run failure
 
+    print("Deploying Phase 2 extension trackers...")
+    for name, filename in EXTENSIONS:
+        addresses[name] = deploy_one(client, account, filename, args=[])
+        persist()
+
     print("Deploying registry...")
+    # Registry now takes 8 args: 4 specialists + 4 extension trackers.
     registry_args = [
         addresses["listing_accuracy_judge"],
         addresses["not_as_described"],
         addresses["ethical_sourcing"],
         addresses["delivery_adjudicator"],
+        addresses["appeal_manager"],
+        addresses["reputation_tracker"],
+        addresses["fraud_detector"],
+        addresses["analytics_tracker"],
     ]
     addresses[REGISTRY[0]] = deploy_one(client, account, REGISTRY[1], args=registry_args)
     persist()
 
-    print(f"\nWrote {DEPLOYMENTS / 'bradbury.json'}")
+    print(f"\nWrote {deployment_path} ({len(addresses)} contracts)")
     print("\nRegistry address (use as NEXT_PUBLIC_VERBNB_REGISTRY in the frontend):")
     print(f"  {addresses[REGISTRY[0]]}")
     return 0

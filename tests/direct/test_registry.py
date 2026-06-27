@@ -110,3 +110,60 @@ def test_empty_user_disputes(direct_vm, direct_deploy):
     reg = _deploy(direct_deploy)
     ud = json.loads(reg.get_user_disputes("0x9999999999999999999999999999999999999999"))
     assert ud["dispute_ids"] == []
+
+
+# --------------------------------------------------------------------------
+# Phase 2: extension contract wiring (appeal/reputation/fraud/analytics).
+# These exercise the new, backward-compatible registry surface only.
+# --------------------------------------------------------------------------
+
+E6 = "0x6666666666666666666666666666666666666666"  # appeal_manager
+E7 = "0x7777777777777777777777777777777777777777"  # reputation_tracker
+E8 = "0x8888888888888888888888888888888888888888"  # fraud_detector
+E9 = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"  # analytics_tracker
+
+
+def test_extension_addresses_default_empty(direct_vm, direct_deploy):
+    # The original 4-arg constructor still works; extensions default to "".
+    reg = _deploy(direct_deploy)
+    ext = json.loads(reg.get_extension_addresses())
+    assert ext["appeal_manager"] == ""
+    assert ext["reputation_tracker"] == ""
+    assert ext["fraud_detector"] == ""
+    assert ext["analytics_tracker"] == ""
+
+
+def test_constructor_accepts_extension_addresses(direct_vm, direct_deploy):
+    reg = direct_deploy(CONTRACT, A, B, C, D, E6, E7, E8, E9)
+    ext = json.loads(reg.get_extension_addresses())
+    assert ext["appeal_manager"] == E6
+    assert ext["reputation_tracker"] == E7
+    assert ext["fraud_detector"] == E8
+    assert ext["analytics_tracker"] == E9
+
+
+def test_set_extension_addresses(direct_vm, direct_deploy):
+    reg = _deploy(direct_deploy)
+    reg.set_extension_addresses(E6, E7, E8, E9)
+    ext = json.loads(reg.get_extension_addresses())
+    assert ext["appeal_manager"] == E6
+    assert ext["analytics_tracker"] == E9
+
+
+def test_set_extension_addresses_partial_update(direct_vm, direct_deploy):
+    reg = direct_deploy(CONTRACT, A, B, C, D, E6, E7, E8, E9)
+    # Empty strings are ignored — only the appeal manager changes.
+    new_appeal = "0xAAaAAAAAaaaaAAaAAAaaAAAaaaAaAaaAAaAaAAaA"
+    reg.set_extension_addresses(new_appeal, "", "", "")
+    ext = json.loads(reg.get_extension_addresses())
+    assert ext["appeal_manager"] == new_appeal
+    assert ext["reputation_tracker"] == E7  # unchanged
+
+
+def test_existing_routing_unchanged_with_extensions(direct_vm, direct_deploy):
+    # Adding extensions must not disturb the original category routing.
+    reg = direct_deploy(CONTRACT, A, B, C, D, E6, E7, E8, E9)
+    assert reg.get_contract_for_category("RENTAL") == A
+    assert reg.get_contract_for_category("DELIVERY") == D
+    addrs = json.loads(reg.get_addresses())
+    assert addrs["RENTAL"] == A and addrs["PRODUCT"] == B
