@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { trackerFetch } from "@/lib/trackerClient";
 
 interface Flag {
   flag_id: string;
@@ -27,8 +28,7 @@ export default function FraudAlert({ address }: { address: string }) {
   useEffect(() => {
     let alive = true;
     if (!address) return;
-    fetch(`/api/trackers?resource=fraud_flags&address=${encodeURIComponent(address)}`)
-      .then((r) => r.json())
+    trackerFetch("fraud_flags", { address })
       .then((d) => {
         if (alive && Array.isArray(d?.flags)) setFlags(d.flags);
       })

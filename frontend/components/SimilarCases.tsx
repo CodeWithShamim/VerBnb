@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { trackerFetch } from "@/lib/trackerClient";
 
 interface SimilarCase {
   dispute_id: string;
@@ -30,12 +31,7 @@ export default function SimilarCases({
   useEffect(() => {
     let alive = true;
     if (!category || !claimSnippet) return;
-    fetch(
-      `/api/trackers?resource=similar&category=${encodeURIComponent(
-        category
-      )}&snippet=${encodeURIComponent(claimSnippet)}`
-    )
-      .then((r) => r.json())
+    trackerFetch("similar", { category, snippet: claimSnippet })
       .then((d) => {
         if (!alive) return;
         setCases(Array.isArray(d?.results) ? d.results : []);

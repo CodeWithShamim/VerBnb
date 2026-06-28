@@ -6,6 +6,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import AppealForm, { type AppealSubmitPayload } from "@/components/AppealForm";
 import { CATEGORIES, type Category } from "@/lib/contracts";
+import { trackerFetch, invalidateTracker } from "@/lib/trackerClient";
 
 const APPEAL_WINDOW_DAYS = 7;
 
@@ -56,9 +57,7 @@ export default function AppealPage() {
             category
           )}`
         ).then((r) => r.json()),
-        fetch(
-          `/api/trackers?resource=appeals&disputeId=${encodeURIComponent(disputeId)}`
-        ).then((r) => r.json()),
+        trackerFetch("appeals", { disputeId }),
       ]);
       if (v?.record) setRecord(v.record);
       if (v?.verdict) setVerdict(v.verdict);
@@ -101,6 +100,8 @@ export default function AppealPage() {
     const data = await res.json();
     if (data.error) throw new Error(data.error);
     setSubmitted(true);
+    // Drop the cached (empty) appeals list so the reload shows the new appeal.
+    invalidateTracker("appeals", { disputeId });
     setTimeout(load, 1500);
   }
 

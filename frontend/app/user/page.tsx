@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import ReputationBadge from "@/components/ReputationBadge";
 import FraudAlert from "@/components/FraudAlert";
+import { trackerFetch } from "@/lib/trackerClient";
 
 interface UserStats {
   address: string;
@@ -61,20 +62,23 @@ function ProfileInner() {
 
   useEffect(() => {
     if (!address) return;
+    let alive = true;
     setLoading(true);
     Promise.all([
-      fetch(`/api/trackers?resource=user_stats&address=${encodeURIComponent(address)}`).then(
-        (r) => r.json()
-      ),
-      fetch(
-        `/api/trackers?resource=activity&address=${encodeURIComponent(address)}&limit=50`
-      ).then((r) => r.json()),
+      trackerFetch("user_stats", { address }),
+      trackerFetch("activity", { address, limit: 50 }),
     ])
       .then(([s, a]) => {
+        if (!alive) return;
         if (s && typeof s.disputes_filed === "number") setStats(s);
         setActivity(Array.isArray(a?.events) ? a.events : []);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, [address]);
 
   return (

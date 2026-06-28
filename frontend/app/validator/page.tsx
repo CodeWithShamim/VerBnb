@@ -15,6 +15,7 @@ import {
 } from "@/lib/charts";
 import { format } from "date-fns";
 import ReputationBadge from "@/components/ReputationBadge";
+import { trackerFetch } from "@/lib/trackerClient";
 
 interface Rep {
   address: string;
@@ -55,20 +56,23 @@ function ValidatorInner() {
 
   useEffect(() => {
     if (!address) return;
+    let alive = true;
     setLoading(true);
     Promise.all([
-      fetch(`/api/trackers?resource=reputation&address=${encodeURIComponent(address)}`).then(
-        (r) => r.json()
-      ),
-      fetch(
-        `/api/trackers?resource=activity&address=${encodeURIComponent(address)}&limit=50`
-      ).then((r) => r.json()),
+      trackerFetch("reputation", { address }),
+      trackerFetch("activity", { address, limit: 50 }),
     ])
       .then(([r, a]) => {
+        if (!alive) return;
         if (r && typeof r.validator_rounds === "number") setRep(r);
         setActivity(Array.isArray(a?.events) ? a.events : []);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, [address]);
 
   const rounds = rep?.validator_rounds ?? 0;

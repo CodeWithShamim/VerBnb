@@ -4,6 +4,17 @@ import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 
 export const runtime = "nodejs";
 
+// Read-only chain views: cache briefly at the edge/browser and serve stale
+// while revalidating. Dedupes the many badge/alert reads a single page fires
+// without showing meaningfully stale data.
+const CACHE_HEADERS = {
+  "Cache-Control": "public, s-maxage=15, max-age=10, stale-while-revalidate=60",
+};
+
+function ok(body: any) {
+  return NextResponse.json(body, { headers: CACHE_HEADERS });
+}
+
 /**
  * Read-only gateway to the Phase 2 tracker contracts
  * (reputation / fraud / analytics / appeal_manager).
@@ -62,93 +73,68 @@ export async function GET(req: NextRequest) {
   try {
     switch (resource) {
       case "reputation": {
-        if (!reputation_tracker)
-          return NextResponse.json({ configured: false });
+        if (!reputation_tracker) return ok({ configured: false });
         const address = sp.get("address") || "";
-        return NextResponse.json(
-          await readJson(client, reputation_tracker, "get_reputation", [address])
-        );
+        return ok(await readJson(client, reputation_tracker, "get_reputation", [address]));
       }
       case "user_stats": {
-        if (!reputation_tracker)
-          return NextResponse.json({ configured: false });
+        if (!reputation_tracker) return ok({ configured: false });
         const address = sp.get("address") || "";
-        return NextResponse.json(
-          await readJson(client, reputation_tracker, "get_user_stats", [address])
-        );
+        return ok(await readJson(client, reputation_tracker, "get_user_stats", [address]));
       }
       case "activity": {
-        if (!reputation_tracker)
-          return NextResponse.json({ configured: false, events: [] });
+        if (!reputation_tracker) return ok({ configured: false, events: [] });
         const address = sp.get("address") || "";
         const limit = parseInt(sp.get("limit") || "20", 10);
-        return NextResponse.json(
-          await readJson(client, reputation_tracker, "get_activity_log", [
-            address,
-            limit,
-          ])
+        return ok(
+          await readJson(client, reputation_tracker, "get_activity_log", [address, limit])
         );
       }
       case "credibility": {
-        if (!reputation_tracker)
-          return NextResponse.json({ configured: false, score: 0 });
+        if (!reputation_tracker) return ok({ configured: false, score: 0 });
         const address = sp.get("address") || "";
         const score = await client.readContract({
           address: reputation_tracker as `0x${string}`,
           functionName: "get_credibility_score",
           args: [address],
         });
-        return NextResponse.json({ score: Number(score) });
+        return ok({ score: Number(score) });
       }
       case "fraud_flags": {
-        if (!fraud_detector)
-          return NextResponse.json({ configured: false, flags: [] });
+        if (!fraud_detector) return ok({ configured: false, flags: [] });
         const address = sp.get("address") || "";
-        return NextResponse.json(
-          await readJson(client, fraud_detector, "get_fraud_flags", [address])
-        );
+        return ok(await readJson(client, fraud_detector, "get_fraud_flags", [address]));
       }
       case "has_high_flag": {
-        if (!fraud_detector)
-          return NextResponse.json({ configured: false, high: false });
+        if (!fraud_detector) return ok({ configured: false, high: false });
         const address = sp.get("address") || "";
         const high = await client.readContract({
           address: fraud_detector as `0x${string}`,
           functionName: "has_high_severity_flag",
           args: [address],
         });
-        return NextResponse.json({ high: Boolean(high) });
+        return ok({ high: Boolean(high) });
       }
       case "analytics_all": {
-        if (!analytics_tracker)
-          return NextResponse.json({ configured: false });
-        return NextResponse.json(
-          await readJson(client, analytics_tracker, "get_all_stats", [])
-        );
+        if (!analytics_tracker) return ok({ configured: false });
+        return ok(await readJson(client, analytics_tracker, "get_all_stats", []));
       }
       case "platform_health": {
-        if (!analytics_tracker)
-          return NextResponse.json({ configured: false });
-        return NextResponse.json(
-          await readJson(client, analytics_tracker, "get_platform_health", [])
-        );
+        if (!analytics_tracker) return ok({ configured: false });
+        return ok(await readJson(client, analytics_tracker, "get_platform_health", []));
       }
       case "category_stats": {
-        if (!analytics_tracker)
-          return NextResponse.json({ configured: false });
+        if (!analytics_tracker) return ok({ configured: false });
         const category = sp.get("category") || "";
-        return NextResponse.json(
-          await readJson(client, analytics_tracker, "get_category_stats", [
-            category,
-          ])
+        return ok(
+          await readJson(client, analytics_tracker, "get_category_stats", [category])
         );
       }
       case "similar": {
-        if (!analytics_tracker)
-          return NextResponse.json({ configured: false, results: [] });
+        if (!analytics_tracker) return ok({ configured: false, results: [] });
         const category = sp.get("category") || "";
         const snippet = sp.get("snippet") || "";
-        return NextResponse.json(
+        return ok(
           await readJson(client, analytics_tracker, "get_similar_disputes", [
             category,
             snippet,
@@ -156,22 +142,16 @@ export async function GET(req: NextRequest) {
         );
       }
       case "appeals": {
-        if (!appeal_manager)
-          return NextResponse.json({ configured: false, appeals: [] });
+        if (!appeal_manager) return ok({ configured: false, appeals: [] });
         const disputeId = sp.get("disputeId") || "";
-        return NextResponse.json(
-          await readJson(client, appeal_manager, "get_appeals_for_dispute", [
-            disputeId,
-          ])
+        return ok(
+          await readJson(client, appeal_manager, "get_appeals_for_dispute", [disputeId])
         );
       }
       case "appeal": {
-        if (!appeal_manager)
-          return NextResponse.json({ configured: false });
+        if (!appeal_manager) return ok({ configured: false });
         const appealId = sp.get("appealId") || "";
-        return NextResponse.json(
-          await readJson(client, appeal_manager, "get_appeal", [appealId])
-        );
+        return ok(await readJson(client, appeal_manager, "get_appeal", [appealId]));
       }
       default:
         return NextResponse.json(

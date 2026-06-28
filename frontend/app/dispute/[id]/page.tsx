@@ -66,9 +66,16 @@ export default function DisputePage() {
 
   useEffect(() => {
     poll();
-    const t = setInterval(poll, 10000); // poll every 10s
+    const t = setInterval(() => {
+      // Stop polling once the verdict is finalized — nothing more will change.
+      if (verdict?.resolved && !verdict?.error) {
+        clearInterval(t);
+        return;
+      }
+      poll();
+    }, 10000);
     return () => clearInterval(t);
-  }, [poll]);
+  }, [poll, verdict?.resolved, verdict?.error]);
 
   function copyId() {
     navigator.clipboard.writeText(id).then(() => {

@@ -76,7 +76,16 @@ export async function GET(
       }
     }
 
-    return NextResponse.json({ id, specialist, record, verdict });
+    return NextResponse.json(
+      { id, specialist, record, verdict },
+      {
+        headers: {
+          // Short TTL: verdicts settle quickly and the client polls; this just
+          // dedupes bursts without hiding a fresh finalization for long.
+          "Cache-Control": "public, s-maxage=8, max-age=5, stale-while-revalidate=20",
+        },
+      }
+    );
   } catch (err: any) {
     return NextResponse.json(
       { error: err?.message || "Failed to read dispute" },

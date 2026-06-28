@@ -14,6 +14,7 @@ import {
   Legend,
 } from "@/lib/charts";
 import { CATEGORIES, type Category } from "@/lib/contracts";
+import { trackerFetch } from "@/lib/trackerClient";
 
 interface CategoryStat {
   category: string;
@@ -64,16 +65,23 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let alive = true;
     Promise.all([
-      fetch("/api/trackers?resource=analytics_all").then((r) => r.json()),
-      fetch("/api/trackers?resource=platform_health").then((r) => r.json()),
+      trackerFetch("analytics_all"),
+      trackerFetch("platform_health"),
     ])
       .then(([a, h]) => {
+        if (!alive) return;
         if (a && !a.configured && typeof a === "object") setAll(a);
         else if (a && a.RENTAL) setAll(a);
         if (h && typeof h.total_disputes_all_time === "number") setHealth(h);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const categoryData = all

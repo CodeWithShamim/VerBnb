@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { trackerFetch } from "@/lib/trackerClient";
 
 type Size = "small" | "medium" | "large";
 
@@ -50,8 +51,7 @@ export default function ReputationBadge({
   useEffect(() => {
     let alive = true;
     if (!address) return;
-    fetch(`/api/trackers?resource=reputation&address=${encodeURIComponent(address)}`)
-      .then((r) => r.json())
+    trackerFetch("reputation", { address })
       .then((d) => {
         if (alive && d && typeof d.overall_score === "number") setStats(d);
       })
