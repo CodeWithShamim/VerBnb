@@ -18,7 +18,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* No-flash theme init: set .dark before first paint. Dark is the
+            default — first-time visitors with no saved choice get dark; anyone
+            who picked a theme keeps it. Inline + blocking to avoid flicker. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':true;document.documentElement.classList.toggle('dark',d);}catch(e){document.documentElement.classList.add('dark');}})();`,
+          }}
+        />
+      </head>
       <body className="font-sans antialiased">
         <PrivyAppProvider>
           <Navbar />
@@ -31,6 +41,7 @@ export default function RootLayout({
           position="bottom-right"
           richColors
           closeButton
+          theme="system"
           toastOptions={{ style: { borderRadius: "0.75rem" } }}
         />
       </body>

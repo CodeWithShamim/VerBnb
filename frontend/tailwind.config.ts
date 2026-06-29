@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -25,10 +26,10 @@ const config: Config = {
           600: "#4f46e5",
         },
         surface: {
-          DEFAULT: "#ffffff",
-          subtle: "#f8fafc",
-          muted: "#f1f5f9",
-          border: "#e7e9f3",
+          DEFAULT: "var(--card-bg)",
+          subtle: "var(--surface-subtle)",
+          muted: "var(--surface-muted)",
+          border: "var(--surface-border)",
         },
         // Per-category accent colors used across cards, forms and badges.
         cat: {

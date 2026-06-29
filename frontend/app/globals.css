@@ -5,6 +5,28 @@
 
 :root {
   --grid: rgba(99, 102, 241, 0.06);
+  /* Theme surfaces — flipped by the .dark class below. Light defaults: */
+  --bg: #f8fafc;
+  --fg: #0f172a;
+  --card-bg: #ffffff;
+  --surface-subtle: #f8fafc;
+  --surface-muted: #f1f5f9;
+  --surface-border: #e7e9f3;
+  --shimmer-highlight: rgba(255, 255, 255, 0.6);
+  --mesh-blend: multiply;
+}
+
+/* Dark theme: same token names, dark values. Applied via <html class="dark">. */
+.dark {
+  --grid: rgba(129, 140, 248, 0.07);
+  --bg: #0b0b12;
+  --fg: #e8eaf2;
+  --card-bg: #14141f;
+  --surface-subtle: #11111a;
+  --surface-muted: #1b1b29;
+  --surface-border: #262638;
+  --shimmer-highlight: rgba(255, 255, 255, 0.08);
+  --mesh-blend: screen;
 }
 
 html {
@@ -12,10 +34,11 @@ html {
 }
 
 body {
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: var(--bg);
+  color: var(--fg);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Subtle grid texture behind the light surface. */
@@ -31,7 +54,8 @@ body {
   }
 
   .card {
-    @apply rounded-2xl border border-surface-border bg-white shadow-soft;
+    @apply rounded-2xl border border-surface-border shadow-soft;
+    background-color: var(--card-bg);
   }
   .card-hover {
     @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lift;
@@ -41,18 +65,34 @@ body {
     @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand to-violet-500 px-5 py-3 font-semibold text-white shadow-soft transition-all duration-300 hover:shadow-glow hover:brightness-105 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-soft;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-surface-border bg-white px-5 py-3 font-semibold text-slate-700 transition-all duration-300 hover:border-brand/40 hover:text-brand;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-surface-border px-5 py-3 font-semibold transition-all duration-300 hover:border-brand/40 hover:text-brand;
+    background-color: var(--card-bg);
+    color: rgb(51 65 85 / 1);
+  }
+  .dark .btn-ghost {
+    color: rgb(203 213 225 / 1);
   }
 
   .input {
-    @apply w-full rounded-xl border border-surface-border bg-surface-subtle px-4 py-3 text-sm text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand/10;
+    @apply w-full rounded-xl border border-surface-border bg-surface-subtle px-4 py-3 text-sm outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-brand focus:ring-4 focus:ring-brand/10;
+    color: var(--fg);
+  }
+  .dark .input:focus {
+    background-color: var(--surface-muted);
   }
   .label {
     @apply mb-1.5 block text-sm font-medium text-slate-700;
   }
+  .dark .label {
+    @apply text-slate-300;
+  }
 
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-white px-3 py-1 text-xs font-medium text-slate-600;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-surface-border px-3 py-1 text-xs font-medium text-slate-600;
+    background-color: var(--card-bg);
+  }
+  .dark .chip {
+    @apply text-slate-300;
   }
 
   .gradient-text {
@@ -71,7 +111,7 @@ body {
   .mesh-blob {
     position: absolute;
     border-radius: 9999px;
-    mix-blend-mode: multiply;
+    mix-blend-mode: var(--mesh-blend);
     animation: mesh-drift 22s ease-in-out infinite;
   }
 }
@@ -89,7 +129,7 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.6),
+    var(--shimmer-highlight),
     transparent
   );
   animation: shimmer 1.6s infinite;
@@ -104,4 +144,47 @@ body {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Dark-theme global overrides.
+
+   The app was built light-first with hardcoded utilities (bg-white,
+   text-slate-900, etc.) across many components. Rather than edit every file,
+   we remap the most common light utilities to dark equivalents under .dark.
+   Surface tokens (bg-surface-*, border-surface-border) already follow the
+   theme via CSS variables, so this only covers the raw Tailwind utilities.
+
+   Scoped to .dark so light mode is byte-for-byte unchanged.
+   ──────────────────────────────────────────────────────────────────────── */
+.dark .bg-white {
+  background-color: var(--card-bg) !important;
+}
+.dark .bg-slate-50,
+.dark .bg-slate-100 {
+  background-color: var(--surface-muted) !important;
+}
+.dark .text-slate-900,
+.dark .text-slate-800 {
+  color: #e8eaf2 !important;
+}
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: #b6bccb !important;
+}
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: #8a90a2 !important;
+}
+.dark .border-slate-100,
+.dark .border-slate-200 {
+  border-color: var(--surface-border) !important;
+}
+/* Translucent white overlays (e.g. bg-white/70 on chips) read as light in dark
+   mode — neutralize the most common ones to the card surface. */
+.dark .bg-white\/70,
+.dark .bg-white\/75,
+.dark .bg-white\/50,
+.dark .bg-white\/60 {
+  background-color: color-mix(in srgb, var(--card-bg) 70%, transparent) !important;
 }

@@ -6,6 +6,7 @@ import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-
 import { useState } from 'react';
 import { CATEGORIES, getChainInfo } from '@/lib/contracts';
 import ConnectWallet from '@/components/ConnectWallet';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const NAV = [
   ...Object.values(CATEGORIES).map((c) => ({
@@ -92,6 +93,8 @@ export default function Navbar() {
           >
             Raise a dispute
           </Link>
+
+          <ThemeToggle />
 
           <ConnectWallet />
 
