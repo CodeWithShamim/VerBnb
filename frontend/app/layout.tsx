@@ -3,6 +3,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PrivyAppProvider from "@/components/PrivyAppProvider";
+import PageTransition from "@/components/PageTransition";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "VerBnb — AI-Enforced Marketplace Dispute Resolution",
@@ -20,9 +22,17 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <PrivyAppProvider>
           <Navbar />
-          <main>{children}</main>
+          <main>
+            <PageTransition>{children}</PageTransition>
+          </main>
           <Footer />
         </PrivyAppProvider>
+        <Toaster
+          position="bottom-right"
+          richColors
+          closeButton
+          toastOptions={{ style: { borderRadius: "0.75rem" } }}
+        />
       </body>
     </html>
   );

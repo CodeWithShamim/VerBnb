@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { ValidatorOrb3D } from '@/components/3d';
 
 const PHASES = [
   { key: 'SUBMITTED', label: 'Submitted', desc: 'Transaction broadcast' },
@@ -42,11 +43,25 @@ export function phaseFromStatus(status?: string): number {
 
 export default function ConsensusTracker({ status }: { status?: string }) {
   const active = phaseFromStatus(status);
+  // Show the animated 3D orb only while consensus is actively in flight
+  // (proposing → committing → revealing). Idle/finalized states skip it.
+  const inFlight = active >= 1 && active <= 3;
+  const phaseKey = PHASES[active]?.key ?? 'SUBMITTED';
   return (
     <div className="card p-6">
       <h3 className="mb-6 text-xs font-semibold uppercase tracking-wide text-slate-400">
         Consensus
       </h3>
+
+      {inFlight && (
+        <div className="mb-6">
+          <ValidatorOrb3D phase={phaseKey} />
+          <p className="mt-2 text-center text-xs font-medium text-slate-400">
+            Validators reaching consensus…
+          </p>
+        </div>
+      )}
+
       <ol className="relative space-y-1">
         {PHASES.map((p, i) => {
           const done = i < active;

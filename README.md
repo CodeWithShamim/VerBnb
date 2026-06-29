@@ -1,273 +1,243 @@
-# Verdix — VerBnb
-
-**Universal AI-Enforced Marketplace Dispute Resolution Platform**
+# VerBnb — AI-Enforced Marketplace Dispute Resolution
 
 > Every dispute. Resolved by AI consensus. On-chain.
 
-Verdix resolves marketplace disputes without call centers, courts, or platform
-intervention. Built on [GenLayer](https://genlayer.com), validators running
-diverse LLMs **independently fetch the evidence, apply judgment, reach
-consensus, and settle the outcome on-chain** through GenLayer's Optimistic
-Democracy.
-
-Four dispute categories, one registry:
-
-| Category | Contract | What it judges |
-| --- | --- | --- |
-| **RENTAL** | `listing_accuracy_judge.py` | Airbnb-style listing accuracy disputes |
-| **PRODUCT** | `not_as_described.py` | "Not as described" marketplace arbitration |
-| **SOURCING** | `ethical_sourcing.py` | Brand ethical-sourcing claim validation |
-| **DELIVERY** | `delivery_adjudicator.py` | Courier delivery-proof adjudication |
-| *(router)* | `verBnb_registry.py` | Routes every dispute + tracks platform stats |
-
-### Phase 2 — advanced trackers (new)
-
-Four standalone contracts layer appeals, reputation, fraud detection, and
-analytics on top of the existing flow **without modifying the 5 contracts above**:
-
-| Contract | What it adds |
-| --- | --- |
-| `appeal_manager.py` | 7-day appeal window; each appeal opens a round with **N + 2** validators |
-| `reputation_tracker.py` | Per-address win rate, validator accuracy, appeal success → 0–100 credibility |
-| `fraud_detector.py` | Pattern flags: `REPEAT_DISPUTANT`, `SKEWED_VERDICTS`, `RAPID_CYCLING` (LOW/MEDIUM/HIGH) |
-| `analytics_tracker.py` | Per-category outcome stats, consensus rate, similar-case keyword search |
-
-**Integration model.** The GenLayer registry is deterministic-only and the
-specialists are standalone contracts the frontend calls directly, so the four
-trackers are likewise **standalone and orchestrated off-chain** — the server-side
-API routes write to them at the existing lifecycle points (mirroring
-`register_dispute` / `mark_resolved`). The registry stores their addresses and
-exposes them via `get_extension_addresses` so the UI can discover them; its
-original interface is unchanged (the 4 new constructor args are optional and can
-also be set post-deploy via `set_extension_addresses`).
+[Live App](https://ver-bnb.vercel.app) ·
+[Docs](docs/) ·
+[Explorer](https://explorer-bradbury.genlayer.com) ·
+[GenLayer Portal](https://portal.genlayer.foundation) ·
+[Faucet](https://testnet-faucet.genlayer.foundation)
 
 ---
 
-## Deployed contracts (GenLayer Bradbury testnet)
+## What is VerBnb?
 
-Chain ID `4221` · RPC `https://rpc-bradbury.genlayer.com`
+VerBnb resolves marketplace disputes without call centers, courts, or platform
+intervention. Built on [GenLayer](https://genlayer.com), a network of AI
+validators independently fetch evidence, apply LLM judgment, reach consensus,
+and settle outcomes on-chain through **Optimistic Democracy**.
+
+Four dispute categories, one registry:
+
+| Category | What it judges |
+| --- | --- |
+| 🏠 **RENTAL** | Airbnb-style listing accuracy |
+| 📦 **PRODUCT** | "Not as described" marketplace arbitration |
+| 🌿 **SOURCING** | Brand ethical-sourcing claim validation |
+| 🚚 **DELIVERY** | Courier delivery-proof adjudication |
+
+---
+
+## How It Works
+
+1. **Submit** — Upload evidence to IPFS, describe your claim in plain English.
+2. **Validate** — GenLayer AI validators independently fetch and judge the evidence.
+3. **Consensus** — Optimistic Democracy: a leader proposes, validators agree or appeal.
+4. **Verdict** — Refund percentage and reasoning written on-chain, permanently.
+
+---
+
+## Deployed Contracts (Bradbury Testnet · Chain ID 4221)
 
 | Contract | Address |
 | --- | --- |
-| `listing_accuracy_judge` (RENTAL) | `0x76e3Ff31Ca5cB4e6ce46EF109c52272F27151b32` |
-| `not_as_described` (PRODUCT) | `0xBF6Efed489B28c2680FE0b3eF8Dffe4288e50548` |
-| `ethical_sourcing` (SOURCING) | `0xb516DB96E8DefE26dE624dfF1f7D0802a828996D` |
-| `delivery_adjudicator` (DELIVERY) | `0x63FFE6DE2988ABC6f49F3b3fd56415ef2A16d3AF` |
-| **`verBnb_registry`** (entry point) | **`0x8aA6527B539814c454ee178dd7CE8cAd011834eB`** |
+| Registry (entry point) | `0x8aA6527B539814c454ee178dd7CE8cAd011834eB` |
+| RENTAL — `listing_accuracy_judge` | `0x76e3Ff31Ca5cB4e6ce46EF109c52272F27151b32` |
+| PRODUCT — `not_as_described` | `0xBF6Efed489B28c2680FE0b3eF8Dffe4288e50548` |
+| SOURCING — `ethical_sourcing` | `0xb516DB96E8DefE26dE624dfF1f7D0802a828996D` |
+| DELIVERY — `delivery_adjudicator` | `0x63FFE6DE2988ABC6f49F3b3fd56415ef2A16d3AF` |
+| Appeal Manager | `0x86d5E6DAe032fb62EdA7cE345F37374BCbb96e19` |
+| Reputation Tracker | `0x5A92cd40E7FE241177b924bb4Ed5dEE5d0CaCfa9` |
+| Fraud Detector | `0x27e840Bc1fa7C0448FeF03AA34E64ddcf76010E2` |
+| Analytics Tracker | `0x840B72a83aa2707AF8aD84e4537B6a5c78459A4B` |
 
-The frontend connects **only** to the registry; specialist addresses are
-discovered at runtime via `get_contract_for_category`. The canonical record
-lives in [`deployments/bradbury.json`](deployments/bradbury.json).
+RPC: `https://rpc-bradbury.genlayer.com` · Explorer: `https://explorer-bradbury.genlayer.com`
 
-The 4 Phase 2 trackers are deployed with `--add-contracts` (see **Deploying**)
-and recorded in the same `deployments/bradbury.json`, for a total of **9
-contracts**. The frontend reads them via `NEXT_PUBLIC_APPEAL_MANAGER`,
-`NEXT_PUBLIC_REPUTATION_TRACKER`, `NEXT_PUBLIC_FRAUD_DETECTOR`, and
-`NEXT_PUBLIC_ANALYTICS_TRACKER`.
+> The frontend connects **only** to the registry; the four specialist addresses
+> are discovered at runtime via `get_contract_for_category`, so the UI never
+> hardcodes them. The canonical record lives in
+> [`deployments/bradbury.json`](deployments/bradbury.json). All addresses are
+> env-overridable so the same UI works against a re-deploy without a code change.
 
 ---
 
 ## Architecture
 
 ```
-verBnb_registry.py          ← Master registry (deploy last)
-├── listing_accuracy_judge.py   ← RENTAL  / Airbnb disputes
-├── not_as_described.py         ← PRODUCT / marketplace disputes
-├── ethical_sourcing.py         ← SOURCING / brand claim validation
-└── delivery_adjudicator.py     ← DELIVERY / courier disputes
+verBnb_registry.py              ← Master registry (single entry point)
+├── listing_accuracy_judge.py   ← RENTAL
+├── not_as_described.py         ← PRODUCT
+├── ethical_sourcing.py         ← SOURCING
+├── delivery_adjudicator.py     ← DELIVERY
+├── appeal_manager.py           ← Appeals & escalation
+├── reputation_tracker.py       ← User reputation
+├── fraud_detector.py           ← Pattern detection
+└── analytics_tracker.py        ← Platform statistics
 ```
 
-**Registry pattern.** Deploy the 4 specialists first to get addresses A–D, then
-deploy the registry with `(A, B, C, D)` as constructor args. The registry routes
-each category to its specialist and records every dispute for platform stats.
+**Registry pattern.** Deploy the 4 specialists first to get their addresses,
+then deploy the registry wired to them. The registry routes each category to its
+specialist and records every dispute for platform stats.
 
-**Equivalence strategy.** All AI adjudication uses a custom leader/validator pair
-via `gl.vm.run_nondet` (never `strict_eq` — LLM output is non-deterministic):
+**Phase 2 trackers** (appeal / reputation / fraud / analytics) are standalone
+contracts orchestrated off-chain: the server-side API routes write to them at the
+existing dispute lifecycle points. The registry stores their addresses and
+exposes them via `get_extension_addresses`; its original interface is unchanged.
+
+**Consensus strategy.** All AI adjudication uses a leader/validator pair via
+`gl.vm.run_nondet` — never `strict_eq`, because LLM output is non-deterministic:
 
 - The **leader** fetches evidence, runs the LLM, and returns a clean JSON verdict.
-- Each **validator** independently re-fetches and re-judges, then agrees if:
-  - its `refund_percentage` is within **±15** of the leader's (RENTAL, PRODUCT, SOURCING uses ±15 on `trust_score`), or
-  - its `verdict` string **matches exactly** (DELIVERY).
-
-**LLM resilience (all contracts).** JSON-only prompts, defensive `json` parsing,
-required-field validation, error classification (`LLM_ERROR` / `EXTERNAL`), and
-web fetches always sliced to `[:2000]` to avoid token overflow.
+- Each **validator** independently re-fetches and re-judges, then agrees if the
+  `refund_percentage` is within **±15** of the leader's, or (for DELIVERY) the
+  `verdict` string matches exactly.
 
 ---
 
-## Tech stack
+## Tech Stack
 
-| Layer | Tooling |
+| Layer | Technology |
 | --- | --- |
 | Contracts | Python · GenLayer Intelligent Contracts · GenVM |
-| Network | GenLayer Bradbury testnet |
-| Frontend | Next.js 14 (App Router) · TypeScript · Tailwind CSS |
+| Network | GenLayer Bradbury Testnet |
+| Frontend | Next.js 14 · TypeScript · Tailwind CSS |
+| 3D | React Three Fiber · Three.js · Drei |
+| Animation | Framer Motion · GSAP · Lenis |
 | Chain client | `genlayer-js` (frontend) · `genlayer-py` (deploy) |
 | Evidence | IPFS via Pinata |
-| Testing | `pytest` (direct mode) · `gltest` (integration) |
-| Linting | `genvm-linter` |
+| Testing | `pytest` (direct) · `gltest` (integration) |
 
 ---
 
-## Setup
+## Local Setup
 
-### 1. Backend (contracts, tests, deploy)
+### Prerequisites
+- Node.js 20+
+- Python 3.11+
+- GenLayer CLI: `npm install -g genlayer`
+- Testnet GEN: <https://testnet-faucet.genlayer.foundation>
+
+### Backend (Contracts)
 
 ```bash
-# from repo root
-python3.13 -m venv .venv
-source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-Create `.env` (gitignored) from the template:
-
-```bash
 cp .env.example .env
-# then edit .env:
-#   GENLAYER_PRIVATE_KEY=0x...   (funded Bradbury key)
-#   GENLAYER_NETWORK=testnet_bradbury
+# Edit .env: GENLAYER_PRIVATE_KEY=0x...
 ```
 
-Get testnet funds from the **faucet**: <https://testnet-faucet.genlayer.foundation>
-
-### 2. Frontend
+### Frontend
 
 ```bash
 cd frontend
 npm install
-cp .env.local.example .env.local      # registry address is pre-filled
-# add your PINATA_JWT and a server-side GENLAYER_PRIVATE_KEY to .env.local
-npm run dev                            # http://localhost:3000
+cp .env.local.example .env.local
+# Edit .env.local: PINATA_JWT=... (registry + tracker addresses pre-filled)
+npm run dev   # → http://localhost:3000
 ```
 
 ---
 
-## Quality gates
+## Quality Gates
 
 ```bash
-# 1. Lint every contract
-genvm-lint check contracts/verBnb_registry.py --json
-genvm-lint check contracts/listing_accuracy_judge.py --json
-genvm-lint check contracts/not_as_described.py --json
-genvm-lint check contracts/ethical_sourcing.py --json
-genvm-lint check contracts/delivery_adjudicator.py --json
+# Contracts
+genvm-lint check contracts/*.py --json
+pytest tests/direct/ -v          # fast mocked unit tests
+gltest tests/integration/ -v -s  # full consensus integration
 
-# 2. Direct tests (fast, mocked, no network) — 78 tests
-pytest tests/direct/ -v
-
-# 3. Integration test (needs a live GenLayer env)
-gltest tests/integration/ -v -s --network localnet
-gltest tests/integration/test_full_flow_with_appeals.py -v -s --network localnet
-
-# 4. Frontend build
-cd frontend && npm run build
+# Frontend
+cd frontend
+npm run lint
+npm run build
 ```
-
-> **Testing note.** Direct-mode tests run the real `py-genlayer-std` SDK
-> in-process and cover the full storage layout + LLM resilience paths. The
-> lightweight `glsim` simulator currently mishandles `@allow_storage`
-> dataclasses inside a `TreeMap`, so use **local Studio** (`genlayer up`) or
-> **testnet** for true end-to-end consensus.
 
 ---
 
-## Deploying
+## Deployment
 
 ```bash
-# uses GENLAYER_PRIVATE_KEY + GENLAYER_NETWORK from .env
+# Deploy all 9 contracts (writes deployments/bradbury.json incrementally)
 python tools/deploy.py --network testnet_bradbury
-```
 
-The script deploys the 4 specialists and the 4 Phase 2 trackers, then the
-registry (wired to all 8 dependency addresses), writing all 9 to
-`deployments/bradbury.json` incrementally.
-
-To add the Phase 2 trackers to an **already-deployed** 5-contract setup without
-redeploying the registry:
-
-```bash
+# Add only the 4 Phase 2 trackers to an already-deployed 5-contract setup
 python tools/deploy.py --network testnet_bradbury --add-contracts
 ```
 
-This deploys only the 4 trackers and wires them into the existing registry via
-`set_extension_addresses`. Afterwards, copy the 4 new addresses from
-`deployments/bradbury.json` into `frontend/.env.local`.
+Then copy any new addresses into `frontend/.env.local`.
 
 ---
 
-## How to raise a dispute (step by step)
+## How to Raise a Dispute (Step by Step)
 
-1. Open the app and pick a category (Rental, Marketplace, Sourcing, Delivery).
-2. **Upload your evidence** — photos, a report, a tracking screenshot. It is
-   pinned to **IPFS via Pinata** and the resulting gateway URL is filled in
-   automatically.
-3. Fill in the listing/order details (URLs, amount, claim text, address).
-4. Click **Submit dispute**. The server route:
-   - asks the registry for the right specialist contract,
-   - calls that specialist's write method (`raise_dispute` / `validate_claim`),
-   - registers the dispute in the registry for tracking.
-5. You're redirected to `/dispute/[id]`, which **polls every 10 s** and shows:
-   - a **consensus tracker** (Submitted → Proposing → Committing → Revealing → Finalized),
-   - a **verdict card** with the verdict, refund %, trust score, and reasoning.
-6. Copy the dispute ID to check back any time.
+1. Open <https://ver-bnb.vercel.app>.
+2. Click your dispute category (Rental, Marketplace, Sourcing, Delivery).
+3. Fill in the listing URL, order details, and your claim.
+4. Upload evidence (photos, documents) → pinned to IPFS.
+5. Submit → the transaction is sent to GenLayer.
+6. Watch the consensus tracker: Submitted → Proposing → Committing → Revealing → Finalized.
+7. The verdict appears: refund percentage + validator reasoning.
+8. Disagree? Click **Appeal** within 7 days.
 
 ---
 
-## How validators reach consensus (brief)
+## How Validators Reach Consensus
 
 GenLayer uses **Optimistic Democracy** ([Condorcet's Jury
 Theorem](https://en.wikipedia.org/wiki/Condorcet%27s_jury_theorem)): a diverse
-set of validators is more likely to reach the correct answer than any one model.
-
-For each dispute:
+validator set is more likely to reach the correct answer than any single model.
 
 1. A **leader** validator runs the contract's `leader_fn` — it fetches the
-   evidence URLs, sends them to an LLM with a strict JSON prompt, and returns a
-   structured verdict.
-2. Every other validator runs `validator_fn` — it **independently** re-fetches
-   the same evidence and re-asks an LLM, then votes **agree** if its result is
-   close enough to the leader's (refund within ±15, or an exact verdict-string
-   match for delivery).
-3. If a majority agrees, the result is **accepted** and written on-chain. If
-   not, the leader rotates and the round repeats.
-4. Anyone can **appeal** an accepted result, triggering re-evaluation by a
-   larger validator set, until the decision is finalized.
+   evidence URLs, asks an LLM with a strict JSON prompt, and returns a structured
+   verdict.
+2. Every other validator runs `validator_fn` — it independently re-fetches and
+   re-asks an LLM, then votes **agree** if its result is close enough (refund
+   within ±15, or an exact verdict string for delivery).
+3. Majority agree → accepted, written on-chain.
+4. Majority disagree → the leader rotates and the round repeats.
+5. Anyone can **appeal** → a larger validator set re-evaluates.
 
-No single model, operator, or platform decides the outcome — the judgment
-emerges from the validator set.
+No single model, operator, or platform decides the outcome.
 
 ---
 
-## Project layout
+## Project Structure
 
 ```
 VerBnb/
-├── contracts/            # 9 intelligent contracts (5 core + 4 Phase 2 trackers)
+├── contracts/            # 9 intelligent contracts (Python)
 ├── tests/
-│   ├── direct/           # 78 fast mocked tests (pytest)
-│   └── integration/      # full registry-routed flow + appeals flow (gltest)
-├── tools/deploy.py       # Bradbury deploy script (--add-contracts mode)
-├── deployments/bradbury.json
-├── frontend/             # Next.js 14 app
-├── gltest.config.yaml
-├── requirements.txt
-└── .env.example
+│   ├── direct/           # Mocked unit tests (pytest)
+│   └── integration/      # Full consensus tests (gltest)
+├── tools/deploy.py       # Deployment script
+├── deployments/
+│   └── bradbury.json     # All 9 deployed addresses
+├── frontend/
+│   ├── app/              # Next.js App Router pages
+│   ├── components/       # React components (2D + 3D)
+│   └── lib/              # Client, constants, utilities
+├── docs/                 # Nextra documentation site
+└── README.md
 ```
 
-### Frontend pages (Phase 2 additions)
+---
 
-The App Router serves these at the route path (each is a `page.tsx`):
+## Contributing
 
-| Route | What it shows |
-| --- | --- |
-| `/analytics` | Platform KPIs, category pie/bar charts (recharts), per-category deep dives |
-| `/validator` | Per-validator stats, agreement rate, estimated earnings chart |
-| `/user` | Reputation summary, activity timeline, dispute history (lookup by address) |
-| `/appeals/[id]` | Original verdict, 7-day window, appeal form / appeal status tracker |
+1. Fork the repository.
+2. Create your feature branch: `git checkout -b feature/my-feature`.
+3. Commit changes: `git commit -m 'Add my feature'`.
+4. Push: `git push origin feature/my-feature`.
+5. Open a Pull Request.
 
-Reusable components: `ReputationBadge`, `AppealForm`, `FraudAlert`,
-`SimilarCases`. The dispute page (`/dispute/[id]`) gains an **Appeal this
-verdict** CTA and a fraud badge; `VerdictCard` gains reputation badges and a
-"validators agree" line.
-# VerBnb
+See [`docs/`](docs/) for the full contributor guide, contract reference, and API docs.
+
+---
+
+## License
+
+MIT © 2026 [@NOYON_12](https://github.com/CodeWithShamim)
+
+Built with [GenLayer](https://genlayer.com) ·
+Deployed on [Bradbury Testnet](https://rpc-bradbury.genlayer.com) ·
+Frontend on [Vercel](https://vercel.com)

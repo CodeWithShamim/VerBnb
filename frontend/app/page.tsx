@@ -3,8 +3,12 @@ import CategoryCard from "@/components/CategoryCard";
 import PlatformStats from "@/components/PlatformStats";
 import LiveTransactions from "@/components/LiveTransactions";
 import MeshBackground from "@/components/MeshBackground";
+import { HeroScene3D } from "@/components/3d";
 import Reveal, { RevealGroup } from "@/components/Reveal";
+import CopyAddress from "@/components/CopyAddress";
+import FaqSection from "@/components/FaqSection";
 import { CATEGORIES } from "@/lib/contracts";
+import { ALL_CONTRACTS, NETWORK } from "@/lib/constants";
 
 const STEPS = [
   {
@@ -27,12 +31,30 @@ const STEPS = [
   },
 ];
 
+/** All 9 deployed contracts, in registry-first order, for the home table. */
+const CONTRACT_ROWS: { label: string; address: string }[] = [
+  { label: "Registry — entry point", address: ALL_CONTRACTS.REGISTRY },
+  { label: "Rental judge", address: ALL_CONTRACTS.RENTAL },
+  { label: "Marketplace judge", address: ALL_CONTRACTS.PRODUCT },
+  { label: "Sourcing validator", address: ALL_CONTRACTS.SOURCING },
+  { label: "Delivery adjudicator", address: ALL_CONTRACTS.DELIVERY },
+  { label: "Appeal manager", address: ALL_CONTRACTS.APPEAL },
+  { label: "Reputation tracker", address: ALL_CONTRACTS.REPUTATION },
+  { label: "Fraud detector", address: ALL_CONTRACTS.FRAUD },
+  { label: "Analytics tracker", address: ALL_CONTRACTS.ANALYTICS },
+];
+
 export default function Home() {
   return (
     <div className="bg-grid">
       {/* HERO */}
       <section className="relative overflow-hidden">
         <MeshBackground />
+        {/* 3D floating geometry backdrop — sits above the CSS mesh, below the
+            content. Auto-skips on reduced-motion / no-WebGL (renders nothing). */}
+        <div className="pointer-events-none absolute inset-0 z-[1] opacity-70">
+          <HeroScene3D />
+        </div>
         <div className="container-page relative z-10 pb-20 pt-20 text-center sm:pt-28">
           <Reveal direction="down">
             <span className="chip mx-auto bg-white/70 backdrop-blur">
@@ -155,6 +177,47 @@ export default function Home() {
             </Reveal>
           ))}
         </RevealGroup>
+      </section>
+
+      {/* DEPLOYED CONTRACTS */}
+      <section id="contracts" className="container-page scroll-mt-24 py-16">
+        <Reveal className="text-center">
+          <span className="chip mx-auto">On-chain</span>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+            Deployed contracts
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-slate-500">
+            All 9 contracts run on {NETWORK.NAME} (Chain ID {NETWORK.CHAIN_ID}).
+            Tap any address to copy it.
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.05} className="mx-auto mt-10 max-w-3xl">
+          <div className="card divide-y divide-surface-border p-2">
+            {CONTRACT_ROWS.filter((r) => r.address).map((r) => (
+              <div
+                key={r.label}
+                className="flex flex-wrap items-center justify-between gap-3 px-3 py-3"
+              >
+                <span className="text-sm font-medium text-slate-700">
+                  {r.label}
+                </span>
+                <CopyAddress value={r.address} label={r.label} truncate />
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="container-page scroll-mt-24 py-16">
+        <Reveal className="text-center">
+          <span className="chip mx-auto">Questions</span>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+            Frequently asked
+          </h2>
+        </Reveal>
+        <FaqSection />
       </section>
 
       {/* CTA */}

@@ -15,6 +15,7 @@ const NAV = [
   { href: '/activity', label: 'Activity' },
   { href: '/analytics', label: 'Analytics' },
   { href: '/validator', label: 'Validators' },
+  { href: '/docs', label: 'Docs' },
 ];
 
 export default function Navbar() {

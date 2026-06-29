@@ -6,6 +6,10 @@
   "workspaces": [
     "frontend"
   ],
+  "overrides": {
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0"
+  },
   "scripts": {
     "dev": "npm run dev --workspace=frontend",
     "build": "npm run build --workspace=frontend",
