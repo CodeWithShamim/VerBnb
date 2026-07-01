@@ -21,7 +21,7 @@ function ValidatorOrb({ phase }: { phase: string }) {
     });
   });
 
-  const orbColor = PHASE_COLORS[phase?.toUpperCase()] || "#6366f1";
+  const orbColor = PHASE_COLORS[phase?.toUpperCase()] || "#7b39fc";
 
   return (
     <group>

@@ -24,7 +24,7 @@ export default function PrivyAppProvider({ children }: { children: ReactNode }) 
       config={{
         appearance: {
           theme: "light",
-          accentColor: "#6366f1",
+          accentColor: "#7b39fc",
           logo: undefined,
           walletChainType: "ethereum-only",
         },

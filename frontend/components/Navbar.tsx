@@ -28,70 +28,55 @@ export default function Navbar() {
 
   const chain = getChainInfo();
 
+  // On the homepage the nav overlays the full-screen hero video (transparent,
+  // white text). Elsewhere the pages are light, so the nav gets a solid
+  // dark-purple bar so the white UI text stays legible.
+  const overHero = pathname === '/';
+
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'border-b border-surface-border bg-white/75 shadow-[0_1px_0_rgba(15,23,42,0.04)] backdrop-blur-xl'
-          : 'border-b border-transparent bg-transparent'
+      className={`${overHero ? 'absolute' : 'sticky'} inset-x-0 top-0 z-50 transition-all duration-300 ${
+        overHero
+          ? scrolled
+            ? 'bg-black/30 backdrop-blur-md'
+            : 'bg-transparent'
+          : 'bg-hero-dark shadow-md'
       }`}
     >
-      <nav className="container-page flex h-16 items-center justify-between gap-4">
+      <nav className="flex items-center justify-between gap-4 px-6 py-4 lg:px-[120px]">
         {/* Brand */}
         <Link href="/" className="group flex shrink-0 items-center gap-2.5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand to-violet-500 font-black text-white shadow-soft transition-transform duration-300 group-hover:scale-105">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-hero-purple font-manrope font-black text-white shadow-md transition-transform duration-300 group-hover:scale-105">
             V
           </span>
-          <span className="text-lg font-bold tracking-tight text-slate-900">VerBnb</span>
+          <span className="font-manrope text-lg font-bold tracking-tight text-white">VerBnb</span>
         </Link>
 
-        {/* Center nav — segmented group */}
-        <div className="hidden items-center rounded-full border border-surface-border/70 bg-white/50 p-1 backdrop-blur md:flex">
+        {/* Center nav — desktop links */}
+        <div className="hidden items-center gap-8 lg:flex">
           {NAV.map((item) => {
-            const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                  active ? 'text-brand' : 'text-slate-600 hover:text-slate-900'
-                }`}
+                className="font-manrope text-[14px] font-medium text-white transition-opacity hover:opacity-80"
               >
-                <span className="relative z-10">{item.label}</span>
-                {active && (
-                  <motion.span
-                    layoutId="nav-active"
-                    className="absolute inset-0 rounded-full bg-brand-50 shadow-sm ring-1 ring-brand/10"
-                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                  />
-                )}
+                {item.label}
               </Link>
             );
           })}
         </div>
 
         {/* Right cluster */}
-        <div className="flex shrink-0 items-center gap-2">
-          {/* Network indicator */}
-          <span
-            className="hidden items-center gap-1.5 rounded-full border border-surface-border bg-white/60 px-3 py-1.5 text-xs font-medium text-slate-600 lg:inline-flex"
-            title={`${chain.name} · Chain ID ${chain.chainId}`}
-          >
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            </span>
-            {chain.short}
-          </span>
-
+        <div className="flex shrink-0 items-center gap-3">
           <Link
             href="/#categories"
-            className="hidden btn-primary px-4 py-2 text-sm sm:inline-flex"
+            className="hidden rounded-lg bg-hero-purple px-4 py-2 font-manrope text-[14px] font-semibold text-[#fafafa] shadow-md shadow-hero-purple/25 transition-colors hover:bg-hero-purple-light sm:inline-flex"
           >
-            Raise a dispute
+            Get Started
           </Link>
 
           <ThemeToggle />
@@ -104,9 +89,9 @@ export default function Navbar() {
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-surface-border bg-white text-slate-600 transition-colors hover:border-brand/40 hover:text-brand md:hidden"
+            className="text-white transition-opacity hover:opacity-80 lg:hidden"
           >
-            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
               <motion.path
                 d={menuOpen ? 'M6 6l12 12' : 'M4 7h16'}
                 stroke="currentColor"
@@ -115,51 +100,53 @@ export default function Navbar() {
                 animate={{ d: menuOpen ? 'M6 6l12 12' : 'M4 7h16' }}
               />
               {!menuOpen && (
-                <path d="M4 12h16M4 17h16" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" />
+                <path
+                  d="M4 12h16M4 17h16"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  strokeLinecap="round"
+                />
               )}
             </svg>
           </button>
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — full-screen black overlay */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-surface-border bg-white/95 backdrop-blur-xl md:hidden"
+            className="fixed inset-0 z-40 flex flex-col bg-black lg:hidden"
           >
-            <div className="container-page space-y-1 py-4">
+            <div className="flex flex-1 flex-col items-center justify-center gap-8 py-4">
               {NAV.map((item) => {
-                const active = pathname === item.href;
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className={`block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                      active
-                        ? 'bg-brand-50 text-brand'
-                        : 'text-slate-600 hover:bg-surface-subtle hover:text-slate-900'
-                    }`}
+                    className="font-manrope text-2xl font-medium text-white transition-opacity hover:opacity-80"
                   >
                     {item.label}
                   </Link>
                 );
               })}
 
-              <Link
-                href="/#categories"
-                onClick={() => setMenuOpen(false)}
-                className="btn-primary mt-2 w-full justify-center py-2.5 text-sm"
-              >
-                Raise a dispute
-              </Link>
+              <div className="mt-4 flex w-full max-w-xs flex-col gap-3 px-6">
+                <Link
+                  href="/#categories"
+                  onClick={() => setMenuOpen(false)}
+                  className="w-full rounded-lg bg-hero-purple px-4 py-3 text-center font-manrope text-[14px] font-semibold text-[#fafafa] shadow-md"
+                >
+                  Get Started
+                </Link>
+              </div>
 
-              <div className="flex items-center gap-1.5 px-3 pt-3 text-xs font-medium text-slate-500">
+              <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-white/60">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />

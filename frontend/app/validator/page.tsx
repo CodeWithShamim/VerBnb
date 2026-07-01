@@ -173,7 +173,7 @@ function ValidatorInner() {
                       <Line
                         type="monotone"
                         dataKey="gen"
-                        stroke="#6366f1"
+                        stroke="#7b39fc"
                         strokeWidth={2}
                         dot={{ r: 3 }}
                       />

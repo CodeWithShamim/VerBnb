@@ -15,7 +15,7 @@ const STEPS = [
     n: "01",
     title: "Upload evidence",
     body: "Your photos, reports and proofs are pinned to IPFS and passed to the contract as a URL.",
-    tint: "from-indigo-500 to-violet-500",
+    tint: "from-violet-500 to-purple-500",
   },
   {
     n: "02",
@@ -48,7 +48,16 @@ export default function Home() {
   return (
     <div className="bg-grid">
       {/* HERO */}
-      <section className="relative overflow-hidden">
+      <section className="relative min-h-screen overflow-hidden">
+        {/* Full-screen opaque video background — behind all content, no overlay. */}
+        <video
+          className="absolute inset-0 z-0 h-full min-h-screen w-full object-cover"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260210_031346_d87182fb-b0af-4273-84d1-c6fd17d6bf0f.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
         <MeshBackground />
         {/* 3D floating geometry backdrop — sits above the CSS mesh, below the
             content. Auto-skips on reduced-motion / no-WebGL (renders nothing). */}
@@ -57,22 +66,25 @@ export default function Home() {
         </div>
         <div className="container-page relative z-10 pb-20 pt-20 text-center sm:pt-28">
           <Reveal direction="down">
-            <span className="chip mx-auto bg-white/70 backdrop-blur">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              Live on GenLayer Bradbury testnet
+            <span className="mx-auto inline-flex h-[38px] items-center gap-2 rounded-[10px] border border-[rgba(164,132,215,0.5)] bg-[rgba(85,80,110,0.4)] px-2 backdrop-blur-md">
+              <span className="rounded-md bg-hero-purple px-2 py-[2px] font-cabin text-[14px] font-medium text-white">
+                New
+              </span>
+              <span className="font-cabin text-[14px] font-medium text-white">
+                Live on GenLayer Bradbury testnet
+              </span>
             </span>
           </Reveal>
 
           <Reveal delay={0.05}>
-            <h1 className="mx-auto mt-6 max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-900 sm:text-6xl">
-              Every dispute.{" "}
-              <span className="gradient-text">Resolved by AI consensus.</span>{" "}
-              On-chain.
+            <h1 className="mx-auto mt-6 max-w-4xl font-serif-hero text-5xl leading-[1.1] text-white md:text-[96px]">
+              Every dispute. Resolved by AI consensus{" "}
+              <span className="italic tracking-wide">and</span> on-chain.
             </h1>
           </Reveal>
 
           <Reveal delay={0.12}>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-600">
+            <p className="mx-auto mt-6 max-w-[662px] font-inter text-[18px] font-normal leading-relaxed text-white/70">
               No call centers. No courts. No platform middlemen. GenLayer
               validators independently fetch your evidence, apply LLM judgment,
               reach consensus, and settle the outcome on-chain.
@@ -81,10 +93,16 @@ export default function Home() {
 
           <Reveal delay={0.18}>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-              <Link href="#categories" className="btn-primary px-6 py-3.5 text-base">
+              <Link
+                href="#categories"
+                className="rounded-[10px] bg-hero-purple px-6 py-3 font-cabin text-[16px] font-medium text-white transition-colors hover:bg-hero-purple-light"
+              >
                 Raise a dispute
               </Link>
-              <Link href="#how" className="btn-ghost px-6 py-3.5 text-base">
+              <Link
+                href="#how"
+                className="rounded-[10px] bg-hero-dark px-6 py-3 font-cabin text-[16px] font-medium text-hero-offwhite transition-colors hover:bg-hero-dark-light"
+              >
                 How it works
               </Link>
             </div>
@@ -223,7 +241,7 @@ export default function Home() {
       {/* CTA */}
       <section className="container-page py-12">
         <Reveal>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand via-violet-600 to-cyan-500 p-10 text-center shadow-lift sm:p-16">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-hero-dark via-brand to-hero-purple-light p-10 text-center shadow-lift sm:p-16">
             <div className="pointer-events-none absolute inset-0 opacity-30 [background:radial-gradient(600px_circle_at_20%_0%,white,transparent)]" />
             <h2 className="relative text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
               Have a dispute worth resolving fairly?

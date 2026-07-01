@@ -31,7 +31,7 @@ export default function VerdictCelebration({ favorable }: { favorable: boolean }
           confetti({
             origin: { y: 0.6 },
             particleCount: Math.floor(180 * particleRatio),
-            colors: ["#6366f1", "#8b5cf6", "#22c55e", "#06b6d4"],
+            colors: ["#7b39fc", "#8b5cf6", "#22c55e", "#06b6d4"],
             ...opts,
           });
         fire(0.25, { spread: 26, startVelocity: 55 });

@@ -7,7 +7,7 @@ import * as THREE from "three";
 import type { Category } from "@/lib/contracts";
 
 const SHAPES: Record<Category, { geometry: ReactNode; color: string }> = {
-  RENTAL: { geometry: <boxGeometry args={[1, 1, 1]} />, color: "#6366f1" },
+  RENTAL: { geometry: <boxGeometry args={[1, 1, 1]} />, color: "#7b39fc" },
   PRODUCT: { geometry: <dodecahedronGeometry args={[0.7]} />, color: "#06b6d4" },
   SOURCING: { geometry: <icosahedronGeometry args={[0.7, 1]} />, color: "#10b981" },
   DELIVERY: { geometry: <octahedronGeometry args={[0.8]} />, color: "#f59e0b" },

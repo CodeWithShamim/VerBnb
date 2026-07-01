@@ -49,7 +49,7 @@ export default function PlatformStats() {
       label: "Disputes filed",
       value: stats?.total_disputes ?? 0,
       suffix: "",
-      tint: "from-indigo-500 to-violet-500",
+      tint: "from-violet-500 to-purple-500",
     },
     {
       label: "Resolved on-chain",

@@ -73,11 +73,11 @@ function Scene() {
   // Geometries are declared once and memoized — never recreated per frame.
   const shapes = useMemo<ShapeDef[]>(
     () => [
-      { pos: [-3, 1.5, -2], geo: <icosahedronGeometry args={[0.8, 1]} />, color: "#6366f1", speed: 0.8, distort: 0.3 },
+      { pos: [-3, 1.5, -2], geo: <icosahedronGeometry args={[0.8, 1]} />, color: "#7b39fc", speed: 0.8, distort: 0.3 },
       { pos: [3, -1.0, -3], geo: <octahedronGeometry args={[1.0]} />, color: "#8b5cf6", speed: 0.6, distort: 0.2 },
       { pos: [0, 2.5, -4], geo: <torusGeometry args={[0.6, 0.25, 16, 32]} />, color: "#a78bfa", speed: 1.0, distort: 0.4 },
       { pos: [-2, -2.0, -2], geo: <dodecahedronGeometry args={[0.7]} />, color: "#22d3ee", speed: 0.7, distort: 0.25 },
-      { pos: [2, 1.0, -1], geo: <icosahedronGeometry args={[0.5, 0]} />, color: "#818cf8", speed: 1.2, distort: 0.35 },
+      { pos: [2, 1.0, -1], geo: <icosahedronGeometry args={[0.5, 0]} />, color: "#a06bff", speed: 1.2, distort: 0.35 },
     ],
     []
   );
@@ -85,7 +85,7 @@ function Scene() {
   return (
     <>
       <ambientLight intensity={0.5} />
-      <pointLight position={[5, 5, 5]} intensity={1} color="#818cf8" />
+      <pointLight position={[5, 5, 5]} intensity={1} color="#a06bff" />
       <pointLight position={[-5, -5, 5]} intensity={0.6} color="#a78bfa" />
       {/* Light-theme fog so distant shapes fade into the page background. */}
       <fog attach="fog" args={["#f8fafc", 8, 22]} />

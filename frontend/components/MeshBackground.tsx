@@ -14,7 +14,7 @@ export default function MeshBackground() {
           height: 480,
           top: "-8%",
           left: "8%",
-          background: "radial-gradient(circle, #818cf8, transparent 70%)",
+          background: "radial-gradient(circle, #a06bff, transparent 70%)",
           animationDelay: "0s",
         }}
       />

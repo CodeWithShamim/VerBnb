@@ -37,7 +37,7 @@ interface Health {
 }
 
 const CATS: Category[] = ["RENTAL", "PRODUCT", "SOURCING", "DELIVERY"];
-const PIE_COLORS = ["#6366f1", "#06b6d4", "#10b981", "#f59e0b"];
+const PIE_COLORS = ["#7b39fc", "#06b6d4", "#10b981", "#f59e0b"];
 
 function fmtDuration(seconds: number): string {
   if (!seconds) return "—";

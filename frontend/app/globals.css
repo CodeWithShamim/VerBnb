@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700&family=Cabin:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --grid: rgba(99, 102, 241, 0.06);
+  --grid: rgba(123, 57, 252, 0.06);
   /* Theme surfaces — flipped by the .dark class below. Light defaults: */
   --bg: #f8fafc;
   --fg: #0f172a;
@@ -37,8 +37,26 @@ body {
   background-color: var(--bg);
   color: var(--fg);
   min-height: 100vh;
+  font-family: "Manrope", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Design-system typography, applied project-wide:
+   - Headlines (h1–h3) use Instrument Serif.
+   - Body copy / paragraphs use Inter.
+   - Everything else (UI, nav, labels) inherits Manrope from <body>. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  p {
+    font-family: "Inter", system-ui, sans-serif;
+  }
 }
 
 /* Subtle grid texture behind the light surface. */
@@ -62,7 +80,7 @@ body {
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand to-violet-500 px-5 py-3 font-semibold text-white shadow-soft transition-all duration-300 hover:shadow-glow hover:brightness-105 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-soft;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand to-hero-purple-light px-5 py-3 font-semibold text-white shadow-soft transition-all duration-300 hover:shadow-glow hover:brightness-105 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-soft;
   }
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 rounded-xl border border-surface-border px-5 py-3 font-semibold transition-all duration-300 hover:border-brand/40 hover:text-brand;
@@ -96,7 +114,7 @@ body {
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-brand via-violet-500 to-cyan-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-brand via-hero-purple-light to-brand bg-clip-text text-transparent;
   }
 
   /* Animated multi-color mesh used in the hero. */

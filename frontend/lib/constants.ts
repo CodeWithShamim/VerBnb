@@ -67,7 +67,7 @@ export function pollIntervalFor(phase?: string): number {
  * take plain hex strings rather than Tailwind classes.
  */
 export const CATEGORY_COLORS: Record<string, string> = {
-  RENTAL: "#6366f1", // indigo
+  RENTAL: "#7b39fc", // purple (brand)
   PRODUCT: "#06b6d4", // cyan
   SOURCING: "#10b981", // emerald
   DELIVERY: "#f59e0b", // amber
@@ -75,7 +75,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
 
 /** Phase → accent color (hex) for the validator orb and status visuals. */
 export const PHASE_COLORS: Record<string, string> = {
-  SUBMITTED: "#6366f1", // indigo
+  SUBMITTED: "#7b39fc", // purple (brand)
   PROPOSING: "#f59e0b", // amber — thinking
   COMMITTING: "#3b82f6", // blue — committing
   REVEALING: "#8b5cf6", // violet — revealing
