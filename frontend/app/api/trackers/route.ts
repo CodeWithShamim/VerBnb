@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getReadClient } from "@/lib/genLayerClient";
-import { CONTRACT_ADDRESSES } from "@/lib/contracts";
+import { CONTRACT_ADDRESSES, REGISTRY_ADDRESS } from "@/lib/contracts";
 
 export const runtime = "nodejs";
 
@@ -114,6 +114,10 @@ export async function GET(req: NextRequest) {
           args: [address],
         });
         return ok({ high: Boolean(high) });
+      }
+      case "platform_stats": {
+        if (!REGISTRY_ADDRESS) return ok({ configured: false });
+        return ok(await readJson(client, REGISTRY_ADDRESS, "get_platform_stats", []));
       }
       case "analytics_all": {
         if (!analytics_tracker) return ok({ configured: false });

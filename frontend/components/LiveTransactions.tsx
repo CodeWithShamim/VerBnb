@@ -188,10 +188,23 @@ export default function LiveTransactions({
   }, [limit]);
 
   useEffect(() => {
-    load();
-    timer.current = setInterval(load, 10000); // live: re-poll the chain every 10s
-    return () => {
+    const start = () => {
+      if (timer.current) return;
+      load();
+      timer.current = setInterval(load, 10000); // live: re-poll the chain every 10s
+    };
+    const stop = () => {
       if (timer.current) clearInterval(timer.current);
+      timer.current = null;
+    };
+    // Only poll while the tab is visible — background tabs stop hitting the
+    // explorer and refresh immediately on return.
+    const onVisibility = () => (document.hidden ? stop() : start());
+    document.addEventListener("visibilitychange", onVisibility);
+    onVisibility();
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      stop();
     };
   }, [load]);
 

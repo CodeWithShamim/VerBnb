@@ -72,8 +72,9 @@ export default function AnalyticsPage() {
     ])
       .then(([a, h]) => {
         if (!alive) return;
-        if (a && !a.configured && typeof a === "object") setAll(a);
-        else if (a && a.RENTAL) setAll(a);
+        // Valid stats payloads always contain the RENTAL key; anything else
+        // ({configured:false}, {error:...}) means "no data".
+        if (a && a.RENTAL) setAll(a);
         if (h && typeof h.total_disputes_all_time === "number") setHealth(h);
       })
       .finally(() => {

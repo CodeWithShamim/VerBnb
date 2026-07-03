@@ -17,9 +17,14 @@ export function getChain() {
   return CHAINS[key] ?? testnetBradbury;
 }
 
-// A read-only client. readContract does not require an account.
+// A read-only client. readContract does not require an account. The client is
+// stateless, so one shared instance serves every caller (avoids re-building
+// transport/chain config on each API request or component mount).
+let readClient: ReturnType<typeof createClient> | null = null;
+
 export function getReadClient() {
-  return createClient({ chain: getChain() });
+  if (!readClient) readClient = createClient({ chain: getChain() });
+  return readClient;
 }
 
 export type GLAddress = `0x${string}`;

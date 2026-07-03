@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { getReadClient } from "@/lib/genLayerClient";
-import { REGISTRY_ADDRESS } from "@/lib/contracts";
+import { trackerFetch } from "@/lib/trackerClient";
 import CountUp from "./CountUp";
 
 interface Stats {
@@ -19,19 +18,13 @@ export default function PlatformStats() {
   useEffect(() => {
     let cancelled = false;
     async function load() {
-      if (!REGISTRY_ADDRESS) {
-        setLoaded(true);
-        return;
-      }
       try {
-        const client = getReadClient();
-        const raw = (await client.readContract({
-          address: REGISTRY_ADDRESS,
-          functionName: "get_platform_stats",
-          args: [],
-        })) as string;
-        const parsed = JSON.parse(raw);
-        if (!cancelled) setStats(parsed);
+        // Server route reads the registry — keeps genlayer-js out of this
+        // bundle and shares one cached read across visitors.
+        const parsed = await trackerFetch("platform_stats");
+        if (!cancelled && typeof parsed?.total_disputes === "number") {
+          setStats(parsed);
+        }
       } catch {
         /* keep null */
       } finally {

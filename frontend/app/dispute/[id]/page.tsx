@@ -72,7 +72,7 @@ export default function DisputePage() {
         clearInterval(t);
         return;
       }
-      poll();
+      if (!document.hidden) poll(); // skip ticks while the tab is backgrounded
     }, 10000);
     return () => clearInterval(t);
   }, [poll, verdict?.resolved, verdict?.error]);

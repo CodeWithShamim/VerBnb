@@ -161,5 +161,14 @@ export async function GET(req: NextRequest) {
     return (b.timestamp ?? 0) - (a.timestamp ?? 0);
   });
 
-  return NextResponse.json({ rows: merged.slice(0, limit), total: merged.length });
+  return NextResponse.json(
+    { rows: merged.slice(0, limit), total: merged.length },
+    {
+      headers: {
+        // The feed re-polls every 10s per client; a short shared cache lets
+        // concurrent viewers reuse one explorer fan-out without visible lag.
+        "Cache-Control": "public, s-maxage=8, max-age=5, stale-while-revalidate=30",
+      },
+    }
+  );
 }
