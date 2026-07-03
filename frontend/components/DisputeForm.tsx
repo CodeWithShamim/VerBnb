@@ -19,6 +19,8 @@ export interface FormField {
   required?: boolean;
   /** For file fields: which field name receives the resulting IPFS URL. */
   target?: string;
+  /** Pre-filled value the field starts with (editable by the user). */
+  defaultValue?: string;
 }
 
 export default function DisputeForm({
@@ -29,7 +31,13 @@ export default function DisputeForm({
   fields: FormField[];
 }) {
   const router = useRouter();
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    for (const f of fields) {
+      if (f.defaultValue) initial[f.name] = f.defaultValue;
+    }
+    return initial;
+  });
   const [uploadPct, setUploadPct] = useState<Record<string, number>>({});
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);

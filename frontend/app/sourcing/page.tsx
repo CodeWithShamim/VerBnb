@@ -1,12 +1,15 @@
 import FormPageShell from "@/components/FormPageShell";
 import { type FormField } from "@/components/DisputeForm";
 
+// Defaults are demo values on pages validators can actually fetch, so a
+// submission resolves without extra setup.
 const fields: FormField[] = [
   {
     name: "brandId",
     label: "Brand ID",
     type: "text",
     placeholder: "ecothreads",
+    defaultValue: "ecothreads",
     required: true,
   },
   {
@@ -14,6 +17,7 @@ const fields: FormField[] = [
     label: "Sourcing claim to validate",
     type: "textarea",
     placeholder: "100% organic cotton, fair-trade certified",
+    defaultValue: "100% organic cotton, fair-trade certified",
     required: true,
   },
   {
@@ -21,6 +25,7 @@ const fields: FormField[] = [
     label: "Certification registry URL",
     type: "url",
     placeholder: "https://fairtrade.org/cert/...",
+    defaultValue: "https://github.com/CodeWithShamim/VerBnb",
     help: "Public certification page validators will fetch.",
     required: true,
   },
@@ -29,6 +34,7 @@ const fields: FormField[] = [
     label: "Supplier registry URL",
     type: "url",
     placeholder: "https://supplier-registry.org/...",
+    defaultValue: "https://github.com/CodeWithShamim/VerBnb",
     required: true,
   },
 ];

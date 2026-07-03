@@ -1,12 +1,15 @@
 import FormPageShell from "@/components/FormPageShell";
 import { type FormField } from "@/components/DisputeForm";
 
+// Defaults are demo values with IPFS-pinned evidence validators can actually
+// fetch, so a submission resolves without extra setup.
 const fields: FormField[] = [
   {
     name: "orderId",
     label: "Order ID",
     type: "text",
     placeholder: "ORD-10293",
+    defaultValue: "ORD-10293",
     required: true,
   },
   {
@@ -21,6 +24,8 @@ const fields: FormField[] = [
     label: "Courier evidence URL",
     type: "url",
     placeholder: "https://gateway.pinata.cloud/ipfs/...",
+    defaultValue:
+      "https://gateway.pinata.cloud/ipfs/bafkreigtllqbm2jirb6dg6a7zpyvhl77rpphozgh65cv2ejktrkaqvskga",
     required: true,
   },
   {
@@ -28,6 +33,7 @@ const fields: FormField[] = [
     label: "Customer claim",
     type: "textarea",
     placeholder: "Parcel never arrived; no one signed for it.",
+    defaultValue: "Parcel never arrived; no one signed for it.",
     required: true,
   },
   {
@@ -35,6 +41,7 @@ const fields: FormField[] = [
     label: "Expected delivery address",
     type: "text",
     placeholder: "742 Evergreen Terrace, Springfield",
+    defaultValue: "742 Evergreen Terrace, Springfield",
     required: true,
   },
 ];

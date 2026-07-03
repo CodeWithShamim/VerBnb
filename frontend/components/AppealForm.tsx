@@ -36,7 +36,9 @@ export default function AppealForm({
   validatorCount?: number;
 }) {
   const [reason, setReason] = useState(REASONS[0]);
-  const [details, setDetails] = useState("");
+  const [details, setDetails] = useState(
+    "The validators overlooked key evidence in the original round; please re-evaluate with the larger panel."
+  );
   const [evidenceUrl, setEvidenceUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
