@@ -14,6 +14,7 @@ import { ALL_CONTRACTS, NETWORK } from '@/lib/constants';
 const STEPS = [
   {
     n: '01',
+    icon: '📌',
     title: 'Pin your evidence',
     body: 'Photos, reports and receipts are pinned to IPFS - tamper-proof, permanent, and fetchable by every validator on the network.',
     tint: 'from-violet-500 to-purple-500',
@@ -21,6 +22,7 @@ const STEPS = [
   },
   {
     n: '02',
+    icon: '🤖',
     title: 'Five independent AI verdicts',
     body: 'Each GenLayer validator fetches your evidence and asks an LLM for its own judgment - no shared answer key, no single point of bias.',
     tint: 'from-cyan-400 to-sky-500',
@@ -28,11 +30,26 @@ const STEPS = [
   },
   {
     n: '03',
+    icon: '⛓',
     title: 'Consensus, sealed on-chain',
     body: 'Verdicts converge within tolerance and the outcome is written immutably to the chain - auditable by anyone, reversible by no one.',
     tint: 'from-pink-500 to-orange-400',
     glow: 'rgba(236,72,153,0.25)',
   },
+];
+
+/** Side-by-side proof points for the "why on-chain" comparison panels. */
+const OLD_WAY = [
+  'Open a support ticket, then wait days for a human to skim your case',
+  'The platform judges disputes it profits from',
+  'Evidence scattered across email threads and screenshots',
+  'A one-line verdict with no reasoning and nowhere to appeal',
+];
+const VERBNB_WAY = [
+  'Five independent AI validators judge every case in minutes',
+  'No platform thumb on the scale - consensus is the referee',
+  'Evidence pinned to IPFS: permanent, public, fetchable by anyone',
+  'Verdict sealed on-chain with a reasoning trail and a 7-day appeal window',
 ];
 
 const MARQUEE_CHIPS = [
@@ -176,130 +193,250 @@ export default function Home() {
       </section>
 
       {/* CATEGORIES */}
-      <section id="categories" className="cv-auto container-page scroll-mt-24 py-16">
-        <Reveal className="text-center">
-          <span className="chip mx-auto">Pick your battlefield</span>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            Four specialist <span className="text-gradient-pop">AI judges</span>, one registry
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-slate-500">
-            Each category runs its own on-chain judge, tuned to the evidence that matters for that
-            kind of case. Pick the one that fits yours.
-          </p>
-        </Reveal>
+      <section id="categories" className="cv-auto relative scroll-mt-24 overflow-hidden py-20">
+        <div
+          aria-hidden
+          className="glow-spot -left-40 top-[-60px] h-[460px] w-[460px]"
+          style={{ background: 'radial-gradient(circle, rgba(123,57,252,0.14), transparent 70%)' }}
+        />
+        <div
+          aria-hidden
+          className="glow-spot -right-40 bottom-[-80px] h-[420px] w-[420px]"
+          style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.1), transparent 70%)' }}
+        />
+        <div className="container-page relative">
+          <Reveal className="text-center">
+            <span className="chip-hero">⚖️ Pick your battlefield</span>
+            <h2 className="section-title mt-6">
+              Four specialist <span className="text-gradient-pop">AI judges</span>, one registry
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-slate-500">
+              Each category runs its own on-chain judge, tuned to the evidence that matters for
+              that kind of case. Pick the one that fits yours.
+            </p>
+          </Reveal>
 
-        <RevealGroup className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {Object.values(CATEGORIES).map((meta) => (
-            <CategoryCard key={meta.key} meta={meta} />
-          ))}
-        </RevealGroup>
+          <RevealGroup className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {Object.values(CATEGORIES).map((meta) => (
+              <CategoryCard key={meta.key} meta={meta} />
+            ))}
+          </RevealGroup>
+        </div>
       </section>
 
       {/* LIVE ACTIVITY */}
-      <section id="activity" className="cv-auto container-page scroll-mt-24 py-16">
-        <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <span className="chip">
-              <span className="relative flex h-1.5 w-1.5">
+      <section id="activity" className="cv-auto relative scroll-mt-24 overflow-hidden py-20">
+        <div
+          aria-hidden
+          className="glow-spot -right-32 top-[-40px] h-[440px] w-[440px]"
+          style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.12), transparent 70%)' }}
+        />
+        <div className="container-page relative grid items-start gap-10 lg:grid-cols-[0.9fr,1.1fr]">
+          <Reveal className="lg:sticky lg:top-28">
+            <span className="chip-hero">
+              <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
               Live from the chain
             </span>
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
-              Consensus, happening now
+            <h2 className="section-title mt-6">
+              Consensus, <span className="text-gradient-pop">happening now</span>
             </h2>
-            <p className="mt-2 max-w-md text-slate-500">
-              Status and block are pulled live from GenLayer as validators reach consensus - nothing
-              here is mocked.
+            <p className="mt-4 max-w-md text-slate-500">
+              Status and block are pulled live from GenLayer as validators reach consensus -
+              nothing here is mocked. Every row links to the case or the explorer.
             </p>
-          </div>
-          <Link href="/activity" className="btn-ghost px-4 py-2 text-sm">
-            View all activity →
-          </Link>
-        </Reveal>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <span className="chip-hero px-3 py-1 text-xs">🔄 Refreshes every 10s</span>
+              <span className="chip-hero px-3 py-1 text-xs">🛰 Direct from the explorer</span>
+            </div>
+            <Link href="/activity" className="btn-ghost mt-8 px-5 py-2.5 text-sm">
+              View all activity →
+            </Link>
+          </Reveal>
 
-        <Reveal delay={0.05} className="mx-auto max-w-3xl">
-          <LiveTransactions limit={5} />
-        </Reveal>
+          <Reveal delay={0.05}>
+            <LiveTransactions limit={5} glass />
+          </Reveal>
+        </div>
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="cv-auto container-page scroll-mt-24 py-16">
-        <Reveal className="text-center">
-          <span className="chip mx-auto">The process</span>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            From evidence to <span className="text-gradient-pop">on-chain verdict</span>
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-slate-500">
-            Three steps. No humans in the loop, no way to put a thumb on the scale.
-          </p>
-        </Reveal>
+      <section id="how" className="cv-auto relative scroll-mt-24 overflow-hidden py-20">
+        <div
+          aria-hidden
+          className="glow-spot left-1/2 top-[-120px] h-[480px] w-[640px] -translate-x-1/2"
+          style={{ background: 'radial-gradient(circle, rgba(236,72,153,0.1), transparent 70%)' }}
+        />
+        <div className="container-page relative">
+          <Reveal className="text-center">
+            <span className="chip-hero">🧭 The process</span>
+            <h2 className="section-title mt-6">
+              From evidence to <span className="text-gradient-pop">on-chain verdict</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-slate-500">
+              Three steps. No humans in the loop, no way to put a thumb on the scale.
+            </p>
+          </Reveal>
 
-        <RevealGroup className="mt-12 grid gap-6 md:grid-cols-3">
-          {STEPS.map((s) => (
-            <Reveal key={s.n} className="h-full">
-              <div className="card card-hover relative h-full overflow-hidden p-7">
-                <div
-                  className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full blur-2xl"
-                  style={{ background: s.glow }}
-                />
-                <span
-                  className={`bg-gradient-to-r bg-clip-text text-5xl font-black text-transparent ${s.tint}`}
-                >
-                  {s.n}
+          <RevealGroup className="mt-14 grid gap-6 md:grid-cols-3">
+            {STEPS.map((s) => (
+              <Reveal key={s.n} className="h-full">
+                <div className="glass-card card-hover relative h-full overflow-hidden p-7">
+                  <div
+                    className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full blur-2xl"
+                    style={{ background: s.glow }}
+                  />
+                  <div className="flex items-start justify-between">
+                    <span
+                      className={`bg-gradient-to-r bg-clip-text font-serif-hero text-6xl text-transparent ${s.tint}`}
+                    >
+                      {s.n}
+                    </span>
+                    <span className="grid h-11 w-11 place-items-center rounded-xl border border-slate-900/10 bg-white/40 text-xl backdrop-blur-sm dark:border-white/15 dark:bg-white/10">
+                      {s.icon}
+                    </span>
+                  </div>
+                  <h3 className="mt-5 text-xl text-slate-900">{s.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">{s.body}</p>
+                </div>
+              </Reveal>
+            ))}
+          </RevealGroup>
+        </div>
+      </section>
+
+      {/* WHY ON-CHAIN - old way vs the VerBnb way */}
+      <section id="why" className="cv-auto relative scroll-mt-24 overflow-hidden py-20">
+        <div
+          aria-hidden
+          className="glow-spot -left-32 bottom-[-100px] h-[440px] w-[440px]"
+          style={{ background: 'radial-gradient(circle, rgba(123,57,252,0.12), transparent 70%)' }}
+        />
+        <div className="container-page relative">
+          <Reveal className="text-center">
+            <span className="chip-hero">🥊 Why on-chain?</span>
+            <h2 className="section-title mt-6">
+              Support tickets plead. <span className="text-gradient-pop">Verdicts prove.</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-slate-500">
+              Centralized platforms referee their own games. VerBnb hands the whistle to a network
+              that has nothing to gain from either side.
+            </p>
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-2">
+            <Reveal className="h-full">
+              <div className="glass-card h-full p-8 opacity-90">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                  The old way
                 </span>
-                <h3 className="mt-4 text-lg font-bold text-slate-900">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-500">{s.body}</p>
+                <ul className="mt-6 space-y-4">
+                  {OLD_WAY.map((line) => (
+                    <li key={line} className="flex items-start gap-3">
+                      <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-rose-500/15 text-[11px] font-bold text-rose-500 dark:text-rose-300">
+                        ✗
+                      </span>
+                      <span className="text-sm leading-relaxed text-slate-500">{line}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </Reveal>
-          ))}
-        </RevealGroup>
+
+            <Reveal delay={0.1} className="h-full">
+              <div className="glow-border h-full rounded-2xl">
+                <div className="glass-card h-full p-8">
+                  <span className="bg-gradient-to-r from-hero-purple via-pop-pink to-pop-orange bg-clip-text text-xs font-semibold uppercase tracking-[0.2em] text-transparent">
+                    The VerBnb way
+                  </span>
+                  <ul className="mt-6 space-y-4">
+                    {VERBNB_WAY.map((line) => (
+                      <li key={line} className="flex items-start gap-3">
+                        <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-500/15 text-[11px] font-bold text-emerald-600 dark:text-emerald-300">
+                          ✓
+                        </span>
+                        <span className="text-sm leading-relaxed text-slate-700">{line}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
       </section>
 
       {/* DEPLOYED CONTRACTS */}
-      <section id="contracts" className="cv-auto container-page scroll-mt-24 py-16">
-        <Reveal className="text-center">
-          <span className="chip mx-auto">On-chain</span>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            Nine contracts, <span className="text-gradient-pop">zero trust required</span>
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-slate-500">
-            Everything runs on {NETWORK.NAME} (Chain ID {NETWORK.CHAIN_ID}). Tap any address to copy
-            it and verify it yourself.
-          </p>
-        </Reveal>
-
-        <Reveal delay={0.05} className="mx-auto mt-10 max-w-3xl">
-          <div className="glow-border rounded-2xl">
-            <div className="card divide-y divide-surface-border p-2">
-              {CONTRACT_ROWS.filter((r) => r.address).map((r) => (
-                <div
-                  key={r.label}
-                  className="flex flex-wrap items-center justify-between gap-3 px-3 py-3"
-                >
-                  <span className="text-sm font-medium text-slate-700">{r.label}</span>
-                  <CopyAddress value={r.address} label={r.label} truncate />
-                </div>
+      <section id="contracts" className="cv-auto relative scroll-mt-24 overflow-hidden py-20">
+        <div
+          aria-hidden
+          className="glow-spot -right-40 top-[-60px] h-[460px] w-[460px]"
+          style={{ background: 'radial-gradient(circle, rgba(123,57,252,0.12), transparent 70%)' }}
+        />
+        <div className="container-page relative grid items-start gap-10 lg:grid-cols-[0.9fr,1.1fr]">
+          <Reveal className="lg:sticky lg:top-28">
+            <span className="chip-hero">⛓ On-chain</span>
+            <h2 className="section-title mt-6">
+              Nine contracts, <span className="text-gradient-pop">zero trust required</span>
+            </h2>
+            <p className="mt-4 max-w-md text-slate-500">
+              Everything runs on {NETWORK.NAME} (Chain ID {NETWORK.CHAIN_ID}). Tap any address to
+              copy it and verify it yourself.
+            </p>
+            <ul className="mt-6 space-y-3">
+              {[
+                'The registry is the single entry point - it routes each case to its judge.',
+                'Judges are specialists: rental, marketplace, sourcing and delivery read different evidence.',
+                'Appeals, reputation, fraud signals and analytics run as support contracts.',
+              ].map((line) => (
+                <li key={line} className="flex items-start gap-3">
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-gradient-to-r from-hero-purple to-pop-pink" />
+                  <span className="text-sm leading-relaxed text-slate-500">{line}</span>
+                </li>
               ))}
+            </ul>
+          </Reveal>
+
+          <Reveal delay={0.05}>
+            <div className="glow-border rounded-2xl">
+              <div className="glass-card divide-y divide-slate-900/10 p-2 dark:divide-white/10">
+                {CONTRACT_ROWS.filter((r) => r.address).map((r) => (
+                  <div
+                    key={r.label}
+                    className="flex flex-wrap items-center justify-between gap-3 px-3 py-3"
+                  >
+                    <span className="text-sm font-medium text-slate-700">{r.label}</span>
+                    <CopyAddress value={r.address} label={r.label} truncate />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="cv-auto container-page scroll-mt-24 py-16">
-        <Reveal className="text-center">
-          <span className="chip mx-auto">Questions</span>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
-            Frequently asked
-          </h2>
-        </Reveal>
-        <FaqSection />
+      <section id="faq" className="cv-auto relative scroll-mt-24 overflow-hidden py-20">
+        <div
+          aria-hidden
+          className="glow-spot -left-32 top-[-40px] h-[400px] w-[400px]"
+          style={{ background: 'radial-gradient(circle, rgba(236,72,153,0.1), transparent 70%)' }}
+        />
+        <div className="container-page relative">
+          <Reveal className="text-center">
+            <span className="chip-hero">💬 Questions</span>
+            <h2 className="section-title mt-6">
+              Frequently <span className="text-gradient-pop">asked</span>
+            </h2>
+          </Reveal>
+          <FaqSection />
+        </div>
       </section>
 
       {/* CTA */}
-      <section className="cv-auto container-page py-12">
+      <section className="cv-auto container-page py-14">
         <Reveal>
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-hero-purple via-pop-pink to-pop-orange bg-[length:200%_100%] p-10 text-center shadow-lift animate-gradient-x sm:p-16">
             <div className="pointer-events-none absolute inset-0 opacity-30 [background:radial-gradient(600px_circle_at_20%_0%,white,transparent)]" />

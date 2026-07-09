@@ -75,7 +75,7 @@ function relativeTime(secEpoch?: number | null): string {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-function Row({ row }: { row: ChainTxRow }) {
+function Row({ row, glass = false }: { row: ChainTxRow; glass?: boolean }) {
   const meta =
     row.category && CATEGORIES[row.category as Category]
       ? CATEGORIES[row.category as Category]
@@ -97,7 +97,13 @@ function Row({ row }: { row: ChainTxRow }) {
     : explorerTx(row.hash);
 
   const inner = (
-    <div className="flex items-center gap-3 rounded-xl border border-surface-border bg-white px-4 py-3 transition-colors hover:border-brand/40 hover:bg-brand-50/30">
+    <div
+      className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors hover:border-brand/40 ${
+        glass
+          ? 'border-slate-900/10 bg-[rgba(255,255,255,0.55)] hover:bg-white/80 dark:border-white/10 dark:bg-white/[0.04] dark:hover:bg-white/[0.08]'
+          : 'border-surface-border bg-white hover:bg-brand-50/30'
+      }`}
+    >
       {/* contract/category badge */}
       <span
         className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br ${
@@ -154,10 +160,13 @@ function Row({ row }: { row: ChainTxRow }) {
 export default function LiveTransactions({
   limit = 20,
   showHeader = true,
+  glass = false,
 }: {
   /** Max rows to show. */
   limit?: number;
   showHeader?: boolean;
+  /** Hero-style glassmorphism styling (used on the home page canvas). */
+  glass?: boolean;
 }) {
   const [rows, setRows] = useState<ChainTxRow[] | null>(null);
   const [errored, setErrored] = useState(false);
@@ -202,9 +211,13 @@ export default function LiveTransactions({
   }, [load]);
 
   return (
-    <div className="card overflow-hidden">
+    <div className={`${glass ? 'glass-card' : 'card'} overflow-hidden`}>
       {showHeader && (
-        <div className="flex items-center justify-between border-b border-surface-border px-5 py-4">
+        <div
+          className={`flex items-center justify-between border-b px-5 py-4 ${
+            glass ? 'border-slate-900/10 dark:border-white/10' : 'border-surface-border'
+          }`}
+        >
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -249,7 +262,7 @@ export default function LiveTransactions({
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Row row={row} />
+                <Row row={row} glass={glass} />
               </motion.div>
             ))}
           </AnimatePresence>

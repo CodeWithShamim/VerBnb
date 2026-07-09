@@ -67,7 +67,7 @@ export default function PlatformStats() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: i * 0.1 }}
-          className="card relative overflow-hidden p-6 text-center"
+          className="glass-card relative overflow-hidden p-6 text-center"
         >
           <span
             className={`pointer-events-none absolute inset-x-0 -top-px mx-auto h-1 w-2/3 rounded-full bg-gradient-to-r ${it.tint}`}

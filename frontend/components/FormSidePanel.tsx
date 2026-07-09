@@ -26,9 +26,10 @@ const CHECKLIST = [
 ];
 
 /**
- * Sticky context panel for the dispute forms - category-tinted glow card with
- * the floating 3D badge, the resolution timeline, a what-you'll-need checklist
- * and a live-network footer.
+ * Full-height context panel for the dispute forms - category-tinted glow card
+ * with the floating 3D badge, the resolution timeline, a what-you'll-need
+ * checklist and a live-network footer pinned to the bottom, so the panel
+ * always matches the form column's height on desktop.
  */
 export default function FormSidePanel({ category }: { category: Category }) {
   const meta = CATEGORIES[category];
@@ -39,10 +40,10 @@ export default function FormSidePanel({ category }: { category: Category }) {
       initial={reduce ? false : { opacity: 0, x: -32 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="lg:sticky lg:top-24"
+      className="h-full"
     >
-      <div className="glow-border relative overflow-hidden rounded-3xl">
-        <div className="hero-canvas relative rounded-3xl p-7 sm:p-8">
+      <div className="glow-border relative h-full overflow-hidden rounded-3xl">
+        <div className="hero-canvas relative flex h-full flex-col rounded-3xl p-7 sm:p-8">
           {/* drifting accent blobs */}
           <div
             className="aurora-blob -right-16 -top-16 h-56 w-56"
@@ -56,7 +57,7 @@ export default function FormSidePanel({ category }: { category: Category }) {
             }}
           />
 
-          <div className="relative">
+          <div className="relative flex flex-1 flex-col">
             {/* header: 3D badge + judge identity */}
             <div className="flex items-center gap-4">
               <motion.div
@@ -157,8 +158,12 @@ export default function FormSidePanel({ category }: { category: Category }) {
               ))}
             </ul>
 
+            {/* flexible spacer keeps at least the original gap, then absorbs
+                any extra height so the footer pins to the panel's bottom */}
+            <div aria-hidden className="min-h-7 flex-1" />
+
             {/* live-network footer */}
-            <div className="mt-7 flex items-center justify-between rounded-xl border border-slate-900/10 bg-white/40 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+            <div className="flex items-center justify-between rounded-xl border border-slate-900/10 bg-white/40 px-4 py-3 dark:border-white/10 dark:bg-white/5">
               <span className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-white/80">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />

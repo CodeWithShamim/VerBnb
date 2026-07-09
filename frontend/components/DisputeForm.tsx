@@ -193,59 +193,63 @@ export default function DisputeForm({
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="card overflow-hidden"
+      className="card flex flex-1 flex-col overflow-hidden"
     >
       {/* Slim category accent strip - identity without a heavy banner. */}
-      <div className={`h-1.5 bg-gradient-to-r ${meta.gradient}`} />
+      <div className={`h-1.5 shrink-0 bg-gradient-to-r ${meta.gradient}`} />
 
-      <div className="p-6 sm:p-8">
-        {groups.map((g, gi) => (
-          <motion.section
-            key={gi}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.08 * gi }}
-            className={gi > 0 ? 'mt-9' : undefined}
-          >
-            {g.section && (
-              <div className="mb-5 flex items-center gap-3">
-                <span
-                  className="font-mono text-xs font-bold tabular-nums"
-                  style={{ color: meta.accent }}
-                >
-                  {String(gi + 1).padStart(2, '0')}
-                </span>
-                <span className="font-sans text-sm font-semibold uppercase tracking-wider text-slate-700">
-                  {g.section}
-                </span>
-                <span className="h-px flex-1 bg-surface-border" />
-              </div>
-            )}
-
-            <div className="space-y-5">
-              {g.fields.map((f) => (
-                <div key={f.name}>
-                  <label className="label" htmlFor={f.name}>
-                    {f.label}
-                    {f.required && <span className={meta.text}> *</span>}
-                  </label>
-                  {renderField(f)}
-                  {f.help && <p className="mt-1.5 text-xs text-slate-400">{f.help}</p>}
+      <div className="flex flex-1 flex-col p-6 sm:p-8">
+        {/* Fields grow first so the submit section stays pinned to the card's
+            bottom when the side panel is the taller column. */}
+        <div className="flex-1">
+          {groups.map((g, gi) => (
+            <motion.section
+              key={gi}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.08 * gi }}
+              className={gi > 0 ? 'mt-9' : undefined}
+            >
+              {g.section && (
+                <div className="mb-5 flex items-center gap-3">
+                  <span
+                    className="font-mono text-xs font-bold tabular-nums"
+                    style={{ color: meta.accent }}
+                  >
+                    {String(gi + 1).padStart(2, '0')}
+                  </span>
+                  <span className="font-sans text-sm font-semibold uppercase tracking-wider text-slate-700">
+                    {g.section}
+                  </span>
+                  <span className="h-px flex-1 bg-surface-border" />
                 </div>
-              ))}
-            </div>
-          </motion.section>
-        ))}
+              )}
 
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
-          >
-            {error}
-          </motion.div>
-        )}
+              <div className="space-y-5">
+                {g.fields.map((f) => (
+                  <div key={f.name}>
+                    <label className="label" htmlFor={f.name}>
+                      {f.label}
+                      {f.required && <span className={meta.text}> *</span>}
+                    </label>
+                    {renderField(f)}
+                    {f.help && <p className="mt-1.5 text-xs text-slate-400">{f.help}</p>}
+                  </div>
+                ))}
+              </div>
+            </motion.section>
+          ))}
+
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
+            >
+              {error}
+            </motion.div>
+          )}
+        </div>
 
         <div className="mt-8 border-t border-surface-border pt-6">
           <SubmitButton

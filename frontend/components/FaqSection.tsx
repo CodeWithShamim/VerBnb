@@ -35,10 +35,10 @@ const FAQ: { q: string; a: string }[] = [
  */
 export default function FaqSection() {
   return (
-    <div className="mx-auto mt-10 max-w-3xl space-y-3">
+    <div className="mx-auto mt-10 grid max-w-4xl items-start gap-4 md:grid-cols-2">
       {FAQ.map((f, i) => (
         <Reveal key={f.q} delay={i * 0.03}>
-          <details className="card group p-5">
+          <details className="glass-card group p-5">
             <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-slate-900">
               {f.q}
               <span className="ml-4 shrink-0 text-slate-400 transition-transform duration-200 group-open:rotate-45">

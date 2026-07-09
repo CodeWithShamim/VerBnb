@@ -4,9 +4,10 @@ import FormSidePanel from '@/components/FormSidePanel';
 import { CATEGORIES, type Category } from '@/lib/contracts';
 
 /**
- * Shared professional split shell for the four dispute forms: a sticky
+ * Shared professional split shell for the four dispute forms: a full-height
  * category context panel on the left, breadcrumb + heading + the sectioned
- * form on the right. The panel stacks below the form on small screens.
+ * form on the right - both columns stretch to the same height on desktop.
+ * The panel stacks below the form on small screens.
  */
 export default function FormPageShell({
   category,
@@ -33,14 +34,14 @@ export default function FormPageShell({
           <span className={`font-medium ${meta.text}`}>{meta.title}</span>
         </nav>
 
-        <div className="mt-8 grid items-start gap-10 lg:grid-cols-[400px_minmax(0,1fr)]">
+        <div className="mt-8 grid gap-10 lg:grid-cols-[400px_minmax(0,1fr)]">
           {/* Context panel - left on desktop, below the form on mobile. */}
           <div className="order-2 lg:order-1">
             <FormSidePanel category={category} />
           </div>
 
           {/* Heading + form */}
-          <div className="order-1 lg:order-2">
+          <div className="order-1 flex flex-col lg:order-2">
             <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h1 className="text-3xl text-slate-900 sm:text-4xl">

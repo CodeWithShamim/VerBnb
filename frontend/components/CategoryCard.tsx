@@ -18,7 +18,7 @@ export default function CategoryCard({ meta }: { meta: CategoryMeta }) {
     <motion.div variants={itemVariants}>
       <Link
         href={`/${meta.slug}`}
-        className="group relative block h-full overflow-hidden rounded-2xl border border-surface-border bg-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lift"
+        className="glass-card group relative block h-full overflow-hidden p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lift"
       >
         {/* accent wash that grows on hover */}
         <span
