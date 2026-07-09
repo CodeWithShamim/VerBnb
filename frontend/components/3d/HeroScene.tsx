@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, MeshDistortMaterial, Preload } from "@react-three/drei";
+import { Float, MeshDistortMaterial, Preload, Sparkles } from "@react-three/drei";
 import { useRef, useMemo, useState, Suspense, type ReactNode } from "react";
 import * as THREE from "three";
 
@@ -69,15 +69,44 @@ function MouseTracker() {
   return null;
 }
 
+/** Slowly-breathing distorted sphere sitting deep behind the headline. */
+function CoreSphere() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    mesh.rotation.y += 0.0015;
+    mesh.scale.setScalar(1 + Math.sin(state.clock.elapsedTime * 0.5) * 0.05);
+  });
+  return (
+    <mesh ref={meshRef} position={[0, 0.4, -7]}>
+      <sphereGeometry args={[2.4, 48, 48]} />
+      <MeshDistortMaterial
+        color="#7b39fc"
+        emissive="#ec4899"
+        emissiveIntensity={0.25}
+        distort={0.45}
+        speed={1.2}
+        transparent
+        opacity={0.28}
+        roughness={0.2}
+        metalness={0.8}
+        wireframe
+      />
+    </mesh>
+  );
+}
+
 function Scene() {
   // Geometries are declared once and memoized — never recreated per frame.
   const shapes = useMemo<ShapeDef[]>(
     () => [
       { pos: [-3, 1.5, -2], geo: <icosahedronGeometry args={[0.8, 1]} />, color: "#7b39fc", speed: 0.8, distort: 0.3 },
-      { pos: [3, -1.0, -3], geo: <octahedronGeometry args={[1.0]} />, color: "#8b5cf6", speed: 0.6, distort: 0.2 },
-      { pos: [0, 2.5, -4], geo: <torusGeometry args={[0.6, 0.25, 16, 32]} />, color: "#a78bfa", speed: 1.0, distort: 0.4 },
+      { pos: [3, -1.0, -3], geo: <octahedronGeometry args={[1.0]} />, color: "#ec4899", speed: 0.6, distort: 0.2 },
+      { pos: [0, 2.5, -4], geo: <torusGeometry args={[0.6, 0.25, 16, 32]} />, color: "#fb923c", speed: 1.0, distort: 0.4 },
       { pos: [-2, -2.0, -2], geo: <dodecahedronGeometry args={[0.7]} />, color: "#22d3ee", speed: 0.7, distort: 0.25 },
       { pos: [2, 1.0, -1], geo: <icosahedronGeometry args={[0.5, 0]} />, color: "#a06bff", speed: 1.2, distort: 0.35 },
+      { pos: [3.4, 2.2, -5], geo: <torusKnotGeometry args={[0.45, 0.16, 64, 12]} />, color: "#a3e635", speed: 0.5, distort: 0.2 },
     ],
     []
   );
@@ -86,10 +115,14 @@ function Scene() {
     <>
       <ambientLight intensity={0.5} />
       <pointLight position={[5, 5, 5]} intensity={1} color="#a06bff" />
-      <pointLight position={[-5, -5, 5]} intensity={0.6} color="#a78bfa" />
-      {/* Light-theme fog so distant shapes fade into the page background. */}
-      <fog attach="fog" args={["#f8fafc", 8, 22]} />
+      <pointLight position={[-5, -5, 5]} intensity={0.7} color="#ec4899" />
+      {/* Dark-hero fog so distant shapes melt into the hero canvas. */}
+      <fog attach="fog" args={["#0d0920", 8, 22]} />
       <MouseTracker />
+      <CoreSphere />
+      {/* Glittering dust field — cheap points, big dopamine payoff. */}
+      <Sparkles count={110} scale={[14, 8, 8]} size={2.2} speed={0.35} color="#c4b5fd" opacity={0.7} />
+      <Sparkles count={40} scale={[12, 7, 6]} size={3.2} speed={0.5} color="#f0abfc" opacity={0.5} />
       {shapes.map((s, i) => (
         <FloatingShape
           key={i}

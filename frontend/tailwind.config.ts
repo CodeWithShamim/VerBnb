@@ -46,6 +46,15 @@ const config: Config = {
           sourcing: "#10b981", // emerald
           delivery: "#f59e0b", // amber
         },
+        // Dopamine accents — vivid pops used for gradients, glows and chips.
+        pop: {
+          pink: "#ec4899",
+          magenta: "#d946ef",
+          orange: "#fb923c",
+          lime: "#a3e635",
+          cyan: "#22d3ee",
+          violet: "#8b5cf6",
+        },
       },
       fontFamily: {
         // Default sans is Manrope (UI/nav). Inter is kept for body/subtext.
@@ -89,6 +98,42 @@ const config: Config = {
           "0%, 100%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
         },
+        aurora: {
+          "0%, 100%": {
+            transform: "translate(0,0) rotate(0deg) scale(1)",
+            opacity: "0.8",
+          },
+          "33%": {
+            transform: "translate(6%,-4%) rotate(8deg) scale(1.12)",
+            opacity: "1",
+          },
+          "66%": {
+            transform: "translate(-5%,5%) rotate(-6deg) scale(0.94)",
+            opacity: "0.7",
+          },
+        },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        orbit: {
+          "0%": { transform: "rotate(0deg) translateX(46px) rotate(0deg)" },
+          "100%": {
+            transform: "rotate(360deg) translateX(46px) rotate(-360deg)",
+          },
+        },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        shine: {
+          "0%": { transform: "translateX(-150%) skewX(-18deg)" },
+          "100%": { transform: "translateX(250%) skewX(-18deg)" },
+        },
+        "bounce-soft": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.6s cubic-bezier(0.22,1,0.36,1) both",
@@ -97,6 +142,12 @@ const config: Config = {
         shimmer: "shimmer 1.6s infinite",
         "pulse-ring": "pulse-ring 1.8s cubic-bezier(0.66,0,0,1) infinite",
         "gradient-x": "gradient-x 6s ease infinite",
+        aurora: "aurora 16s ease-in-out infinite",
+        marquee: "marquee 32s linear infinite",
+        orbit: "orbit 2.4s linear infinite",
+        "spin-slow": "spin-slow 8s linear infinite",
+        shine: "shine 2.8s ease-in-out infinite",
+        "bounce-soft": "bounce-soft 2.4s ease-in-out infinite",
       },
     },
   },
