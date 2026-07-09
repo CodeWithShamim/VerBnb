@@ -34,7 +34,7 @@ function GlassCard({
       <motion.div
         animate={reduce ? undefined : { y: [0, -10, 0] }}
         transition={{ duration: floatDuration, repeat: Infinity, ease: "easeInOut", delay }}
-        className="rounded-2xl border border-white/15 bg-white/[0.07] p-4 shadow-lift backdrop-blur-md"
+        className="rounded-2xl border border-slate-900/10 bg-[rgba(255,255,255,0.7)] p-4 shadow-lift backdrop-blur-md dark:border-white/15 dark:bg-white/[0.07]"
       >
         {children}
       </motion.div>
@@ -58,27 +58,27 @@ export default function HeroSideCards() {
       <div className="absolute left-8 top-1/2 w-64 -translate-y-1/2 space-y-5">
         <GlassCard delay={0.5} tilt={-4} floatDuration={6.5}>
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/25 px-2.5 py-1 text-[11px] font-semibold text-violet-200">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/15 px-2.5 py-1 text-[11px] font-semibold text-violet-700 dark:bg-violet-500/25 dark:text-violet-200">
               🏠 Rental case
             </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-300">
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-300">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               Resolved
             </span>
           </div>
-          <p className="mt-3 text-sm font-semibold text-white">
+          <p className="mt-3 text-sm font-semibold text-slate-900 dark:text-white">
             “Listing not as described”
           </p>
-          <p className="mt-1 text-xs text-white/60">
+          <p className="mt-1 text-xs text-slate-500 dark:text-white/60">
             4 photos + inspection report · pinned to IPFS
           </p>
           <div className="mt-3 flex items-center justify-between rounded-xl bg-emerald-400/15 px-3 py-2">
-            <span className="text-xs font-semibold text-emerald-300">
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-300">
               ✓ Refund approved
             </span>
-            <span className="text-xs font-bold text-white">82%</span>
+            <span className="text-xs font-bold text-slate-900 dark:text-white">82%</span>
           </div>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-900/10 dark:bg-white/10">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-400"
               initial={{ width: 0 }}
@@ -89,10 +89,10 @@ export default function HeroSideCards() {
         </GlassCard>
 
         <GlassCard delay={0.75} tilt={-2} floatDuration={5.5} className="ml-8 w-52">
-          <p className="text-xs font-medium text-white/80">
-            📌 Evidence sealed on <span className="font-semibold text-white">IPFS</span>
+          <p className="text-xs font-medium text-slate-700 dark:text-white/80">
+            📌 Evidence sealed on <span className="font-semibold text-slate-900 dark:text-white">IPFS</span>
           </p>
-          <p className="mt-1 truncate font-mono text-[10px] text-white/40">
+          <p className="mt-1 truncate font-mono text-[10px] text-slate-400 dark:text-white/40">
             bafkreihc6ramgg7qgyyeeb3lhkp…
           </p>
         </GlassCard>
@@ -102,7 +102,7 @@ export default function HeroSideCards() {
       <div className="absolute right-8 top-1/2 w-64 -translate-y-1/2 space-y-5">
         <GlassCard delay={0.6} tilt={4} floatDuration={7}>
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wide text-white/70">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-white/70">
               Validator consensus
             </span>
             <span className="relative flex h-2 w-2">
@@ -114,7 +114,7 @@ export default function HeroSideCards() {
             {VALIDATORS.map((v, i) => (
               <motion.span
                 key={i}
-                className="grid h-9 w-9 place-items-center rounded-full border border-white/20 text-[11px] font-bold text-white"
+                className="grid h-9 w-9 place-items-center rounded-full border border-slate-900/10 text-[11px] font-bold dark:border-white/20"
                 style={{ background: `${v.color}33` }}
                 animate={{ scale: [1, 1.12, 1] }}
                 transition={{
@@ -128,20 +128,20 @@ export default function HeroSideCards() {
               </motion.span>
             ))}
           </div>
-          <p className="mt-3 text-xs text-white/60">
+          <p className="mt-3 text-xs text-slate-500 dark:text-white/60">
             5 of 5 independent LLM verdicts agree
           </p>
-          <p className="mt-1 text-sm font-semibold text-white">
+          <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
             Consensus reached in <span className="text-gradient-pop">94s</span>
           </p>
         </GlassCard>
 
         <GlassCard delay={0.85} tilt={2} floatDuration={5} className="-ml-6 w-56">
-          <p className="text-xs font-medium text-white/80">
+          <p className="text-xs font-medium text-slate-700 dark:text-white/80">
             ⛓ Sealed at block{" "}
-            <span className="font-mono font-semibold text-white">#2,841,022</span>
+            <span className="font-mono font-semibold text-slate-900 dark:text-white">#2,841,022</span>
           </p>
-          <p className="mt-1 text-[10px] text-white/40">
+          <p className="mt-1 text-[10px] text-slate-400 dark:text-white/40">
             GenLayer Bradbury · immutable
           </p>
         </GlassCard>

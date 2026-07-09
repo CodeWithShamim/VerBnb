@@ -42,7 +42,7 @@ export default function FormSidePanel({ category }: { category: Category }) {
       className="lg:sticky lg:top-24"
     >
       <div className="glow-border relative overflow-hidden rounded-3xl">
-        <div className="hero-dark-canvas relative rounded-3xl p-7 sm:p-8">
+        <div className="hero-canvas relative rounded-3xl p-7 sm:p-8">
           {/* drifting accent blobs */}
           <div
             className="aurora-blob -right-16 -top-16 h-56 w-56"
@@ -78,26 +78,26 @@ export default function FormSidePanel({ category }: { category: Category }) {
                 />
               </motion.div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/50">
                   {meta.title} judge
                 </p>
-                <p className="mt-1 font-serif-hero text-xl leading-snug text-white">
+                <p className="mt-1 font-serif-hero text-xl leading-snug text-slate-900 dark:text-white">
                   {meta.tagline}
                 </p>
               </div>
             </div>
 
-            <div className="my-6 h-px bg-white/10" />
+            <div className="my-6 h-px bg-slate-900/10 dark:bg-white/10" />
 
             {/* resolution timeline */}
-            <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/50">
               How your case resolves
             </p>
             <motion.ol
               initial={reduce ? false : "hidden"}
               animate="show"
               variants={{ show: { transition: { staggerChildren: 0.14, delayChildren: 0.6 } } }}
-              className="relative mt-4 space-y-5 border-l border-white/15 pl-5"
+              className="relative mt-4 space-y-5 border-l border-slate-900/15 pl-5 dark:border-white/15"
             >
               {STEPS.map((s, i) => (
                 <motion.li
@@ -113,30 +113,30 @@ export default function FormSidePanel({ category }: { category: Category }) {
                   className="relative"
                 >
                   <span
-                    className="absolute -left-[27px] top-1 h-3 w-3 rounded-full ring-4 ring-white/10"
+                    className="absolute -left-[27px] top-1 h-3 w-3 rounded-full ring-4 ring-slate-900/10 dark:ring-white/10"
                     style={{
                       background: meta.accent,
                       boxShadow: `0 0 12px ${meta.accent}`,
                     }}
                   />
-                  <p className="text-sm font-semibold text-white">
-                    <span className="mr-1.5 text-white/40">0{i + 1}</span>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                    <span className="mr-1.5 text-slate-400 dark:text-white/40">0{i + 1}</span>
                     {s.title}
                   </p>
-                  <p className="mt-1 text-xs leading-relaxed text-white/60">{s.body}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-white/60">{s.body}</p>
                 </motion.li>
               ))}
             </motion.ol>
 
-            <div className="my-6 h-px bg-white/10" />
+            <div className="my-6 h-px bg-slate-900/10 dark:bg-white/10" />
 
             {/* what you'll need */}
-            <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-white/50">
               What you&apos;ll need
             </p>
             <ul className="mt-3 space-y-2.5">
               {CHECKLIST.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-xs text-white/70">
+                <li key={item} className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-white/70">
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -153,15 +153,15 @@ export default function FormSidePanel({ category }: { category: Category }) {
             </ul>
 
             {/* live-network footer */}
-            <div className="mt-7 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-              <span className="flex items-center gap-2 text-xs font-medium text-white/80">
+            <div className="mt-7 flex items-center justify-between rounded-xl border border-slate-900/10 bg-white/40 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+              <span className="flex items-center gap-2 text-xs font-medium text-slate-700 dark:text-white/80">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
                 GenLayer Bradbury
               </span>
-              <span className="text-[11px] text-white/50">5 validators · live</span>
+              <span className="text-[11px] text-slate-400 dark:text-white/50">5 validators · live</span>
             </div>
           </div>
         </div>

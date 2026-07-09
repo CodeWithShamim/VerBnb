@@ -18,7 +18,7 @@ const EASE = [0.76, 0, 0.24, 1] as const;
 function Curtain() {
   return (
     <motion.div
-      className="hero-dark-canvas pointer-events-none fixed inset-0 z-[95]"
+      className="hero-canvas pointer-events-none fixed inset-0 z-[95]"
       // Enter: curtain starts covering the screen, then slides up and away.
       initial={{ y: "0%" }}
       animate={{ y: "-100%", transition: { duration: 0.6, delay: 0.12, ease: EASE } }}
@@ -32,10 +32,10 @@ function Curtain() {
 
       <div className="grid h-full w-full place-items-center">
         <div className="flex flex-col items-center gap-3">
-          <span className="font-serif-hero text-3xl italic tracking-wide text-white">
+          <span className="font-serif-hero text-3xl italic tracking-wide text-slate-900 dark:text-white">
             VerBnb
           </span>
-          <span className="h-[2px] w-24 overflow-hidden rounded-full bg-white/10">
+          <span className="h-[2px] w-24 overflow-hidden rounded-full bg-slate-900/10 dark:bg-white/10">
             <motion.span
               className="block h-full w-full bg-gradient-to-r from-hero-purple via-pop-pink to-pop-cyan"
               initial={{ x: "-100%" }}

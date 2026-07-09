@@ -49,7 +49,7 @@ export default function BootLoader() {
     <AnimatePresence>
       {!done && (
         <motion.div
-          className="hero-dark-canvas fixed inset-0 z-[300] grid place-items-center"
+          className="hero-canvas fixed inset-0 z-[300] grid place-items-center"
           exit={{ y: "-100%", transition: { duration: 0.7, ease: EASE } }}
           style={{ willChange: "transform" }}
           aria-hidden
@@ -62,7 +62,7 @@ export default function BootLoader() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="font-serif-hero text-5xl italic tracking-wide text-white"
+              className="font-serif-hero text-5xl italic tracking-wide text-slate-900 dark:text-white"
             >
               VerBnb
             </motion.span>
@@ -70,7 +70,7 @@ export default function BootLoader() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.25 }}
-              className="mt-2 text-xs font-medium uppercase tracking-[0.25em] text-white/40"
+              className="mt-2 text-xs font-medium uppercase tracking-[0.25em] text-slate-400 dark:text-white/40"
             >
               AI consensus · on-chain
             </motion.p>
@@ -82,17 +82,17 @@ export default function BootLoader() {
               transition={{ duration: 0.5, delay: 0.35 }}
               className="mt-8 w-full"
             >
-              <div className="h-[2px] w-full overflow-hidden rounded-full bg-white/10">
+              <div className="h-[2px] w-full overflow-hidden rounded-full bg-slate-900/10 dark:bg-white/10">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-hero-purple via-pop-pink to-pop-cyan transition-[width] duration-100 ease-out"
                   style={{ width: `${pct}%` }}
                 />
               </div>
               <div className="mt-3 flex items-baseline justify-between">
-                <span className="text-[11px] font-medium text-white/40">
+                <span className="text-[11px] font-medium text-slate-400 dark:text-white/40">
                   Connecting to GenLayer…
                 </span>
-                <span className="font-mono text-[11px] font-semibold tabular-nums text-white/70">
+                <span className="font-mono text-[11px] font-semibold tabular-nums text-slate-600 dark:text-white/70">
                   {pct}%
                 </span>
               </div>

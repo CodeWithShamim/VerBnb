@@ -64,7 +64,7 @@ export default function Home() {
   return (
     <div className="bg-grid">
       {/* HERO */}
-      <section className="hero-dark-canvas relative flex min-h-screen flex-col overflow-hidden">
+      <section className="hero-canvas relative flex min-h-screen flex-col overflow-hidden">
         {/* Drifting aurora blobs behind everything. */}
         <div aria-hidden className="absolute inset-0 overflow-hidden">
           <div
@@ -98,19 +98,19 @@ export default function Home() {
 
         <div className="container-page relative z-10 flex flex-1 flex-col justify-center pb-16 pt-28 text-center">
           <Reveal direction="down">
-            <span className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 backdrop-blur-md">
+            <span className="mx-auto inline-flex items-center gap-2 rounded-full border border-slate-900/10 bg-white/40 px-4 py-1.5 backdrop-blur-md dark:border-white/15 dark:bg-white/10">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pop-lime opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-pop-lime" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 dark:bg-pop-lime" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-pop-lime" />
               </span>
-              <span className="font-cabin text-sm font-medium text-white">
+              <span className="font-cabin text-sm font-medium text-slate-800 dark:text-white">
                 Live on GenLayer Bradbury testnet · 9 contracts on-chain
               </span>
             </span>
           </Reveal>
 
           <Reveal delay={0.05}>
-            <h1 className="mx-auto mt-8 max-w-4xl font-serif-hero text-5xl leading-[1.06] text-white sm:text-7xl md:text-[88px]">
+            <h1 className="mx-auto mt-8 max-w-4xl font-serif-hero text-5xl leading-[1.06] text-slate-900 dark:text-white sm:text-7xl md:text-[88px]">
               Every dispute deserves a{" "}
               <span className="text-gradient-pop">fair verdict</span> — not a
               support ticket.
@@ -118,7 +118,7 @@ export default function Home() {
           </Reveal>
 
           <Reveal delay={0.12}>
-            <p className="mx-auto mt-6 max-w-[680px] font-inter text-lg leading-relaxed text-white/70">
+            <p className="mx-auto mt-6 max-w-[680px] font-inter text-lg leading-relaxed text-slate-600 dark:text-white/70">
               VerBnb turns rental, marketplace, sourcing and delivery conflicts
               into on-chain cases. GenLayer validators fetch your evidence, form
               independent LLM judgments, reach consensus, and settle the outcome
@@ -136,7 +136,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/activity"
-                className="rounded-xl border border-white/20 bg-white/5 px-7 py-3.5 font-cabin text-base font-medium text-white backdrop-blur transition-colors duration-300 hover:border-white/40 hover:bg-white/10"
+                className="rounded-xl border border-slate-900/15 bg-white/40 px-7 py-3.5 font-cabin text-base font-medium text-slate-800 backdrop-blur transition-colors duration-300 hover:border-slate-900/30 hover:bg-white/80 dark:border-white/20 dark:bg-white/5 dark:text-white dark:hover:border-white/40 dark:hover:bg-white/10"
               >
                 Watch live activity
               </Link>
@@ -157,7 +157,7 @@ export default function Home() {
               {[...MARQUEE_CHIPS, ...MARQUEE_CHIPS].map((chip, i) => (
                 <span
                   key={i}
-                  className="whitespace-nowrap rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-medium text-white/70 backdrop-blur"
+                  className="whitespace-nowrap rounded-full border border-slate-900/10 bg-white/40 px-4 py-1.5 text-sm font-medium text-slate-600 backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-white/70"
                 >
                   {chip}
                 </span>

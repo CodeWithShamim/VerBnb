@@ -28,9 +28,9 @@ export default function Navbar() {
 
   const chain = getChainInfo();
 
-  // On the homepage the nav overlays the full-screen hero video (transparent,
-  // white text). Elsewhere the pages are light, so the nav gets a solid
-  // dark-purple bar so the white UI text stays legible.
+  // On the homepage the nav overlays the full-screen hero canvas (transparent
+  // until scrolled, then a frosted bar). Elsewhere it's a sticky frosted bar in
+  // light mode and the solid dark-purple bar in dark mode.
   const overHero = pathname === '/';
 
   return (
@@ -41,9 +41,9 @@ export default function Navbar() {
       className={`${overHero ? 'absolute' : 'sticky'} inset-x-0 top-0 z-50 transition-all duration-300 ${
         overHero
           ? scrolled
-            ? 'bg-black/30 backdrop-blur-md'
+            ? 'bg-[rgba(255,255,255,0.75)] shadow-sm backdrop-blur-md dark:bg-black/30 dark:shadow-none'
             : 'bg-transparent'
-          : 'bg-hero-dark shadow-md'
+          : 'border-b border-surface-border bg-[rgba(255,255,255,0.85)] backdrop-blur-md dark:border-transparent dark:bg-hero-dark dark:shadow-md'
       }`}
     >
       <nav className="flex items-center justify-between gap-4 px-6 py-4 lg:px-[120px]">
@@ -52,7 +52,7 @@ export default function Navbar() {
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-hero-purple font-manrope font-black text-white shadow-md transition-transform duration-300 group-hover:scale-105">
             V
           </span>
-          <span className="font-manrope text-lg font-bold tracking-tight text-white">VerBnb</span>
+          <span className="font-manrope text-lg font-bold tracking-tight text-slate-900 dark:text-white">VerBnb</span>
         </Link>
 
         {/* Center nav — desktop links */}
@@ -62,7 +62,7 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="font-manrope text-[14px] font-medium text-white transition-opacity hover:opacity-80"
+                className="font-manrope text-[14px] font-medium text-slate-700 transition-opacity hover:opacity-80 dark:text-white"
               >
                 {item.label}
               </Link>
@@ -89,7 +89,7 @@ export default function Navbar() {
             aria-label="Toggle menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            className="text-white transition-opacity hover:opacity-80 lg:hidden"
+            className="text-slate-700 transition-opacity hover:opacity-80 dark:text-white lg:hidden"
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
               <motion.path
@@ -120,7 +120,7 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-40 flex flex-col bg-black lg:hidden"
+            className="fixed inset-0 z-40 flex flex-col bg-white dark:bg-black lg:hidden"
           >
             <div className="flex flex-1 flex-col items-center justify-center gap-8 py-4">
               {NAV.map((item) => {
@@ -129,7 +129,7 @@ export default function Navbar() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className="font-manrope text-2xl font-medium text-white transition-opacity hover:opacity-80"
+                    className="font-manrope text-2xl font-medium text-slate-900 transition-opacity hover:opacity-80 dark:text-white"
                   >
                     {item.label}
                   </Link>
@@ -146,7 +146,7 @@ export default function Navbar() {
                 </Link>
               </div>
 
-              <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-white/60">
+              <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-white/60">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />

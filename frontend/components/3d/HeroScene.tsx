@@ -2,8 +2,22 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, MeshDistortMaterial, Preload, Sparkles } from "@react-three/drei";
-import { useRef, useMemo, useState, Suspense, type ReactNode } from "react";
+import { useRef, useMemo, useState, useEffect, Suspense, type ReactNode } from "react";
 import * as THREE from "three";
+
+/** Tracks the <html class="dark"> theme flag, live across toggles. */
+function useIsDark() {
+  const [dark, setDark] = useState(true);
+  useEffect(() => {
+    const el = document.documentElement;
+    const update = () => setDark(el.classList.contains("dark"));
+    update();
+    const obs = new MutationObserver(update);
+    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+}
 
 type ShapeDef = {
   pos: [number, number, number];
@@ -97,7 +111,7 @@ function CoreSphere() {
   );
 }
 
-function Scene() {
+function Scene({ isDark }: { isDark: boolean }) {
   // Geometries are declared once and memoized — never recreated per frame.
   const shapes = useMemo<ShapeDef[]>(
     () => [
@@ -116,13 +130,27 @@ function Scene() {
       <ambientLight intensity={0.5} />
       <pointLight position={[5, 5, 5]} intensity={1} color="#a06bff" />
       <pointLight position={[-5, -5, 5]} intensity={0.7} color="#ec4899" />
-      {/* Dark-hero fog so distant shapes melt into the hero canvas. */}
-      <fog attach="fog" args={["#0d0920", 8, 22]} />
+      {/* Theme-matched fog so distant shapes melt into the hero canvas. */}
+      <fog attach="fog" args={[isDark ? "#0d0920" : "#f2f0fc", 8, 22]} />
       <MouseTracker />
       <CoreSphere />
       {/* Glittering dust field — cheap points, big dopamine payoff. */}
-      <Sparkles count={110} scale={[14, 8, 8]} size={2.2} speed={0.35} color="#c4b5fd" opacity={0.7} />
-      <Sparkles count={40} scale={[12, 7, 6]} size={3.2} speed={0.5} color="#f0abfc" opacity={0.5} />
+      <Sparkles
+        count={110}
+        scale={[14, 8, 8]}
+        size={2.2}
+        speed={0.35}
+        color={isDark ? "#c4b5fd" : "#7c3aed"}
+        opacity={isDark ? 0.7 : 0.5}
+      />
+      <Sparkles
+        count={40}
+        scale={[12, 7, 6]}
+        size={3.2}
+        speed={0.5}
+        color={isDark ? "#f0abfc" : "#db2777"}
+        opacity={isDark ? 0.5 : 0.4}
+      />
       {shapes.map((s, i) => (
         <FloatingShape
           key={i}
@@ -145,6 +173,7 @@ function Scene() {
  * hover-on-shape still works because R3F attaches its own listeners to Canvas.
  */
 export function HeroScene() {
+  const isDark = useIsDark();
   return (
     <div className="absolute inset-0">
       <Canvas
@@ -154,7 +183,7 @@ export function HeroScene() {
         gl={{ antialias: true, alpha: true }}
       >
         <Suspense fallback={null}>
-          <Scene />
+          <Scene isDark={isDark} />
         </Suspense>
       </Canvas>
     </div>
