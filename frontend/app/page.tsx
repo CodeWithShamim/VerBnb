@@ -3,6 +3,7 @@ import CategoryCard from "@/components/CategoryCard";
 import PlatformStats from "@/components/PlatformStats";
 import LiveTransactions from "@/components/LiveTransactions";
 import { HeroScene3D } from "@/components/3d";
+import HeroSideCards from "@/components/HeroSideCards";
 import Reveal, { RevealGroup } from "@/components/Reveal";
 import CopyAddress from "@/components/CopyAddress";
 import FaqSection from "@/components/FaqSection";
@@ -91,6 +92,9 @@ export default function Home() {
         <div className="pointer-events-none absolute inset-0 z-[1]">
           <HeroScene3D />
         </div>
+
+        {/* Floating case/consensus cards on the hero's left and right flanks. */}
+        <HeroSideCards />
 
         <div className="container-page relative z-10 flex flex-1 flex-col justify-center pb-16 pt-28 text-center">
           <Reveal direction="down">
