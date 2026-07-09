@@ -52,10 +52,12 @@ export default function Navbar() {
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-hero-purple font-manrope font-black text-white shadow-md transition-transform duration-300 group-hover:scale-105">
             V
           </span>
-          <span className="font-manrope text-lg font-bold tracking-tight text-slate-900 dark:text-white">VerBnb</span>
+          <span className="font-manrope text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+            VerBnb
+          </span>
         </Link>
 
-        {/* Center nav — desktop links */}
+        {/* Center nav - desktop links */}
         <div className="hidden items-center gap-8 lg:flex">
           {NAV.map((item) => {
             return (
@@ -112,7 +114,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu — full-screen black overlay */}
+      {/* Mobile menu - full-screen black overlay */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div

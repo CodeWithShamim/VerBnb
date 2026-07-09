@@ -77,11 +77,14 @@ export const CATEGORIES: Record<Category, CategoryMeta> = {
 };
 
 export const SLUG_TO_CATEGORY: Record<string, Category> = Object.values(
-  CATEGORIES
-).reduce((acc, c) => {
-  acc[c.slug] = c.key;
-  return acc;
-}, {} as Record<string, Category>);
+  CATEGORIES,
+).reduce(
+  (acc, c) => {
+    acc[c.slug] = c.key;
+    return acc;
+  },
+  {} as Record<string, Category>,
+);
 
 export function newDisputeId(category: Category): string {
   const rand = Math.random().toString(36).slice(2, 8);
@@ -92,10 +95,11 @@ export function newDisputeId(category: Category): string {
 // the chain object; we default to the Bradbury explorer so links work even
 // before the chain object is loaded client-side.
 export const EXPLORER_BASE = (
-  process.env.NEXT_PUBLIC_GL_EXPLORER || "https://explorer-bradbury.genlayer.com"
+  process.env.NEXT_PUBLIC_GL_EXPLORER ||
+  "https://explorer-bradbury.genlayer.com"
 ).replace(/\/+$/, "");
 
-// The explorer's JSON API — exposes per-address transaction history with live
+// The explorer's JSON API - exposes per-address transaction history with live
 // status, block and decoded calldata. Used by /api/transactions to build the
 // platform-wide live feed across every specialist + the registry.
 export const EXPLORER_API_BASE = `${EXPLORER_BASE}/api/v1`;
@@ -105,12 +109,16 @@ export const EXPLORER_API_BASE = `${EXPLORER_BASE}/api/v1`;
  * live feed pulls transactions for each of these. Env vars override so the
  * same UI works against a re-deploy without a code change.
  */
-export const CONTRACTS: { key: string; address: string; category: Category | null }[] = [
+export const CONTRACTS: {
+  key: string;
+  address: string;
+  category: Category | null;
+}[] = [
   {
     key: "Registry",
     address:
       process.env.NEXT_PUBLIC_VERBNB_REGISTRY ||
-      "0x8aA6527B539814c454ee178dd7CE8cAd011834eB",
+      "0x5d6DF470903AbC697B5F3b75a3f895470E65aE6C",
     category: null,
   },
   {
@@ -147,10 +155,13 @@ export const CONTRACTS: { key: string; address: string; category: Category | nul
 export const CONTRACT_BY_ADDRESS: Record<
   string,
   { key: string; category: Category | null }
-> = CONTRACTS.reduce((acc, c) => {
-  acc[c.address.toLowerCase()] = { key: c.key, category: c.category };
-  return acc;
-}, {} as Record<string, { key: string; category: Category | null }>);
+> = CONTRACTS.reduce(
+  (acc, c) => {
+    acc[c.address.toLowerCase()] = { key: c.key, category: c.category };
+    return acc;
+  },
+  {} as Record<string, { key: string; category: Category | null }>,
+);
 
 /** The registry contract address (env-overridable). */
 export const REGISTRY_CONTRACT =
@@ -164,17 +175,30 @@ export const REGISTRY_CONTRACT =
 export const CONTRACT_ADDRESSES = {
   registry: REGISTRY_CONTRACT,
   appeal_manager: (process.env.NEXT_PUBLIC_APPEAL_MANAGER || "") as string,
-  reputation_tracker: (process.env.NEXT_PUBLIC_REPUTATION_TRACKER || "") as string,
+  reputation_tracker: (process.env.NEXT_PUBLIC_REPUTATION_TRACKER ||
+    "") as string,
   fraud_detector: (process.env.NEXT_PUBLIC_FRAUD_DETECTOR || "") as string,
-  analytics_tracker: (process.env.NEXT_PUBLIC_ANALYTICS_TRACKER || "") as string,
+  analytics_tracker: (process.env.NEXT_PUBLIC_ANALYTICS_TRACKER ||
+    "") as string,
 };
 
 // Active network metadata for display. Mirrors the genlayer-js chain objects so
 // the UI can show the network name + chain id without loading the SDK client.
-const NETWORKS: Record<string, { name: string; chainId: number; short: string }> = {
-  testnet_bradbury: { name: "GenLayer Bradbury Testnet", chainId: 4221, short: "Bradbury" },
+const NETWORKS: Record<
+  string,
+  { name: string; chainId: number; short: string }
+> = {
+  testnet_bradbury: {
+    name: "GenLayer Bradbury Testnet",
+    chainId: 4221,
+    short: "Bradbury",
+  },
   localnet: { name: "GenLayer Localnet", chainId: 61127, short: "Localnet" },
-  studionet: { name: "GenLayer Studio Network", chainId: 61999, short: "Studionet" },
+  studionet: {
+    name: "GenLayer Studio Network",
+    chainId: 61999,
+    short: "Studionet",
+  },
 };
 
 /** The network the app is configured to talk to. */

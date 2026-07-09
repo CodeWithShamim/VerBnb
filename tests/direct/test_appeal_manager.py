@@ -43,7 +43,7 @@ def test_appeal_created_within_window(direct_vm, direct_deploy):
 def test_appeal_rejected_after_7_days(direct_vm, direct_deploy):
     c = direct_deploy(CONTRACT)
     now = datetime(2026, 6, 10, 12, 0, 0, tzinfo=timezone.utc)
-    # Verdict was 8 days ago — outside the window.
+    # Verdict was 8 days ago - outside the window.
     verdict_at = int((now - timedelta(days=8)).timestamp())
     direct_vm.warp(_iso(now))
     with direct_vm.expect_revert("appeal window closed"):

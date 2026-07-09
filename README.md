@@ -1,9 +1,9 @@
-# VerBnb — AI-Enforced Marketplace Dispute Resolution
+# VerBnb - AI-Enforced Marketplace Dispute Resolution
 
 > Every dispute. Resolved by AI consensus. On-chain.
 
 [Live App](https://ver-bnb.vercel.app) ·
-[Docs](docs/) ·
+[Docs](https://ver-bnb.vercel.app/docs) ·
 [Explorer](https://explorer-bradbury.genlayer.com) ·
 [GenLayer Portal](https://portal.genlayer.foundation) ·
 [Faucet](https://testnet-faucet.genlayer.foundation)
@@ -30,10 +30,10 @@ Four dispute categories, one registry:
 
 ## How It Works
 
-1. **Submit** — Upload evidence to IPFS, describe your claim in plain English.
-2. **Validate** — GenLayer AI validators independently fetch and judge the evidence.
-3. **Consensus** — Optimistic Democracy: a leader proposes, validators agree or appeal.
-4. **Verdict** — Refund percentage and reasoning written on-chain, permanently.
+1. **Submit** - Upload evidence to IPFS, describe your claim in plain English.
+2. **Validate** - GenLayer AI validators independently fetch and judge the evidence.
+3. **Consensus** - Optimistic Democracy: a leader proposes, validators agree or appeal.
+4. **Verdict** - Refund percentage and reasoning written on-chain, permanently.
 
 ---
 
@@ -41,11 +41,11 @@ Four dispute categories, one registry:
 
 | Contract | Address |
 | --- | --- |
-| Registry (entry point) | `0x8aA6527B539814c454ee178dd7CE8cAd011834eB` |
-| RENTAL — `listing_accuracy_judge` | `0x76e3Ff31Ca5cB4e6ce46EF109c52272F27151b32` |
-| PRODUCT — `not_as_described` | `0xBF6Efed489B28c2680FE0b3eF8Dffe4288e50548` |
-| SOURCING — `ethical_sourcing` | `0xb516DB96E8DefE26dE624dfF1f7D0802a828996D` |
-| DELIVERY — `delivery_adjudicator` | `0x63FFE6DE2988ABC6f49F3b3fd56415ef2A16d3AF` |
+| Registry (entry point) | `0x5d6DF470903AbC697B5F3b75a3f895470E65aE6C` |
+| RENTAL - `listing_accuracy_judge` | `0x76e3Ff31Ca5cB4e6ce46EF109c52272F27151b32` |
+| PRODUCT - `not_as_described` | `0xBF6Efed489B28c2680FE0b3eF8Dffe4288e50548` |
+| SOURCING - `ethical_sourcing` | `0xb516DB96E8DefE26dE624dfF1f7D0802a828996D` |
+| DELIVERY - `delivery_adjudicator` | `0x63FFE6DE2988ABC6f49F3b3fd56415ef2A16d3AF` |
 | Appeal Manager | `0x86d5E6DAe032fb62EdA7cE345F37374BCbb96e19` |
 | Reputation Tracker | `0x5A92cd40E7FE241177b924bb4Ed5dEE5d0CaCfa9` |
 | Fraud Detector | `0x27e840Bc1fa7C0448FeF03AA34E64ddcf76010E2` |
@@ -85,7 +85,7 @@ existing dispute lifecycle points. The registry stores their addresses and
 exposes them via `get_extension_addresses`; its original interface is unchanged.
 
 **Consensus strategy.** All AI adjudication uses a leader/validator pair via
-`gl.vm.run_nondet` — never `strict_eq`, because LLM output is non-deterministic:
+`gl.vm.run_nondet` - never `strict_eq`, because LLM output is non-deterministic:
 
 - The **leader** fetches evidence, runs the LLM, and returns a clean JSON verdict.
 - Each **validator** independently re-fetches and re-judges, then agrees if the
@@ -187,10 +187,10 @@ GenLayer uses **Optimistic Democracy** ([Condorcet's Jury
 Theorem](https://en.wikipedia.org/wiki/Condorcet%27s_jury_theorem)): a diverse
 validator set is more likely to reach the correct answer than any single model.
 
-1. A **leader** validator runs the contract's `leader_fn` — it fetches the
+1. A **leader** validator runs the contract's `leader_fn` - it fetches the
    evidence URLs, asks an LLM with a strict JSON prompt, and returns a structured
    verdict.
-2. Every other validator runs `validator_fn` — it independently re-fetches and
+2. Every other validator runs `validator_fn` - it independently re-fetches and
    re-asks an LLM, then votes **agree** if its result is close enough (refund
    within ±15, or an exact verdict string for delivery).
 3. Majority agree → accepted, written on-chain.
@@ -213,10 +213,10 @@ VerBnb/
 ├── deployments/
 │   └── bradbury.json     # All 9 deployed addresses
 ├── frontend/
-│   ├── app/              # Next.js App Router pages
+│   ├── app/              # Next.js App Router pages (incl. /docs user guide)
 │   ├── components/       # React components (2D + 3D)
-│   └── lib/              # Client, constants, utilities
-├── docs/                 # Nextra documentation site
+│   ├── lib/              # Client, constants, utilities
+│   └── scripts/          # Maintenance (e.g. backfill-analytics.mjs)
 └── README.md
 ```
 
@@ -230,7 +230,9 @@ VerBnb/
 4. Push: `git push origin feature/my-feature`.
 5. Open a Pull Request.
 
-See [`docs/`](docs/) for the full contributor guide, contract reference, and API docs.
+The in-app user guide lives at [/docs](https://ver-bnb.vercel.app/docs)
+(`frontend/app/docs/page.tsx`); the contract reference and architecture notes
+are in this README.
 
 ---
 

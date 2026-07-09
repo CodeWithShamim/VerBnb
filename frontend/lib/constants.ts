@@ -3,14 +3,19 @@
 // NOTE: This module is ADDITIVE. The canonical contract config already lives in
 // `lib/contracts.ts` (CONTRACTS, CONTRACT_ADDRESSES, CATEGORIES, explorer
 // helpers) and is consumed across the app. This file only adds a few cross-
-// cutting constants — poll intervals, network display metadata, and a flat
-// category color map — used by the animation / 3D layer and polling logic.
+// cutting constants - poll intervals, network display metadata, and a flat
+// category color map - used by the animation / 3D layer and polling logic.
 //
 // Addresses below mirror the env-overridable fallbacks in `lib/contracts.ts`
 // so nothing diverges. The frontend talks to the registry at runtime; these are
 // display/reference values only.
 
-import { CONTRACTS, CONTRACT_ADDRESSES, getChainInfo, EXPLORER_BASE } from "./contracts";
+import {
+  CONTRACTS,
+  CONTRACT_ADDRESSES,
+  getChainInfo,
+  EXPLORER_BASE,
+} from "./contracts";
 
 /** All 9 deployed contract addresses (registry + 4 specialists + 4 trackers). */
 export const ALL_CONTRACTS = {
@@ -42,7 +47,7 @@ export const NETWORK = {
 
 /**
  * Per-phase polling cadence (ms) for the dispute consensus tracker. 0 means
- * "stop polling" — the state is terminal. Consumers MUST clear their interval
+ * "stop polling" - the state is terminal. Consumers MUST clear their interval
  * on unmount and when they hit a terminal phase.
  */
 export const POLL_INTERVALS: Record<string, number> = {
@@ -76,9 +81,9 @@ export const CATEGORY_COLORS: Record<string, string> = {
 /** Phase → accent color (hex) for the validator orb and status visuals. */
 export const PHASE_COLORS: Record<string, string> = {
   SUBMITTED: "#7b39fc", // purple (brand)
-  PROPOSING: "#f59e0b", // amber — thinking
-  COMMITTING: "#3b82f6", // blue — committing
-  REVEALING: "#8b5cf6", // violet — revealing
-  FINALIZED: "#22c55e", // green — done
-  FAILED: "#ef4444", // red — error
+  PROPOSING: "#f59e0b", // amber - thinking
+  COMMITTING: "#3b82f6", // blue - committing
+  REVEALING: "#8b5cf6", // violet - revealing
+  FINALIZED: "#22c55e", // green - done
+  FAILED: "#ef4444", // red - error
 };

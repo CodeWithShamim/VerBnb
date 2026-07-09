@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef, useMemo, Suspense } from "react";
-import * as THREE from "three";
+import { Canvas, useFrame } from '@react-three/fiber';
+import { useRef, useMemo, Suspense } from 'react';
+import * as THREE from 'three';
 
 function ParticleBurst({ active }: { active: boolean }) {
   const pointsRef = useRef<THREE.Points>(null);
   const count = 80;
 
-  // Initial tight cluster at origin — memoized, never recreated per frame.
+  // Initial tight cluster at origin - memoized, never recreated per frame.
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -26,7 +26,7 @@ function ParticleBurst({ active }: { active: boolean }) {
         y: (Math.random() - 0.5) * 0.08,
         z: (Math.random() - 0.5) * 0.08,
       })),
-    []
+    [],
   );
 
   const startTime = useRef<number | null>(null);

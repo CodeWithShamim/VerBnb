@@ -10,7 +10,7 @@ LISTING = (
 )
 EVIDENCE = (
     "Buyer received used earbuds in a plain box, no warranty card, lightning "
-    "case not USB-C, serial number not recognized by Apple — likely counterfeit."
+    "case not USB-C, serial number not recognized by Apple - likely counterfeit."
 )
 
 

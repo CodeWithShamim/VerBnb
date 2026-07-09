@@ -6,7 +6,8 @@ import { createClient } from "genlayer-js";
 import { testnetBradbury } from "genlayer-js/chains";
 import { CATEGORIES, type Category } from "@/lib/contracts";
 
-const REGISTRY = (process.env.NEXT_PUBLIC_VERBNB_REGISTRY || "") as `0x${string}`;
+const REGISTRY = (process.env.NEXT_PUBLIC_VERBNB_REGISTRY ||
+  "") as `0x${string}`;
 
 export interface DisputeSubmission {
   category: Category;
@@ -28,13 +29,24 @@ export interface DisputeSubmission {
 function specialistArgs(s: DisputeSubmission): any[] {
   switch (s.category) {
     case "RENTAL":
-      return [s.disputeId, s.listingUrl, s.evidenceUrl, BigInt(s.claimedAmount || 0)];
+      return [
+        s.disputeId,
+        s.listingUrl,
+        s.evidenceUrl,
+        BigInt(s.claimedAmount || 0),
+      ];
     case "PRODUCT":
       return [s.disputeId, s.listingUrl, s.evidenceUrl];
     case "SOURCING":
       return [s.brandId, s.claim, s.certificationUrl, s.supplierRegistryUrl];
     case "DELIVERY":
-      return [s.disputeId, s.orderId, s.evidenceUrl, s.customerClaim, s.expectedAddress];
+      return [
+        s.disputeId,
+        s.orderId,
+        s.evidenceUrl,
+        s.customerClaim,
+        s.expectedAddress,
+      ];
   }
 }
 
@@ -91,9 +103,10 @@ export function useWalletDispute() {
           address: REGISTRY,
           functionName: "get_contract_for_category",
           args: [sub.category],
-        })
+        }),
       );
-      if (!specialist) throw new Error(`Registry has no contract for ${sub.category}`);
+      if (!specialist)
+        throw new Error(`Registry has no contract for ${sub.category}`);
 
       // 2. Raise the dispute on the specialist (user signs).
       const method = CATEGORIES[sub.category].method;
@@ -104,7 +117,7 @@ export function useWalletDispute() {
         value: 0n,
       })) as string;
 
-      // 3. Register in the registry (user signs; optional — non-fatal on reject).
+      // 3. Register in the registry (user signs; optional - non-fatal on reject).
       let registryTx: string | null = null;
       try {
         registryTx = (await client.writeContract({
@@ -119,7 +132,7 @@ export function useWalletDispute() {
 
       return { specialistTx, registryTx, specialist, signer: wallet.address };
     },
-    [wallet]
+    [wallet],
   );
 
   return {

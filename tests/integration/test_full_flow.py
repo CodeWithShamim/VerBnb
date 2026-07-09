@@ -1,9 +1,9 @@
 """
-Integration test for Verdix / VerBnb — full end-to-end flow.
+Integration test for Verdix / VerBnb - full end-to-end flow.
 
 Run against a live GenLayer environment (local Studio or testnet Bradbury):
 
-    # local Studio (Docker) — full GenVM, recommended:
+    # local Studio (Docker) - full GenVM, recommended:
     genlayer up
     gltest tests/integration/ -v -s --network localnet
 

@@ -1,9 +1,9 @@
 """
-Integration test for Verdix / VerBnb Phase 2 — full flow with appeals.
+Integration test for Verdix / VerBnb Phase 2 - full flow with appeals.
 
 Run against a live GenLayer environment (local Studio or testnet Bradbury):
 
-    # local Studio (Docker) — full GenVM, recommended:
+    # local Studio (Docker) - full GenVM, recommended:
     genlayer up
     gltest tests/integration/test_full_flow_with_appeals.py -v -s --network localnet
 
@@ -11,7 +11,7 @@ Run against a live GenLayer environment (local Studio or testnet Bradbury):
     gltest tests/integration/test_full_flow_with_appeals.py -v -s --network testnet_bradbury
 
 The 4 new tracker contracts are STANDALONE and orchestrated off-chain (the
-registry stores their addresses but does not call them synchronously — the
+registry stores their addresses but does not call them synchronously - the
 GenLayer registry is deterministic-only and the direct/glsim harness has no
 cross-contract call support). This test plays the role of that off-chain
 orchestrator: it deploys all 9 contracts, drives one RENTAL dispute to a

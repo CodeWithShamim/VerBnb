@@ -8,7 +8,7 @@
  * This is a known recharts/React-18 typings mismatch, not a runtime issue.
  *
  * Re-exporting the components through `any`-typed aliases keeps full runtime
- * behavior while sidestepping the broken JSX typing — and stays stable across
+ * behavior while sidestepping the broken JSX typing - and stays stable across
  * recharts patch versions. Import charts from here instead of "recharts".
  */
 import * as Recharts from "recharts";

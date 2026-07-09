@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { format } from "date-fns";
-import AppealForm, { type AppealSubmitPayload } from "@/components/AppealForm";
-import { CATEGORIES, type Category } from "@/lib/contracts";
-import { trackerFetch, invalidateTracker } from "@/lib/trackerClient";
+import { useEffect, useState, useCallback } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { format } from 'date-fns';
+import AppealForm, { type AppealSubmitPayload } from '@/components/AppealForm';
+import { CATEGORIES, type Category } from '@/lib/contracts';
+import { trackerFetch, invalidateTracker } from '@/lib/trackerClient';
 
 const APPEAL_WINDOW_DAYS = 7;
 
@@ -40,7 +40,7 @@ export default function AppealPage() {
   const params = useParams<{ id: string }>();
   const search = useSearchParams();
   const disputeId = decodeURIComponent(params.id);
-  const category = (search.get("category") || "") as Category | "";
+  const category = (search.get('category') || '') as Category | '';
 
   const [record, setRecord] = useState<DisputeRecord | null>(null);
   const [verdict, setVerdict] = useState<any>(null);
@@ -53,11 +53,9 @@ export default function AppealPage() {
     try {
       const [v, a] = await Promise.all([
         fetch(
-          `/api/verdict/${encodeURIComponent(disputeId)}?category=${encodeURIComponent(
-            category
-          )}`
+          `/api/verdict/${encodeURIComponent(disputeId)}?category=${encodeURIComponent(category)}`,
         ).then((r) => r.json()),
-        trackerFetch("appeals", { disputeId }),
+        trackerFetch('appeals', { disputeId }),
       ]);
       if (v?.record) setRecord(v.record);
       if (v?.verdict) setVerdict(v.verdict);
@@ -75,24 +73,22 @@ export default function AppealPage() {
   const remaining = daysRemaining(verdictAt);
   const windowOpen = remaining > 0;
   const originalRefund =
-    typeof verdict?.refund_percentage === "number" ? verdict.refund_percentage : 0;
+    typeof verdict?.refund_percentage === 'number' ? verdict.refund_percentage : 0;
 
-  const existing = appeals.find((a) => a.appeal_status !== "FINALIZED") || appeals[0];
+  const existing = appeals.find((a) => a.appeal_status !== 'FINALIZED') || appeals[0];
 
   async function handleSubmit(payload: AppealSubmitPayload) {
-    const reason = payload.details
-      ? `${payload.reason}: ${payload.details}`
-      : payload.reason;
-    const res = await fetch("/api/appeal", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const reason = payload.details ? `${payload.reason}: ${payload.details}` : payload.reason;
+    const res = await fetch('/api/appeal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         disputeId,
-        appellant: record?.submitter || "",
+        appellant: record?.submitter || '',
         originalVerdictAt: verdictAt,
         originalRefundPct: originalRefund,
-        partyA: record?.submitter || "",
-        partyB: "",
+        partyA: record?.submitter || '',
+        partyB: '',
         reason,
         evidenceUrl: payload.evidenceUrl,
       }),
@@ -101,7 +97,7 @@ export default function AppealPage() {
     if (data.error) throw new Error(data.error);
     setSubmitted(true);
     // Drop the cached (empty) appeals list so the reload shows the new appeal.
-    invalidateTracker("appeals", { disputeId });
+    invalidateTracker('appeals', { disputeId });
     setTimeout(load, 1500);
   }
 
@@ -116,47 +112,39 @@ export default function AppealPage() {
         </Link>
 
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-          Appeal verdict for{" "}
-          <span className="break-all font-mono text-brand">{disputeId}</span>
+          Appeal verdict for <span className="break-all font-mono text-brand">{disputeId}</span>
         </h1>
 
-        {loading && (
-          <div className="card mt-6 p-8 text-center text-slate-400">Loading…</div>
-        )}
+        {loading && <div className="card mt-6 p-8 text-center text-slate-400">Loading…</div>}
 
         {!loading && (
           <div className="mt-6 space-y-6">
             {/* Card 1: Original verdict */}
             <div className="card p-6">
-              <h2 className="mb-3 text-sm font-semibold text-slate-700">
-                Original verdict
-              </h2>
+              <h2 className="mb-3 text-sm font-semibold text-slate-700">Original verdict</h2>
               <div className="grid gap-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Category</span>
                   <span className="font-medium text-slate-800">
                     {record?.category
-                      ? CATEGORIES[record.category as Category]?.title ||
-                        record.category
-                      : "—"}
+                      ? CATEGORIES[record.category as Category]?.title || record.category
+                      : '-'}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Verdict</span>
                   <span className="font-medium text-slate-800">
-                    {verdict?.verdict?.replaceAll("_", " ") || "—"}
+                    {verdict?.verdict?.replaceAll('_', ' ') || '-'}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Refund given</span>
-                  <span className="font-medium text-slate-800">
-                    {originalRefund}%
-                  </span>
+                  <span className="font-medium text-slate-800">{originalRefund}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Finalized</span>
                   <span className="font-medium text-slate-800">
-                    {verdictAt ? format(new Date(verdictAt * 1000), "MMM d, yyyy") : "—"}
+                    {verdictAt ? format(new Date(verdictAt * 1000), 'MMM d, yyyy') : '-'}
                   </span>
                 </div>
               </div>
@@ -166,15 +154,11 @@ export default function AppealPage() {
             {existing ? (
               <>
                 <div className="card p-6">
-                  <h2 className="mb-3 text-sm font-semibold text-slate-700">
-                    Appeal status
-                  </h2>
+                  <h2 className="mb-3 text-sm font-semibold text-slate-700">Appeal status</h2>
                   <div className="grid gap-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-slate-500">Appeal ID</span>
-                      <span className="font-mono text-xs text-slate-700">
-                        {existing.appeal_id}
-                      </span>
+                      <span className="font-mono text-xs text-slate-700">{existing.appeal_id}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">Submitted</span>
@@ -182,18 +166,18 @@ export default function AppealPage() {
                         {existing.appeal_submitted_at
                           ? format(
                               new Date(existing.appeal_submitted_at * 1000),
-                              "MMM d, yyyy HH:mm"
+                              'MMM d, yyyy HH:mm',
                             )
-                          : "—"}
+                          : '-'}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">Status</span>
                       <span
                         className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                          existing.appeal_status === "FINALIZED"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : "bg-amber-50 text-amber-600"
+                          existing.appeal_status === 'FINALIZED'
+                            ? 'bg-emerald-50 text-emerald-600'
+                            : 'bg-amber-50 text-amber-600'
                         }`}
                       >
                         {existing.appeal_status}
@@ -208,11 +192,9 @@ export default function AppealPage() {
                   </div>
                 </div>
 
-                {existing.appeal_status === "FINALIZED" && (
+                {existing.appeal_status === 'FINALIZED' && (
                   <div className="card p-6">
-                    <h2 className="mb-3 text-sm font-semibold text-slate-700">
-                      Appeal verdict
-                    </h2>
+                    <h2 className="mb-3 text-sm font-semibold text-slate-700">Appeal verdict</h2>
                     <div className="grid gap-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-slate-500">Original refund</span>
@@ -228,8 +210,8 @@ export default function AppealPage() {
                       </div>
                       <div className="mt-2 rounded-xl bg-surface-subtle px-4 py-3 text-center font-semibold">
                         {existing.appeal_refund_pct !== existing.original_refund_pct
-                          ? "✅ Appeal accepted — verdict changed"
-                          : "Original verdict upheld"}
+                          ? '✅ Appeal accepted - verdict changed'
+                          : 'Original verdict upheld'}
                       </div>
                     </div>
                   </div>
@@ -239,15 +221,11 @@ export default function AppealPage() {
               <>
                 {/* Card 2: Appeal window */}
                 <div className="card p-6">
-                  <h2 className="mb-2 text-sm font-semibold text-slate-700">
-                    Appeal window
-                  </h2>
+                  <h2 className="mb-2 text-sm font-semibold text-slate-700">Appeal window</h2>
                   <p className="text-sm text-slate-500">
-                    Days remaining to appeal:{" "}
+                    Days remaining to appeal:{' '}
                     <span
-                      className={`font-bold ${
-                        windowOpen ? "text-emerald-600" : "text-rose-500"
-                      }`}
+                      className={`font-bold ${windowOpen ? 'text-emerald-600' : 'text-rose-500'}`}
                     >
                       {remaining}/{APPEAL_WINDOW_DAYS}
                     </span>
@@ -262,9 +240,7 @@ export default function AppealPage() {
                 {/* Card 3: Appeal form */}
                 {windowOpen && (
                   <div className="card p-6">
-                    <h2 className="mb-4 text-sm font-semibold text-slate-700">
-                      File an appeal
-                    </h2>
+                    <h2 className="mb-4 text-sm font-semibold text-slate-700">File an appeal</h2>
                     {submitted ? (
                       <p className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                         ✓ Appeal submitted. Refreshing status…

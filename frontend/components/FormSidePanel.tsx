@@ -1,32 +1,32 @@
-"use client";
+'use client';
 
-import { motion, useReducedMotion } from "framer-motion";
-import { CATEGORIES, type Category } from "@/lib/contracts";
-import { CategoryIconWith3D } from "@/components/3d";
+import { motion, useReducedMotion } from 'framer-motion';
+import { CATEGORIES, type Category } from '@/lib/contracts';
+import { CategoryIconWith3D } from '@/components/3d';
 
 const STEPS = [
   {
-    title: "Pin your evidence",
-    body: "Photos and reports are uploaded to IPFS — tamper-proof and fetchable by every validator.",
+    title: 'Pin your evidence',
+    body: 'Photos and reports are uploaded to IPFS - tamper-proof and fetchable by every validator.',
   },
   {
-    title: "Validators judge independently",
-    body: "Each GenLayer validator fetches the evidence and asks an LLM for its own verdict.",
+    title: 'Validators judge independently',
+    body: 'Each GenLayer validator fetches the evidence and asks an LLM for its own verdict.',
   },
   {
-    title: "Consensus settles on-chain",
-    body: "Verdicts converge within tolerance and the outcome is written immutably to the chain.",
+    title: 'Consensus settles on-chain',
+    body: 'Verdicts converge within tolerance and the outcome is written immutably to the chain.',
   },
 ];
 
 const CHECKLIST = [
-  "A public listing or claim URL validators can open",
-  "Evidence photos, reports or receipts (we pin them to IPFS)",
-  "A couple of minutes — consensus usually lands fast",
+  'A public listing or claim URL validators can open',
+  'Evidence photos, reports or receipts (we pin them to IPFS)',
+  'A couple of minutes - consensus usually lands fast',
 ];
 
 /**
- * Sticky context panel for the dispute forms — category-tinted glow card with
+ * Sticky context panel for the dispute forms - category-tinted glow card with
  * the floating 3D badge, the resolution timeline, a what-you'll-need checklist
  * and a live-network footer.
  */
@@ -51,8 +51,8 @@ export default function FormSidePanel({ category }: { category: Category }) {
           <div
             className="aurora-blob -bottom-14 -left-14 h-44 w-44"
             style={{
-              background: "radial-gradient(circle, #ec4899, transparent 70%)",
-              animationDelay: "-8s",
+              background: 'radial-gradient(circle, #ec4899, transparent 70%)',
+              animationDelay: '-8s',
             }}
           />
 
@@ -61,7 +61,7 @@ export default function FormSidePanel({ category }: { category: Category }) {
             <div className="flex items-center gap-4">
               <motion.div
                 animate={reduce ? undefined : { y: [0, -6, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                 className="grid h-[72px] w-[72px] shrink-0 place-items-center"
               >
                 <CategoryIconWith3D
@@ -94,7 +94,7 @@ export default function FormSidePanel({ category }: { category: Category }) {
               How your case resolves
             </p>
             <motion.ol
-              initial={reduce ? false : "hidden"}
+              initial={reduce ? false : 'hidden'}
               animate="show"
               variants={{ show: { transition: { staggerChildren: 0.14, delayChildren: 0.6 } } }}
               className="relative mt-4 space-y-5 border-l border-slate-900/15 pl-5 dark:border-white/15"
@@ -123,7 +123,9 @@ export default function FormSidePanel({ category }: { category: Category }) {
                     <span className="mr-1.5 text-slate-400 dark:text-white/40">0{i + 1}</span>
                     {s.title}
                   </p>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-white/60">{s.body}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-white/60">
+                    {s.body}
+                  </p>
                 </motion.li>
               ))}
             </motion.ol>
@@ -136,7 +138,10 @@ export default function FormSidePanel({ category }: { category: Category }) {
             </p>
             <ul className="mt-3 space-y-2.5">
               {CHECKLIST.map((item) => (
-                <li key={item} className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-white/70">
+                <li
+                  key={item}
+                  className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-white/70"
+                >
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -161,7 +166,9 @@ export default function FormSidePanel({ category }: { category: Category }) {
                 </span>
                 GenLayer Bradbury
               </span>
-              <span className="text-[11px] text-slate-400 dark:text-white/50">5 validators · live</span>
+              <span className="text-[11px] text-slate-400 dark:text-white/50">
+                5 validators · live
+              </span>
             </div>
           </div>
         </div>

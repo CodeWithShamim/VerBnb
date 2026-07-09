@@ -1,78 +1,73 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  CATEGORIES,
-  explorerTx,
-  type Category,
-  type ChainTxRow,
-} from "@/lib/contracts";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CATEGORIES, explorerTx, type Category, type ChainTxRow } from '@/lib/contracts';
 
 // Status → badge styling. Explorer reports lower-cased GenLayer statuses.
 function statusStyle(status: string): { dot: string; chip: string; label: string } {
-  const s = (status || "").toUpperCase();
-  if (s === "FINALIZED" || s === "ACCEPTED")
+  const s = (status || '').toUpperCase();
+  if (s === 'FINALIZED' || s === 'ACCEPTED')
     return {
-      dot: "bg-emerald-500",
-      chip: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      label: s === "FINALIZED" ? "Finalized" : "Accepted",
+      dot: 'bg-emerald-500',
+      chip: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      label: s === 'FINALIZED' ? 'Finalized' : 'Accepted',
     };
-  if (s === "UNDETERMINED" || s === "VALIDATORS_TIMEOUT" || s === "LEADER_TIMEOUT")
+  if (s === 'UNDETERMINED' || s === 'VALIDATORS_TIMEOUT' || s === 'LEADER_TIMEOUT')
     return {
-      dot: "bg-amber-500",
-      chip: "bg-amber-50 text-amber-700 border-amber-200",
-      label: "Undetermined",
+      dot: 'bg-amber-500',
+      chip: 'bg-amber-50 text-amber-700 border-amber-200',
+      label: 'Undetermined',
     };
-  if (s === "CANCELED")
+  if (s === 'CANCELED')
     return {
-      dot: "bg-rose-500",
-      chip: "bg-rose-50 text-rose-700 border-rose-200",
-      label: "Canceled",
+      dot: 'bg-rose-500',
+      chip: 'bg-rose-50 text-rose-700 border-rose-200',
+      label: 'Canceled',
     };
   if (
-    s === "PROPOSING" ||
-    s === "COMMITTING" ||
-    s === "REVEALING" ||
-    s === "APPEAL_COMMITTING" ||
-    s === "APPEAL_REVEALING" ||
-    s === "PENDING" ||
-    s === "ACTIVATED" ||
-    s === "READY_TO_FINALIZE"
+    s === 'PROPOSING' ||
+    s === 'COMMITTING' ||
+    s === 'REVEALING' ||
+    s === 'APPEAL_COMMITTING' ||
+    s === 'APPEAL_REVEALING' ||
+    s === 'PENDING' ||
+    s === 'ACTIVATED' ||
+    s === 'READY_TO_FINALIZE'
   )
     return {
-      dot: "bg-brand animate-pulse",
-      chip: "bg-brand-50 text-brand border-brand/20",
-      label: s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, " "),
+      dot: 'bg-brand animate-pulse',
+      chip: 'bg-brand-50 text-brand border-brand/20',
+      label: s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, ' '),
     };
   return {
-    dot: "bg-slate-400 animate-pulse",
-    chip: "bg-surface-subtle text-slate-500 border-surface-border",
-    label: s ? s.charAt(0) + s.slice(1).toLowerCase() : "Pending",
+    dot: 'bg-slate-400 animate-pulse',
+    chip: 'bg-surface-subtle text-slate-500 border-surface-border',
+    label: s ? s.charAt(0) + s.slice(1).toLowerCase() : 'Pending',
   };
 }
 
 // Method → friendly label.
 const METHOD_LABEL: Record<string, string> = {
-  raise_dispute: "Dispute raised",
-  register_dispute: "Dispute registered",
-  validate_claim: "Claim validated",
-  mark_resolved: "Marked resolved",
-  revealVote: "Vote revealed",
-  addTransaction: "Contract deployed",
+  raise_dispute: 'Dispute raised',
+  register_dispute: 'Dispute registered',
+  validate_claim: 'Claim validated',
+  mark_resolved: 'Marked resolved',
+  revealVote: 'Vote revealed',
+  addTransaction: 'Contract deployed',
 };
 function methodLabel(m: string): string {
-  return METHOD_LABEL[m] || m.replace(/_/g, " ");
+  return METHOD_LABEL[m] || m.replace(/_/g, ' ');
 }
 
 function shortHash(h?: string | null): string {
-  if (!h) return "—";
+  if (!h) return '-';
   return h.length > 14 ? `${h.slice(0, 8)}…${h.slice(-6)}` : h;
 }
 
 function relativeTime(secEpoch?: number | null): string {
-  if (!secEpoch) return "";
+  if (!secEpoch) return '';
   const diff = Math.max(0, Math.floor(Date.now() / 1000) - secEpoch);
   if (diff < 60) return `${diff}s ago`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
@@ -94,10 +89,10 @@ function Row({ row }: { row: ChainTxRow }) {
   const href = internal
     ? (() => {
         const params = new URLSearchParams();
-        if (row.category) params.set("category", row.category);
-        if (row.hash) params.set("tx", row.hash);
+        if (row.category) params.set('category', row.category);
+        if (row.hash) params.set('tx', row.hash);
         const qs = params.toString();
-        return `/dispute/${encodeURIComponent(row.disputeId!)}${qs ? `?${qs}` : ""}`;
+        return `/dispute/${encodeURIComponent(row.disputeId!)}${qs ? `?${qs}` : ''}`;
       })()
     : explorerTx(row.hash);
 
@@ -106,11 +101,11 @@ function Row({ row }: { row: ChainTxRow }) {
       {/* contract/category badge */}
       <span
         className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br ${
-          meta?.gradient ?? "from-slate-400 to-slate-500"
+          meta?.gradient ?? 'from-slate-400 to-slate-500'
         } text-xs font-bold text-white`}
         title={row.contractKey}
       >
-        {(meta?.title ?? row.contractKey)?.[0] ?? "?"}
+        {(meta?.title ?? row.contractKey)?.[0] ?? '?'}
       </span>
 
       <div className="min-w-0 flex-1">
@@ -129,7 +124,7 @@ function Row({ row }: { row: ChainTxRow }) {
         </div>
         <span className="block truncate font-mono text-xs text-slate-400">
           {shortHash(row.hash)}
-          {row.disputeId ? `  ·  ${row.disputeId}` : ""}
+          {row.disputeId ? `  ·  ${row.disputeId}` : ''}
         </span>
       </div>
 
@@ -140,9 +135,7 @@ function Row({ row }: { row: ChainTxRow }) {
           <span className={`h-1.5 w-1.5 rounded-full ${st.dot}`} />
           {st.label}
         </span>
-        <span className="text-[11px] text-slate-400">
-          {relativeTime(row.timestamp)}
-        </span>
+        <span className="text-[11px] text-slate-400">{relativeTime(row.timestamp)}</span>
       </div>
     </div>
   );
@@ -173,7 +166,7 @@ export default function LiveTransactions({
   const load = useCallback(async () => {
     try {
       const res = await fetch(`/api/transactions?limit=${limit}`, {
-        cache: "no-store",
+        cache: 'no-store',
       });
       const data = await res.json();
       if (Array.isArray(data.rows)) {
@@ -197,13 +190,13 @@ export default function LiveTransactions({
       if (timer.current) clearInterval(timer.current);
       timer.current = null;
     };
-    // Only poll while the tab is visible — background tabs stop hitting the
+    // Only poll while the tab is visible - background tabs stop hitting the
     // explorer and refresh immediately on return.
     const onVisibility = () => (document.hidden ? stop() : start());
-    document.addEventListener("visibilitychange", onVisibility);
+    document.addEventListener('visibilitychange', onVisibility);
     onVisibility();
     return () => {
-      document.removeEventListener("visibilitychange", onVisibility);
+      document.removeEventListener('visibilitychange', onVisibility);
       stop();
     };
   }, [load]);
@@ -217,9 +210,7 @@ export default function LiveTransactions({
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            <h3 className="text-sm font-bold text-slate-900">
-              Live on-chain activity
-            </h3>
+            <h3 className="text-sm font-bold text-slate-900">Live on-chain activity</h3>
           </div>
           <span className="text-xs text-slate-400">
             Status &amp; block pulled live from GenLayer
@@ -231,25 +222,19 @@ export default function LiveTransactions({
         {rows === null ? (
           // initial skeleton
           Array.from({ length: Math.min(limit, 6) }).map((_, i) => (
-            <div
-              key={i}
-              className="h-[60px] rounded-xl bg-surface-muted shimmer"
-            />
+            <div key={i} className="h-[60px] rounded-xl bg-surface-muted shimmer" />
           ))
         ) : rows.length === 0 ? (
           <div className="px-2 py-10 text-center">
             <p className="text-sm font-medium text-slate-600">
-              {errored ? "Couldn’t reach the chain" : "No transactions yet"}
+              {errored ? 'Couldn’t reach the chain' : 'No transactions yet'}
             </p>
             <p className="mx-auto mt-1 max-w-xs text-xs text-slate-400">
               {errored
-                ? "The explorer API didn’t respond. Retrying every 10 seconds."
-                : "Disputes raised on the platform appear here and update live as validators reach consensus."}
+                ? 'The explorer API didn’t respond. Retrying every 10 seconds.'
+                : 'Disputes raised on the platform appear here and update live as validators reach consensus.'}
             </p>
-            <Link
-              href="/#categories"
-              className="btn-primary mt-5 inline-flex px-4 py-2 text-sm"
-            >
+            <Link href="/#categories" className="btn-primary mt-5 inline-flex px-4 py-2 text-sm">
               Raise a dispute
             </Link>
           </div>

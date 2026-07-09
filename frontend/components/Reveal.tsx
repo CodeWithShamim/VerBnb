@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { motion, useReducedMotion, type Variants } from "framer-motion";
-import type { ReactNode } from "react";
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
+import type { ReactNode } from 'react';
 
-type Direction = "up" | "down" | "left" | "right" | "none";
+type Direction = 'up' | 'down' | 'left' | 'right' | 'none';
 
 const offset: Record<Direction, { x?: number; y?: number }> = {
   up: { y: 24 },
@@ -19,7 +19,7 @@ const offset: Record<Direction, { x?: number; y?: number }> = {
  */
 export default function Reveal({
   children,
-  direction = "up",
+  direction = 'up',
   delay = 0,
   className,
 }: {
@@ -54,7 +54,7 @@ export default function Reveal({
 }
 
 /**
- * Stagger container — wrap a list of <Reveal> or motion items so they cascade.
+ * Stagger container - wrap a list of <Reveal> or motion items so they cascade.
  */
 export function RevealGroup({
   children,

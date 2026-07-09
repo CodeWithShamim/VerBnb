@@ -4,10 +4,10 @@
  * Shared client for the read-only tracker API (/api/trackers).
  *
  * Two optimizations over calling fetch() directly from each component:
- *  1. In-flight dedup — concurrent requests for the same resource share one
+ *  1. In-flight dedup - concurrent requests for the same resource share one
  *     network round-trip (e.g. a VerdictCard rendering two ReputationBadges,
  *     or many badges in a list, all hit the chain once).
- *  2. Short TTL memo cache — repeat reads within TTL_MS resolve instantly from
+ *  2. Short TTL memo cache - repeat reads within TTL_MS resolve instantly from
  *     memory, matching the server's Cache-Control window so the data stays fresh.
  *
  * Keep this in sync with the s-maxage on /api/trackers (15s).
@@ -20,7 +20,10 @@ type Entry = { at: number; value: any };
 const cache = new Map<string, Entry>();
 const inflight = new Map<string, Promise<any>>();
 
-function buildUrl(resource: string, params: Record<string, string | number>): string {
+function buildUrl(
+  resource: string,
+  params: Record<string, string | number>,
+): string {
   const sp = new URLSearchParams({ resource });
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null && v !== "") sp.set(k, String(v));
@@ -35,7 +38,7 @@ function buildUrl(resource: string, params: Record<string, string | number>): st
  */
 export async function trackerFetch(
   resource: string,
-  params: Record<string, string | number> = {}
+  params: Record<string, string | number> = {},
 ): Promise<any> {
   const url = buildUrl(resource, params);
 
@@ -64,7 +67,7 @@ export async function trackerFetch(
 /** Drop a cached resource so the next read re-fetches (use after a write). */
 export function invalidateTracker(
   resource: string,
-  params: Record<string, string | number> = {}
+  params: Record<string, string | number> = {},
 ): void {
   cache.delete(buildUrl(resource, params));
 }

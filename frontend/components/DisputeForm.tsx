@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { uploadEvidence } from "@/lib/uploadEvidence";
-import { CATEGORIES, type Category } from "@/lib/contracts";
-import { recordDispute } from "@/lib/recentDisputes";
-import SubmitButton from "@/components/SubmitButton";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { uploadEvidence } from '@/lib/uploadEvidence';
+import { CATEGORIES, type Category } from '@/lib/contracts';
+import { recordDispute } from '@/lib/recentDisputes';
+import SubmitButton from '@/components/SubmitButton';
 
-export type FieldType = "text" | "number" | "url" | "textarea" | "file";
+export type FieldType = 'text' | 'number' | 'url' | 'textarea' | 'file';
 
 export interface FormField {
   name: string;
@@ -73,11 +73,11 @@ export default function DisputeForm({
     setUploadPct((p) => ({ ...p, [field.name]: 0 }));
     try {
       const { url } = await uploadEvidence(file, (pct) =>
-        setUploadPct((p) => ({ ...p, [field.name]: pct }))
+        setUploadPct((p) => ({ ...p, [field.name]: pct })),
       );
       setField(dest, url);
     } catch (e: any) {
-      setError(e?.message || "Evidence upload failed");
+      setError(e?.message || 'Evidence upload failed');
     } finally {
       setUploading(false);
     }
@@ -94,23 +94,23 @@ export default function DisputeForm({
     // Index this dispute locally so the live activity feed can pick it up and
     // enrich it straight from the chain.
     recordDispute({ id: disputeId, category, tx: specialistTx || undefined });
-    const params = new URLSearchParams({ category, tx: specialistTx || "" });
+    const params = new URLSearchParams({ category, tx: specialistTx || '' });
     router.push(`/dispute/${encodeURIComponent(disputeId)}?${params.toString()}`);
   }
 
   function renderField(f: FormField) {
-    if (f.type === "textarea") {
+    if (f.type === 'textarea') {
       return (
         <textarea
           id={f.name}
           className="input min-h-[110px] resize-y"
           placeholder={f.placeholder}
-          value={values[f.name] || ""}
+          value={values[f.name] || ''}
           onChange={(e) => setField(f.name, e.target.value)}
         />
       );
     }
-    if (f.type === "file") {
+    if (f.type === 'file') {
       return (
         <div>
           <label
@@ -139,7 +139,7 @@ export default function DisputeForm({
                 Drop a file or click to browse
               </span>
               <span className="mt-0.5 block text-xs text-slate-400">
-                Pinned to IPFS via Pinata — fills the URL field automatically
+                Pinned to IPFS via Pinata - fills the URL field automatically
               </span>
             </span>
             <span className="hidden shrink-0 rounded-lg border border-surface-border bg-surface px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors group-hover:border-brand/40 group-hover:text-brand sm:block">
@@ -152,14 +152,14 @@ export default function DisputeForm({
               onChange={(e) => handleFile(f, e.target.files?.[0] || null)}
             />
           </label>
-          {typeof uploadPct[f.name] === "number" && (
+          {typeof uploadPct[f.name] === 'number' && (
             <div className="mt-2.5">
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-muted">
                 <motion.div
                   className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"
                   initial={{ width: 0 }}
                   animate={{ width: `${uploadPct[f.name]}%` }}
-                  transition={{ ease: "easeOut" }}
+                  transition={{ ease: 'easeOut' }}
                 />
               </div>
               <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
@@ -179,10 +179,10 @@ export default function DisputeForm({
     return (
       <input
         id={f.name}
-        type={f.type === "number" ? "number" : "text"}
+        type={f.type === 'number' ? 'number' : 'text'}
         className="input"
         placeholder={f.placeholder}
-        value={values[f.name] || ""}
+        value={values[f.name] || ''}
         onChange={(e) => setField(f.name, e.target.value)}
       />
     );
@@ -195,7 +195,7 @@ export default function DisputeForm({
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       className="card overflow-hidden"
     >
-      {/* Slim category accent strip — identity without a heavy banner. */}
+      {/* Slim category accent strip - identity without a heavy banner. */}
       <div className={`h-1.5 bg-gradient-to-r ${meta.gradient}`} />
 
       <div className="p-6 sm:p-8">
@@ -205,7 +205,7 @@ export default function DisputeForm({
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.08 * gi }}
-            className={gi > 0 ? "mt-9" : undefined}
+            className={gi > 0 ? 'mt-9' : undefined}
           >
             {g.section && (
               <div className="mb-5 flex items-center gap-3">
@@ -213,7 +213,7 @@ export default function DisputeForm({
                   className="font-mono text-xs font-bold tabular-nums"
                   style={{ color: meta.accent }}
                 >
-                  {String(gi + 1).padStart(2, "0")}
+                  {String(gi + 1).padStart(2, '0')}
                 </span>
                 <span className="font-sans text-sm font-semibold uppercase tracking-wider text-slate-700">
                   {g.section}
@@ -230,9 +230,7 @@ export default function DisputeForm({
                     {f.required && <span className={meta.text}> *</span>}
                   </label>
                   {renderField(f)}
-                  {f.help && (
-                    <p className="mt-1.5 text-xs text-slate-400">{f.help}</p>
-                  )}
+                  {f.help && <p className="mt-1.5 text-xs text-slate-400">{f.help}</p>}
                 </div>
               ))}
             </div>
@@ -269,8 +267,8 @@ export default function DisputeForm({
               <rect x="5" y="11" width="14" height="9" rx="2" />
               <path d="M8 11V8a4 4 0 018 0v3" strokeLinecap="round" />
             </svg>
-            Evidence is pinned to IPFS; validators fetch it independently and
-            settle the verdict on-chain.
+            Evidence is pinned to IPFS; validators fetch it independently and settle the verdict
+            on-chain.
           </p>
         </div>
       </div>

@@ -11,7 +11,12 @@ const CHAINS: Record<string, any> = {
   studionet,
 };
 
-async function readJson(client: any, address: string, functionName: string, args: any[]) {
+async function readJson(
+  client: any,
+  address: string,
+  functionName: string,
+  args: any[],
+) {
   const raw = await client.readContract({
     address: address as `0x${string}`,
     functionName,
@@ -39,7 +44,7 @@ export async function POST(req: NextRequest) {
     if (!registry || !key) {
       return NextResponse.json(
         { error: "Server signer or registry not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -62,7 +67,9 @@ export async function POST(req: NextRequest) {
     const analytics = CONTRACT_ADDRESSES.analytics_tracker;
     if (analytics) {
       try {
-        const record = await readJson(client, registry, "get_dispute", [disputeId]);
+        const record = await readJson(client, registry, "get_dispute", [
+          disputeId,
+        ]);
         const specialist = record?.contract_address;
         const verdict = specialist
           ? await readJson(client, specialist, "get_verdict", [disputeId])
@@ -79,7 +86,10 @@ export async function POST(req: NextRequest) {
               disputeId,
               String(record.category || ""),
               String(verdict.verdict || ""),
-              Math.min(100, Math.max(0, Number(verdict.refund_percentage) || 0)),
+              Math.min(
+                100,
+                Math.max(0, Number(verdict.refund_percentage) || 0),
+              ),
               resTime,
               0, // appeals at first resolution; appeal flow updates separately
               String(claimSnippet || "").slice(0, 500),
@@ -88,7 +98,7 @@ export async function POST(req: NextRequest) {
           })) as string;
         }
       } catch (e: any) {
-        // "outcome already recorded" is expected on revisits — treat as ok.
+        // "outcome already recorded" is expected on revisits - treat as ok.
         analyticsError = e?.message || "analytics record failed";
       }
     }
@@ -97,7 +107,7 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     return NextResponse.json(
       { error: err?.message || "Failed to mark resolved" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

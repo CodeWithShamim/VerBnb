@@ -1,31 +1,31 @@
-"use client";
+'use client';
 
-import Reveal from "@/components/Reveal";
+import Reveal from '@/components/Reveal';
 
 const FAQ: { q: string; a: string }[] = [
   {
-    q: "How long does a verdict take?",
-    a: "Usually 2–6 hours, sometimes up to 24h, depending on validator availability and how much evidence there is to fetch.",
+    q: 'How long does a verdict take?',
+    a: 'Usually 2–6 hours, sometimes up to 24h, depending on validator availability and how much evidence there is to fetch.',
   },
   {
-    q: "Can I appeal a verdict?",
-    a: "Yes — within 7 days of finalization. Open the verdict page and click \"Appeal\". A larger set of validators then re-evaluates the case.",
+    q: 'Can I appeal a verdict?',
+    a: 'Yes - within 7 days of finalization. Open the verdict page and click "Appeal". A larger set of validators then re-evaluates the case.',
   },
   {
-    q: "Is my data private?",
-    a: "Evidence is stored on IPFS, which is public. Don't upload sensitive personal data — only what's needed to prove your claim.",
+    q: 'Is my data private?',
+    a: "Evidence is stored on IPFS, which is public. Don't upload sensitive personal data - only what's needed to prove your claim.",
   },
   {
-    q: "What is GenLayer?",
-    a: "A blockchain where AI validators independently read evidence and reach consensus on the meaning of a dispute — not just on identical bytes.",
+    q: 'What is GenLayer?',
+    a: 'A blockchain where AI validators independently read evidence and reach consensus on the meaning of a dispute - not just on identical bytes.',
   },
   {
-    q: "How do validators agree?",
-    a: "Each validator independently reads the same evidence and asks an LLM for a verdict. They agree when their refund estimates land within 15% of each other.",
+    q: 'How do validators agree?',
+    a: 'Each validator independently reads the same evidence and asks an LLM for a verdict. They agree when their refund estimates land within 15% of each other.',
   },
   {
-    q: "What does it cost?",
-    a: "Only the network gas for your dispute transaction. On the Bradbury testnet, grab free GEN from the faucet — there's no platform fee.",
+    q: 'What does it cost?',
+    a: "Only the network gas for your dispute transaction. On the Bradbury testnet, grab free GEN from the faucet - there's no platform fee.",
   },
 ];
 

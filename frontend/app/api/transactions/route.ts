@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 // Fans out to the GenLayer explorer API (one call per contract), decodes each
 // transaction's method + dispute id from its base64 calldata, merges, and
 // returns the latest N sorted by block. Status and block are whatever the
-// explorer reports right now — nothing is cached server-side.
+// explorer reports right now - nothing is cached server-side.
 
 const VALID_CATEGORIES = new Set(Object.keys(CATEGORIES));
 
@@ -40,13 +40,18 @@ interface ExplorerTx {
 }
 
 /** Decode { method, args } from a transaction's base64 calldata. */
-function decodeCalldata(tx: ExplorerTx): { method: string; args: any[] } | null {
+function decodeCalldata(
+  tx: ExplorerTx,
+): { method: string; args: any[] } | null {
   const c = tx?.data?.params?.encoded_data?.calldata;
   if (c?.encoding === "base64" && c.content) {
     try {
       const parsed = JSON.parse(Buffer.from(c.content, "base64").toString());
       if (parsed && typeof parsed === "object") {
-        return { method: parsed.method || tx?.data?.function || "—", args: parsed.args || [] };
+        return {
+          method: parsed.method || tx?.data?.function || "-",
+          args: parsed.args || [],
+        };
       }
     } catch {
       /* fall through */
@@ -66,15 +71,15 @@ function bestTimestamp(tx: ExplorerTx): number | null {
 function normalize(
   tx: ExplorerTx,
   contractKey: string,
-  contractCategory: Category | null
+  contractCategory: Category | null,
 ): ChainTxRow {
   const decoded = decodeCalldata(tx);
-  const method = decoded?.method || tx?.data?.function || "—";
+  const method = decoded?.method || tx?.data?.function || "-";
   const args = decoded?.args || [];
 
   // args[0] is the dispute id for raise_dispute / register_dispute /
   // validate_claim / mark_resolved. For register_dispute, args[1] is the
-  // category — a stronger signal than the contract (the registry handles all
+  // category - a stronger signal than the contract (the registry handles all
   // categories).
   const idMethods = new Set([
     "raise_dispute",
@@ -112,7 +117,7 @@ async function fetchForContract(
   address: string,
   contractKey: string,
   category: Category | null,
-  pageSize: number
+  pageSize: number,
 ): Promise<ChainTxRow[]> {
   const url = `${EXPLORER_API_BASE}/transactions?address=${address}&page=1&page_size=${pageSize}`;
   try {
@@ -134,7 +139,7 @@ async function fetchForContract(
 export async function GET(req: NextRequest) {
   const limit = Math.min(
     Math.max(Number(req.nextUrl.searchParams.get("limit")) || 20, 1),
-    50
+    50,
   );
 
   // Ask each contract for a little more than the limit so the merged top-N is
@@ -143,8 +148,8 @@ export async function GET(req: NextRequest) {
 
   const batches = await Promise.all(
     CONTRACTS.map((c) =>
-      fetchForContract(c.address, c.key, c.category, perContract)
-    )
+      fetchForContract(c.address, c.key, c.category, perContract),
+    ),
   );
 
   // Merge, de-dupe by hash, sort by block desc (timestamp as tiebreaker).
@@ -167,8 +172,9 @@ export async function GET(req: NextRequest) {
       headers: {
         // The feed re-polls every 10s per client; a short shared cache lets
         // concurrent viewers reuse one explorer fan-out without visible lag.
-        "Cache-Control": "public, s-maxage=8, max-age=5, stale-while-revalidate=30",
+        "Cache-Control":
+          "public, s-maxage=8, max-age=5, stale-while-revalidate=30",
       },
-    }
+    },
   );
 }

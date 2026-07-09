@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { format } from "date-fns";
-import ReputationBadge from "@/components/ReputationBadge";
-import FraudAlert from "@/components/FraudAlert";
-import { trackerFetch } from "@/lib/trackerClient";
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { format } from 'date-fns';
+import ReputationBadge from '@/components/ReputationBadge';
+import FraudAlert from '@/components/FraudAlert';
+import { trackerFetch } from '@/lib/trackerClient';
 
 interface UserStats {
   address: string;
@@ -26,21 +26,21 @@ interface ActivityEvent {
 }
 
 function fmtDate(ts: number): string {
-  if (!ts) return "—";
+  if (!ts) return '-';
   try {
-    return format(new Date(ts * 1000), "MMM d, yyyy HH:mm");
+    return format(new Date(ts * 1000), 'MMM d, yyyy HH:mm');
   } catch {
-    return "—";
+    return '-';
   }
 }
 
 const EVENT_LABEL: Record<string, string> = {
-  DISPUTE_FILED: "Dispute filed",
-  DISPUTE_WON: "Dispute won",
-  DISPUTE_LOST: "Dispute lost",
-  VALIDATOR_ROUND: "Validator round",
-  APPEAL_FILED: "Appeal filed",
-  APPEAL_WON: "Appeal won",
+  DISPUTE_FILED: 'Dispute filed',
+  DISPUTE_WON: 'Dispute won',
+  DISPUTE_LOST: 'Dispute lost',
+  VALIDATOR_ROUND: 'Validator round',
+  APPEAL_FILED: 'Appeal filed',
+  APPEAL_WON: 'Appeal won',
 };
 
 function StatRow({ label, value }: { label: string; value: string }) {
@@ -54,8 +54,8 @@ function StatRow({ label, value }: { label: string; value: string }) {
 
 function ProfileInner() {
   const search = useSearchParams();
-  const [address, setAddress] = useState(search.get("address") || "");
-  const [input, setInput] = useState(search.get("address") || "");
+  const [address, setAddress] = useState(search.get('address') || '');
+  const [input, setInput] = useState(search.get('address') || '');
   const [stats, setStats] = useState<UserStats | null>(null);
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState(false);
@@ -65,12 +65,12 @@ function ProfileInner() {
     let alive = true;
     setLoading(true);
     Promise.all([
-      trackerFetch("user_stats", { address }),
-      trackerFetch("activity", { address, limit: 50 }),
+      trackerFetch('user_stats', { address }),
+      trackerFetch('activity', { address, limit: 50 }),
     ])
       .then(([s, a]) => {
         if (!alive) return;
-        if (s && typeof s.disputes_filed === "number") setStats(s);
+        if (s && typeof s.disputes_filed === 'number') setStats(s);
         setActivity(Array.isArray(a?.events) ? a.events : []);
       })
       .finally(() => {
@@ -98,10 +98,7 @@ function ProfileInner() {
             placeholder="0x… user address"
             className="flex-1 rounded-xl border border-surface-border bg-white px-4 py-2.5 font-mono text-sm focus:border-brand focus:outline-none"
           />
-          <button
-            type="submit"
-            className="btn-primary px-5 py-2.5 text-sm"
-          >
+          <button type="submit" className="btn-primary px-5 py-2.5 text-sm">
             View profile
           </button>
         </form>
@@ -116,9 +113,7 @@ function ProfileInner() {
           <>
             <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-wide text-slate-400">
-                  Profile
-                </p>
+                <p className="text-xs uppercase tracking-wide text-slate-400">Profile</p>
                 <p className="mt-1 break-all font-mono text-lg font-bold text-slate-900">
                   {address}
                 </p>
@@ -129,26 +124,16 @@ function ProfileInner() {
             <FraudAlert address={address} />
 
             {loading && (
-              <div className="card mt-4 p-8 text-center text-slate-400">
-                Loading reputation…
-              </div>
+              <div className="card mt-4 p-8 text-center text-slate-400">Loading reputation…</div>
             )}
 
             {!loading && (
               <div className="mt-4 grid gap-6 md:grid-cols-2">
                 {/* Card 1: Reputation summary */}
                 <div className="card p-6">
-                  <h2 className="mb-3 text-sm font-semibold text-slate-700">
-                    Reputation summary
-                  </h2>
-                  <StatRow
-                    label="Overall score"
-                    value={`${stats?.overall_score ?? 0}/100`}
-                  />
-                  <StatRow
-                    label="Disputes filed"
-                    value={String(stats?.disputes_filed ?? 0)}
-                  />
+                  <h2 className="mb-3 text-sm font-semibold text-slate-700">Reputation summary</h2>
+                  <StatRow label="Overall score" value={`${stats?.overall_score ?? 0}/100`} />
+                  <StatRow label="Disputes filed" value={String(stats?.disputes_filed ?? 0)} />
                   <StatRow
                     label="Win rate"
                     value={`${stats?.win_rate ?? 0}% (${stats?.disputes_won ?? 0}/${
@@ -159,21 +144,14 @@ function ProfileInner() {
                     label="Validator accuracy"
                     value={`${stats?.validator_accuracy ?? 0}%`}
                   />
-                  <StatRow
-                    label="Appeal success"
-                    value={`${stats?.appeal_success ?? 0}%`}
-                  />
+                  <StatRow label="Appeal success" value={`${stats?.appeal_success ?? 0}%`} />
                 </div>
 
                 {/* Card 2: Activity timeline */}
                 <div className="card p-6">
-                  <h2 className="mb-3 text-sm font-semibold text-slate-700">
-                    Activity timeline
-                  </h2>
+                  <h2 className="mb-3 text-sm font-semibold text-slate-700">Activity timeline</h2>
                   {activity.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-slate-400">
-                      No activity recorded.
-                    </p>
+                    <p className="py-8 text-center text-sm text-slate-400">No activity recorded.</p>
                   ) : (
                     <ol className="relative space-y-4 border-l border-surface-border pl-4">
                       {activity.slice(0, 12).map((e, i) => (
@@ -181,11 +159,9 @@ function ProfileInner() {
                           <span className="absolute -left-[1.36rem] top-1 h-2.5 w-2.5 rounded-full bg-brand" />
                           <p className="text-sm font-medium text-slate-700">
                             {EVENT_LABEL[e.event_type] || e.event_type}
-                            {e.dispute_id ? ` · ${e.dispute_id}` : ""}
+                            {e.dispute_id ? ` · ${e.dispute_id}` : ''}
                           </p>
-                          <p className="text-xs text-slate-400">
-                            {fmtDate(e.timestamp)}
-                          </p>
+                          <p className="text-xs text-slate-400">{fmtDate(e.timestamp)}</p>
                         </li>
                       ))}
                     </ol>
@@ -197,9 +173,7 @@ function ProfileInner() {
             {/* Card 3: Dispute history table */}
             {!loading && activity.length > 0 && (
               <div className="card mt-6 p-6">
-                <h2 className="mb-3 text-sm font-semibold text-slate-700">
-                  Dispute history
-                </h2>
+                <h2 className="mb-3 text-sm font-semibold text-slate-700">Dispute history</h2>
                 <div className="overflow-hidden rounded-lg border border-surface-border">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-surface-subtle text-xs uppercase tracking-wide text-slate-400">
@@ -214,9 +188,7 @@ function ProfileInner() {
                         .filter((e) => e.dispute_id)
                         .map((e, i) => (
                           <tr key={i}>
-                            <td className="px-3 py-2 text-slate-500">
-                              {fmtDate(e.timestamp)}
-                            </td>
+                            <td className="px-3 py-2 text-slate-500">{fmtDate(e.timestamp)}</td>
                             <td className="px-3 py-2 text-slate-700">
                               {EVENT_LABEL[e.event_type] || e.event_type}
                             </td>

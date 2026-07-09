@@ -27,14 +27,18 @@ for (const line of readFileSync(join(root, ".env.local"), "utf8").split("\n")) {
 }
 
 const CHAINS = { testnet_bradbury: testnetBradbury, localnet, studionet };
-const chain = CHAINS[process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury"] || testnetBradbury;
+const chain =
+  CHAINS[process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury"] ||
+  testnetBradbury;
 const REGISTRY = process.env.NEXT_PUBLIC_VERBNB_REGISTRY;
 const ANALYTICS = process.env.NEXT_PUBLIC_ANALYTICS_TRACKER;
 const KEY = process.env.GENLAYER_PRIVATE_KEY;
 const dryRun = process.argv.includes("--dry-run");
 
 if (!REGISTRY || !ANALYTICS || !KEY) {
-  console.error("Missing NEXT_PUBLIC_VERBNB_REGISTRY / NEXT_PUBLIC_ANALYTICS_TRACKER / GENLAYER_PRIVATE_KEY");
+  console.error(
+    "Missing NEXT_PUBLIC_VERBNB_REGISTRY / NEXT_PUBLIC_ANALYTICS_TRACKER / GENLAYER_PRIVATE_KEY",
+  );
   process.exit(1);
 }
 
@@ -53,7 +57,7 @@ async function disputeIdsFromExplorer(address) {
   for (let page = 1; page <= 20; page++) {
     const res = await fetch(
       `${EXPLORER_API}/transactions?address=${address}&page=${page}&page_size=50`,
-      { headers: { accept: "application/json" } }
+      { headers: { accept: "application/json" } },
     );
     if (!res.ok) break;
     const txs = (await res.json())?.transactions;
@@ -64,7 +68,9 @@ async function disputeIdsFromExplorer(address) {
       try {
         const p = JSON.parse(Buffer.from(c.content, "base64").toString());
         if (
-          ["register_dispute", "raise_dispute", "mark_resolved"].includes(p?.method) &&
+          ["register_dispute", "raise_dispute", "mark_resolved"].includes(
+            p?.method,
+          ) &&
           typeof p?.args?.[0] === "string"
         ) {
           ids.add(p.args[0]);
@@ -99,7 +105,10 @@ async function main() {
     try {
       const rec = await readJson(REGISTRY, "get_dispute", [id]);
       if (rec?.contract_address && rec.category !== "SOURCING") {
-        byId.set(id, { category: rec.category, specialist: rec.contract_address });
+        byId.set(id, {
+          category: rec.category,
+          specialist: rec.contract_address,
+        });
       }
     } catch {
       /* registry doesn't know this id */
@@ -108,9 +117,12 @@ async function main() {
   console.log(`found ${byId.size} candidate dispute id(s)`);
 
   const recorded = await readJson(ANALYTICS, "get_all_stats", []);
-  console.log("analytics before:", Object.fromEntries(
-    Object.entries(recorded).map(([k, v]) => [k, v.total_disputes])
-  ));
+  console.log(
+    "analytics before:",
+    Object.fromEntries(
+      Object.entries(recorded).map(([k, v]) => [k, v.total_disputes]),
+    ),
+  );
 
   for (const [id, { category, specialist }] of byId) {
     let verdict = null;
@@ -120,7 +132,9 @@ async function main() {
       /* view call failed */
     }
     const resolved = verdict && verdict.resolved === true && !verdict.error;
-    console.log(`- ${id} [${category}] resolved=${resolved} verdict=${verdict?.verdict ?? "-"} refund=${verdict?.refund_percentage ?? "-"}`);
+    console.log(
+      `- ${id} [${category}] resolved=${resolved} verdict=${verdict?.verdict ?? "-"} refund=${verdict?.refund_percentage ?? "-"}`,
+    );
     if (!resolved || dryRun) continue;
 
     try {
@@ -135,7 +149,7 @@ async function main() {
         console.log(`    mark_resolved tx: ${tx}`);
       }
     } catch {
-      /* not in this registry — analytics record still worth writing */
+      /* not in this registry - analytics record still worth writing */
     }
 
     try {
@@ -156,15 +170,19 @@ async function main() {
       console.log(`    record_outcome tx: ${tx}`);
     } catch (e) {
       const msg = e?.message || String(e);
-      if (msg.includes("already recorded")) console.log("    already recorded — skipped");
+      if (msg.includes("already recorded"))
+        console.log("    already recorded - skipped");
       else console.log(`    record_outcome failed: ${msg.slice(0, 120)}`);
     }
   }
 
   const after = await readJson(ANALYTICS, "get_all_stats", []);
-  console.log("analytics after:", Object.fromEntries(
-    Object.entries(after).map(([k, v]) => [k, v.total_disputes])
-  ));
+  console.log(
+    "analytics after:",
+    Object.fromEntries(
+      Object.entries(after).map(([k, v]) => [k, v.total_disputes]),
+    ),
+  );
 }
 
 main().catch((e) => {

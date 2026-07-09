@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { trackerFetch } from "@/lib/trackerClient";
+import { useEffect, useState } from 'react';
+import { trackerFetch } from '@/lib/trackerClient';
 
 interface Flag {
   flag_id: string;
   flag_type: string;
-  severity: "LOW" | "MEDIUM" | "HIGH" | string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | string;
   confidence: number;
   evidence?: Record<string, any>;
 }
 
 const SEVERITY_TONE: Record<string, string> = {
-  HIGH: "border-rose-300 bg-rose-50 text-rose-700",
-  MEDIUM: "border-amber-300 bg-amber-50 text-amber-700",
-  LOW: "border-yellow-200 bg-yellow-50 text-yellow-700",
+  HIGH: 'border-rose-300 bg-rose-50 text-rose-700',
+  MEDIUM: 'border-amber-300 bg-amber-50 text-amber-700',
+  LOW: 'border-yellow-200 bg-yellow-50 text-yellow-700',
 };
 
 /**
@@ -28,7 +28,7 @@ export default function FraudAlert({ address }: { address: string }) {
   useEffect(() => {
     let alive = true;
     if (!address) return;
-    trackerFetch("fraud_flags", { address })
+    trackerFetch('fraud_flags', { address })
       .then((d) => {
         if (alive && Array.isArray(d?.flags)) setFlags(d.flags);
       })
@@ -46,20 +46,20 @@ export default function FraudAlert({ address }: { address: string }) {
         <div
           key={f.flag_id}
           className={`rounded-xl border px-4 py-3 text-sm ${
-            SEVERITY_TONE[f.severity] || "border-slate-200 bg-slate-50 text-slate-700"
+            SEVERITY_TONE[f.severity] || 'border-slate-200 bg-slate-50 text-slate-700'
           }`}
         >
           <div className="flex items-center justify-between gap-2">
             <span className="font-semibold">
-              🚨 {f.severity} fraud flag — {f.flag_type.replaceAll("_", " ")}
+              🚨 {f.severity} fraud flag - {f.flag_type.replaceAll('_', ' ')}
             </span>
             <span className="text-xs opacity-80">{f.confidence}% confidence</span>
           </div>
           {f.evidence && Object.keys(f.evidence).length > 0 && (
             <p className="mt-1 text-xs opacity-90">
               {Object.entries(f.evidence)
-                .map(([k, v]) => `${k.replaceAll("_", " ")}: ${v}`)
-                .join(" · ")}
+                .map(([k, v]) => `${k.replaceAll('_', ' ')}: ${v}`)
+                .join(' · ')}
             </p>
           )}
         </div>

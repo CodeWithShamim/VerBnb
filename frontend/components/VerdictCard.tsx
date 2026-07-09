@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import TrustScoreBadge from "./TrustScoreBadge";
-import ReputationBadge from "./ReputationBadge";
+import { motion } from 'framer-motion';
+import TrustScoreBadge from './TrustScoreBadge';
+import ReputationBadge from './ReputationBadge';
 
 export interface Verdict {
   resolved?: boolean;
@@ -18,15 +18,14 @@ export interface Verdict {
   error?: string;
 }
 
-const POSITIVE = ["REFUND_GRANTED", "NOT_DELIVERED", "WRONG_ADDRESS", "VERIFIED"];
+const POSITIVE = ['REFUND_GRANTED', 'NOT_DELIVERED', 'WRONG_ADDRESS', 'VERIFIED'];
 
 function tone(verdict?: string) {
-  if (!verdict) return "border-surface-border bg-surface-subtle text-slate-600";
-  if (verdict === "DELIVERED" || verdict === "DISPUTE_REJECTED")
-    return "border-rose-200 bg-rose-50 text-rose-600";
-  if (POSITIVE.includes(verdict))
-    return "border-emerald-200 bg-emerald-50 text-emerald-600";
-  return "border-amber-200 bg-amber-50 text-amber-600";
+  if (!verdict) return 'border-surface-border bg-surface-subtle text-slate-600';
+  if (verdict === 'DELIVERED' || verdict === 'DISPUTE_REJECTED')
+    return 'border-rose-200 bg-rose-50 text-rose-600';
+  if (POSITIVE.includes(verdict)) return 'border-emerald-200 bg-emerald-50 text-emerald-600';
+  return 'border-amber-200 bg-amber-50 text-amber-600';
 }
 
 export default function VerdictCard({
@@ -48,15 +47,15 @@ export default function VerdictCard({
         </span>
         <p className="text-sm text-slate-500">
           {verdict?.error
-            ? "No verdict recorded yet for this dispute."
-            : "Awaiting verdict — validators are still reaching consensus."}
+            ? 'No verdict recorded yet for this dispute.'
+            : 'Awaiting verdict - validators are still reaching consensus.'}
         </p>
       </div>
     );
   }
 
-  const hasRefundPct = typeof verdict.refund_percentage === "number";
-  const hasTrust = typeof verdict.trust_score === "number";
+  const hasRefundPct = typeof verdict.refund_percentage === 'number';
+  const hasTrust = typeof verdict.trust_score === 'number';
 
   return (
     <motion.div
@@ -66,9 +65,7 @@ export default function VerdictCard({
       className="card p-6"
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Verdict
-        </h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">Verdict</h3>
         {verdict.resolved ? (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-600">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -84,10 +81,10 @@ export default function VerdictCard({
       {verdict.verdict && (
         <div
           className={`mt-4 inline-block rounded-xl border px-4 py-2.5 text-lg font-bold ${tone(
-            verdict.verdict
+            verdict.verdict,
           )}`}
         >
-          {verdict.verdict.replaceAll("_", " ")}
+          {verdict.verdict.replaceAll('_', ' ')}
         </div>
       )}
 
@@ -104,12 +101,9 @@ export default function VerdictCard({
               className="h-full rounded-full bg-gradient-to-r from-brand to-violet-500"
               initial={{ width: 0 }}
               animate={{
-                width: `${Math.max(
-                  0,
-                  Math.min(100, verdict.refund_percentage!)
-                )}%`,
+                width: `${Math.max(0, Math.min(100, verdict.refund_percentage!))}%`,
               }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
             />
           </div>
         </div>
@@ -121,15 +115,13 @@ export default function VerdictCard({
         </div>
       )}
 
-      {typeof verdict.refund_due === "boolean" && (
+      {typeof verdict.refund_due === 'boolean' && (
         <div className="mt-5 flex items-center justify-between rounded-xl bg-surface-subtle px-4 py-3 text-sm">
           <span className="text-slate-500">Refund due</span>
           <span
-            className={`font-semibold ${
-              verdict.refund_due ? "text-emerald-600" : "text-rose-500"
-            }`}
+            className={`font-semibold ${verdict.refund_due ? 'text-emerald-600' : 'text-rose-500'}`}
           >
-            {verdict.refund_due ? "Yes" : "No"}
+            {verdict.refund_due ? 'Yes' : 'No'}
           </span>
         </div>
       )}
@@ -140,7 +132,7 @@ export default function VerdictCard({
         </div>
       )}
 
-      {typeof consensusRate === "number" && (
+      {typeof consensusRate === 'number' && (
         <div className="mt-5 flex items-center justify-between rounded-xl bg-surface-subtle px-4 py-3 text-sm">
           <span className="text-slate-500">Validators agree</span>
           <span className="font-semibold text-emerald-600">{consensusRate}%</span>
@@ -151,17 +143,13 @@ export default function VerdictCard({
         <div className="mt-5 flex flex-wrap items-center gap-6 border-t border-surface-border pt-5">
           {disputant && (
             <div>
-              <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
-                Disputant
-              </p>
+              <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Disputant</p>
               <ReputationBadge address={disputant} size="small" />
             </div>
           )}
           {counterparty && (
             <div>
-              <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
-                Counterparty
-              </p>
+              <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Counterparty</p>
               <ReputationBadge address={counterparty} size="small" />
             </div>
           )}

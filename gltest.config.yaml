@@ -1,6 +1,6 @@
 # gltest configuration for Verdix / VerBnb
 # Root keys: networks, paths, environment.
-# localnet / studionet / testnet_bradbury are preconfigured networks — we only
+# localnet / studionet / testnet_bradbury are preconfigured networks - we only
 # override what we need. Env vars (${...}) are read from the `environment` file.
 
 environment: .env

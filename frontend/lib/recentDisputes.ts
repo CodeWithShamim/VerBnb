@@ -3,7 +3,7 @@
 // The deployed registry has no "list all disputes" view, so we keep a small
 // local index of dispute ids the user has submitted. The live feed reads this
 // list and then enriches every entry STRAIGHT FROM THE CHAIN (registry record
-// + transaction status/block) — the local part is only the id list, never the
+// + transaction status/block) - the local part is only the id list, never the
 // status. See components/LiveTransactions.tsx + app/api/transactions/route.ts.
 
 import type { Category } from "@/lib/contracts";
@@ -44,7 +44,7 @@ function write(list: RecentDispute[]) {
     // "storage" event only fires in OTHER tabs.
     window.dispatchEvent(new Event("verbnb:disputes"));
   } catch {
-    /* storage full / disabled — feed simply shows nothing */
+    /* storage full / disabled - feed simply shows nothing */
   }
 }
 
@@ -55,7 +55,7 @@ export function getRecentDisputes(): RecentDispute[] {
 
 /** Record (or upsert) a submitted dispute. Newest entries win on conflict. */
 export function recordDispute(
-  entry: Omit<RecentDispute, "submittedAt"> & { submittedAt?: number }
+  entry: Omit<RecentDispute, "submittedAt"> & { submittedAt?: number },
 ) {
   const list = read().filter((d) => d.id !== entry.id);
   list.unshift({ submittedAt: Date.now(), ...entry });

@@ -5,7 +5,7 @@ import json
 CONTRACT = "contracts/ethical_sourcing.py"
 
 CERT = (
-    "Fair Trade International certification registry: EcoThreads Co. — "
+    "Fair Trade International certification registry: EcoThreads Co. - "
     "certificate FT-2024-8841, status ACTIVE, scope: organic cotton apparel, "
     "valid through 2026."
 )

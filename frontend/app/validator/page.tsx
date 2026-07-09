@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   LineChart,
   Line,
@@ -12,10 +12,10 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-} from "@/lib/charts";
-import { format } from "date-fns";
-import ReputationBadge from "@/components/ReputationBadge";
-import { trackerFetch } from "@/lib/trackerClient";
+} from '@/lib/charts';
+import { format } from 'date-fns';
+import ReputationBadge from '@/components/ReputationBadge';
+import { trackerFetch } from '@/lib/trackerClient';
 
 interface Rep {
   address: string;
@@ -39,17 +39,15 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">
-        {value}
-      </p>
+      <p className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">{value}</p>
     </div>
   );
 }
 
 function ValidatorInner() {
   const search = useSearchParams();
-  const [address, setAddress] = useState(search.get("address") || "");
-  const [input, setInput] = useState(search.get("address") || "");
+  const [address, setAddress] = useState(search.get('address') || '');
+  const [input, setInput] = useState(search.get('address') || '');
   const [rep, setRep] = useState<Rep | null>(null);
   const [activity, setActivity] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState(false);
@@ -59,12 +57,12 @@ function ValidatorInner() {
     let alive = true;
     setLoading(true);
     Promise.all([
-      trackerFetch("reputation", { address }),
-      trackerFetch("activity", { address, limit: 50 }),
+      trackerFetch('reputation', { address }),
+      trackerFetch('activity', { address, limit: 50 }),
     ])
       .then(([r, a]) => {
         if (!alive) return;
-        if (r && typeof r.validator_rounds === "number") setRep(r);
+        if (r && typeof r.validator_rounds === 'number') setRep(r);
         setActivity(Array.isArray(a?.events) ? a.events : []);
       })
       .finally(() => {
@@ -81,7 +79,7 @@ function ValidatorInner() {
   const earnings = agreements * REWARD_PER_ROUND;
 
   // Build a daily earnings series from validator-round activity events.
-  const validatorEvents = activity.filter((e) => e.event_type === "VALIDATOR_ROUND");
+  const validatorEvents = activity.filter((e) => e.event_type === 'VALIDATOR_ROUND');
   const dailyMap = new Map<string, number>();
   for (const e of validatorEvents) {
     let agreed = false;
@@ -91,7 +89,7 @@ function ValidatorInner() {
       agreed = false;
     }
     if (!agreed) continue;
-    const day = e.timestamp ? format(new Date(e.timestamp * 1000), "MMM d") : "—";
+    const day = e.timestamp ? format(new Date(e.timestamp * 1000), 'MMM d') : '-';
     dailyMap.set(day, (dailyMap.get(day) || 0) + REWARD_PER_ROUND);
   }
   const earningsSeries = Array.from(dailyMap.entries())
@@ -99,8 +97,8 @@ function ValidatorInner() {
     .slice(-30);
 
   const accuracySeries = [
-    { name: "Agreed", value: agreements },
-    { name: "Disagreed", value: Math.max(0, rounds - agreements) },
+    { name: 'Agreed', value: agreements },
+    { name: 'Disagreed', value: Math.max(0, rounds - agreements) },
   ];
 
   return (
@@ -139,9 +137,7 @@ function ValidatorInner() {
           </div>
         )}
 
-        {address && loading && (
-          <div className="card p-8 text-center text-slate-400">Loading…</div>
-        )}
+        {address && loading && <div className="card p-8 text-center text-slate-400">Loading…</div>}
 
         {address && !loading && (
           <>
@@ -188,9 +184,7 @@ function ValidatorInner() {
 
               {/* Card 4: Performance */}
               <div className="card p-6">
-                <h2 className="mb-4 text-sm font-semibold text-slate-700">
-                  Agreement vs majority
-                </h2>
+                <h2 className="mb-4 text-sm font-semibold text-slate-700">Agreement vs majority</h2>
                 {rounds > 0 ? (
                   <ResponsiveContainer width="100%" height={240}>
                     <BarChart data={accuracySeries}>
@@ -210,8 +204,8 @@ function ValidatorInner() {
             </div>
 
             <p className="mt-6 text-center text-xs text-slate-400">
-              Earnings are estimated at {REWARD_PER_ROUND} GEN per agreed round
-              (illustrative — no on-chain reward ledger).
+              Earnings are estimated at {REWARD_PER_ROUND} GEN per agreed round (illustrative - no
+              on-chain reward ledger).
             </p>
           </>
         )}

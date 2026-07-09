@@ -152,7 +152,7 @@ def test_set_extension_addresses(direct_vm, direct_deploy):
 
 def test_set_extension_addresses_partial_update(direct_vm, direct_deploy):
     reg = direct_deploy(CONTRACT, A, B, C, D, E6, E7, E8, E9)
-    # Empty strings are ignored — only the appeal manager changes.
+    # Empty strings are ignored - only the appeal manager changes.
     new_appeal = "0xAAaAAAAAaaaaAAaAAAaaAAAaaaAaAaaAAaAaAAaA"
     reg.set_extension_addresses(new_appeal, "", "", "")
     ext = json.loads(reg.get_extension_addresses())

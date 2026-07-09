@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { trackerFetch } from "@/lib/trackerClient";
-import CountUp from "./CountUp";
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { trackerFetch } from '@/lib/trackerClient';
+import CountUp from './CountUp';
 
 interface Stats {
   total_disputes: number;
@@ -19,10 +19,10 @@ export default function PlatformStats() {
     let cancelled = false;
     async function load() {
       try {
-        // Server route reads the registry — keeps genlayer-js out of this
+        // Server route reads the registry - keeps genlayer-js out of this
         // bundle and shares one cached read across visitors.
-        const parsed = await trackerFetch("platform_stats");
-        if (!cancelled && typeof parsed?.total_disputes === "number") {
+        const parsed = await trackerFetch('platform_stats');
+        if (!cancelled && typeof parsed?.total_disputes === 'number') {
           setStats(parsed);
         }
       } catch {
@@ -39,22 +39,22 @@ export default function PlatformStats() {
 
   const items = [
     {
-      label: "Disputes filed",
+      label: 'Disputes filed',
       value: stats?.total_disputes ?? 0,
-      suffix: "",
-      tint: "from-violet-500 to-purple-500",
+      suffix: '',
+      tint: 'from-violet-500 to-purple-500',
     },
     {
-      label: "Resolved on-chain",
+      label: 'Resolved on-chain',
       value: stats?.total_resolved ?? 0,
-      suffix: "",
-      tint: "from-cyan-500 to-sky-500",
+      suffix: '',
+      tint: 'from-cyan-500 to-sky-500',
     },
     {
-      label: "Resolution rate",
+      label: 'Resolution rate',
       value: stats?.resolution_rate ?? 0,
-      suffix: "%",
-      tint: "from-emerald-500 to-teal-500",
+      suffix: '%',
+      tint: 'from-emerald-500 to-teal-500',
     },
   ];
 

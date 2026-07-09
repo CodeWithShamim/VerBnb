@@ -24,7 +24,7 @@ const config: Config = {
           "dark-light": "#3a3059",
           offwhite: "#f6f7f9",
         },
-        // Primary brand — retargeted to the hero purple design system.
+        // Primary brand - retargeted to the hero purple design system.
         brand: {
           DEFAULT: "#7b39fc",
           dark: "#6b28e0",
@@ -46,7 +46,7 @@ const config: Config = {
           sourcing: "#10b981", // emerald
           delivery: "#f59e0b", // amber
         },
-        // Dopamine accents — vivid pops used for gradients, glows and chips.
+        // Dopamine accents - vivid pops used for gradients, glows and chips.
         pop: {
           pink: "#ec4899",
           magenta: "#d946ef",

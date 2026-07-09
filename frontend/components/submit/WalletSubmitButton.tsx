@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { newDisputeId } from "@/lib/contracts";
-import { useWalletDispute } from "@/lib/useWalletDispute";
-import type { SubmitButtonProps } from "@/components/SubmitButton";
+import { useState } from 'react';
+import { newDisputeId } from '@/lib/contracts';
+import { useWalletDispute } from '@/lib/useWalletDispute';
+import type { SubmitButtonProps } from '@/components/SubmitButton';
 
 /**
  * Submits the dispute signed by the user's connected wallet (Privy → genlayer-js).
@@ -39,23 +39,21 @@ export default function WalletSubmitButton({
       const res = await submit({ category, disputeId, ...(getValues() as any) });
       onSuccess(disputeId, res.specialistTx);
     } catch (e: any) {
-      const msg = e?.message || "Submission failed";
+      const msg = e?.message || 'Submission failed';
       onError(
-        /user rejected|denied/i.test(msg)
-          ? "You rejected the transaction in your wallet."
-          : msg
+        /user rejected|denied/i.test(msg) ? 'You rejected the transaction in your wallet.' : msg,
       );
       setPending(false);
     }
   }
 
   const label = !ready
-    ? "Loading wallet…"
+    ? 'Loading wallet…'
     : !connected
-    ? "Connect wallet to submit"
-    : pending
-    ? "Confirm in your wallet…"
-    : "Sign & submit dispute";
+      ? 'Connect wallet to submit'
+      : pending
+        ? 'Confirm in your wallet…'
+        : 'Sign & submit dispute';
 
   return (
     <div className="space-y-2">
@@ -76,7 +74,7 @@ export default function WalletSubmitButton({
       </button>
       {connected && (
         <p className="text-center text-xs text-slate-400">
-          You&apos;ll sign this dispute with your own wallet — no platform key.
+          You&apos;ll sign this dispute with your own wallet - no platform key.
         </p>
       )}
     </div>

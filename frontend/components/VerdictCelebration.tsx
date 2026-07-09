@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "framer-motion";
-import { SuccessBurst3D } from "@/components/3d";
+import { useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from 'framer-motion';
+import { SuccessBurst3D } from '@/components/3d';
 
 /**
  * Fires a one-shot celebration (canvas-confetti + a 3D particle burst) when a
@@ -24,14 +24,14 @@ export default function VerdictCelebration({ favorable }: { favorable: boolean }
 
     // Confetti is loaded lazily so it never ships in the initial bundle.
     let cancelled = false;
-    import("canvas-confetti")
+    import('canvas-confetti')
       .then(({ default: confetti }) => {
         if (cancelled) return;
         const fire = (particleRatio: number, opts: Record<string, unknown>) =>
           confetti({
             origin: { y: 0.6 },
             particleCount: Math.floor(180 * particleRatio),
-            colors: ["#7b39fc", "#8b5cf6", "#22c55e", "#06b6d4"],
+            colors: ['#7b39fc', '#8b5cf6', '#22c55e', '#06b6d4'],
             ...opts,
           });
         fire(0.25, { spread: 26, startVelocity: 55 });
@@ -41,7 +41,7 @@ export default function VerdictCelebration({ favorable }: { favorable: boolean }
         fire(0.1, { spread: 120, startVelocity: 45 });
       })
       .catch(() => {
-        /* confetti is non-critical — ignore load failures */
+        /* confetti is non-critical - ignore load failures */
       });
 
     // The 3D burst lasts ~2s; unmount it afterwards to free the canvas.
