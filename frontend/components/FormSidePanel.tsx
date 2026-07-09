@@ -19,10 +19,16 @@ const STEPS = [
   },
 ];
 
+const CHECKLIST = [
+  "A public listing or claim URL validators can open",
+  "Evidence photos, reports or receipts (we pin them to IPFS)",
+  "A couple of minutes — consensus usually lands fast",
+];
+
 /**
- * Animated companion panel for the dispute forms — sits to the right of the
- * form on desktop. Category-tinted glow card with a floating 3D badge, a
- * staggered process timeline and live-network chips.
+ * Sticky context panel for the dispute forms — category-tinted glow card with
+ * the floating 3D badge, the resolution timeline, a what-you'll-need checklist
+ * and a live-network footer.
  */
 export default function FormSidePanel({ category }: { category: Category }) {
   const meta = CATEGORIES[category];
@@ -30,20 +36,20 @@ export default function FormSidePanel({ category }: { category: Category }) {
 
   return (
     <motion.aside
-      initial={reduce ? false : { opacity: 0, x: 32 }}
+      initial={reduce ? false : { opacity: 0, x: -32 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
       className="lg:sticky lg:top-24"
     >
       <div className="glow-border relative overflow-hidden rounded-3xl">
         <div className="hero-dark-canvas relative rounded-3xl p-7 sm:p-8">
           {/* drifting accent blobs */}
           <div
-            className="aurora-blob h-56 w-56 -right-16 -top-16"
+            className="aurora-blob -right-16 -top-16 h-56 w-56"
             style={{ background: `radial-gradient(circle, ${meta.accent}, transparent 70%)` }}
           />
           <div
-            className="aurora-blob h-44 w-44 -bottom-14 -left-14"
+            className="aurora-blob -bottom-14 -left-14 h-44 w-44"
             style={{
               background: "radial-gradient(circle, #ec4899, transparent 70%)",
               animationDelay: "-8s",
@@ -51,45 +57,47 @@ export default function FormSidePanel({ category }: { category: Category }) {
           />
 
           <div className="relative">
-            {/* floating 3D category badge */}
-            <motion.div
-              animate={reduce ? undefined : { y: [0, -8, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="mx-auto grid h-28 w-28 place-items-center"
-            >
-              <CategoryIconWith3D
-                category={category}
-                size={112}
-                fallback={
-                  <span
-                    className="grid h-20 w-20 place-items-center rounded-2xl text-3xl"
-                    style={{ background: `${meta.accent}22`, color: meta.accent }}
-                  >
-                    ⚖️
-                  </span>
-                }
-              />
-            </motion.div>
-
-            <p className="mt-2 text-center">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur">
-                <span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ background: meta.accent }}
+            {/* header: 3D badge + judge identity */}
+            <div className="flex items-center gap-4">
+              <motion.div
+                animate={reduce ? undefined : { y: [0, -6, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="grid h-[72px] w-[72px] shrink-0 place-items-center"
+              >
+                <CategoryIconWith3D
+                  category={category}
+                  size={72}
+                  fallback={
+                    <span
+                      className="grid h-14 w-14 place-items-center rounded-2xl text-2xl"
+                      style={{ background: `${meta.accent}22`, color: meta.accent }}
+                    >
+                      ⚖️
+                    </span>
+                  }
                 />
-                {meta.title} judge
-              </span>
-            </p>
-            <h2 className="mt-3 text-center font-serif-hero text-2xl text-white">
-              {meta.tagline}
-            </h2>
+              </motion.div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+                  {meta.title} judge
+                </p>
+                <p className="mt-1 font-serif-hero text-xl leading-snug text-white">
+                  {meta.tagline}
+                </p>
+              </div>
+            </div>
 
-            {/* process timeline */}
+            <div className="my-6 h-px bg-white/10" />
+
+            {/* resolution timeline */}
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+              How your case resolves
+            </p>
             <motion.ol
               initial={reduce ? false : "hidden"}
               animate="show"
-              variants={{ show: { transition: { staggerChildren: 0.14, delayChildren: 0.7 } } }}
-              className="relative mt-8 space-y-6 border-l border-white/15 pl-5"
+              variants={{ show: { transition: { staggerChildren: 0.14, delayChildren: 0.6 } } }}
+              className="relative mt-4 space-y-5 border-l border-white/15 pl-5"
             >
               {STEPS.map((s, i) => (
                 <motion.li
@@ -120,18 +128,40 @@ export default function FormSidePanel({ category }: { category: Category }) {
               ))}
             </motion.ol>
 
-            {/* live-network chips */}
-            <div className="mt-8 flex flex-wrap justify-center gap-2">
-              {["⛓ Settled on GenLayer", "🧠 LLM consensus", "📦 IPFS evidence"].map(
-                (chip) => (
-                  <span
-                    key={chip}
-                    className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-medium text-white/80"
+            <div className="my-6 h-px bg-white/10" />
+
+            {/* what you'll need */}
+            <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
+              What you&apos;ll need
+            </p>
+            <ul className="mt-3 space-y-2.5">
+              {CHECKLIST.map((item) => (
+                <li key={item} className="flex items-start gap-2.5 text-xs text-white/70">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    className="mt-0.5 h-3.5 w-3.5 shrink-0"
+                    style={{ color: meta.accent }}
                   >
-                    {chip}
-                  </span>
-                )
-              )}
+                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            {/* live-network footer */}
+            <div className="mt-7 flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+              <span className="flex items-center gap-2 text-xs font-medium text-white/80">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                GenLayer Bradbury
+              </span>
+              <span className="text-[11px] text-white/50">5 validators · live</span>
             </div>
           </div>
         </div>

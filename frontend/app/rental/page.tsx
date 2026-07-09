@@ -8,6 +8,7 @@ const fields: FormField[] = [
     name: "listingUrl",
     label: "Listing URL",
     type: "url",
+    section: "Case details",
     placeholder: "https://airbnb.com/rooms/...",
     defaultValue:
       "https://gateway.pinata.cloud/ipfs/bafkreihc6ramgg7qgyyeeb3lhkp6sv7ksqq4ygd7ov3batogaz5d3bziea",
@@ -18,6 +19,7 @@ const fields: FormField[] = [
     name: "evidenceFile",
     label: "Evidence (photos / report)",
     type: "file",
+    section: "Evidence",
     target: "evidenceUrl",
     help: "Uploaded to IPFS — fills the evidence URL below automatically.",
   },
@@ -35,6 +37,7 @@ const fields: FormField[] = [
     name: "claimedAmount",
     label: "Amount paid (smallest currency unit)",
     type: "number",
+    section: "Claim",
     placeholder: "500000",
     defaultValue: "500000",
     required: true,

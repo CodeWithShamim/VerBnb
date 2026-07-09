@@ -21,6 +21,22 @@ export interface FormField {
   target?: string;
   /** Pre-filled value the field starts with (editable by the user). */
   defaultValue?: string;
+  /** Section heading this field starts (or continues, when omitted). */
+  section?: string;
+}
+
+/** Group consecutive fields under their section; unsectioned fields inherit. */
+function groupFields(fields: FormField[]) {
+  const groups: { section: string | null; fields: FormField[] }[] = [];
+  for (const f of fields) {
+    const last = groups[groups.length - 1];
+    if (last && (f.section === undefined || f.section === last.section)) {
+      last.fields.push(f);
+    } else {
+      groups.push({ section: f.section ?? null, fields: [f] });
+    }
+  }
+  return groups;
 }
 
 export default function DisputeForm({
@@ -43,6 +59,7 @@ export default function DisputeForm({
   const [error, setError] = useState<string | null>(null);
 
   const meta = CATEGORIES[category];
+  const groups = groupFields(fields);
 
   function setField(name: string, value: string) {
     setValues((v) => ({ ...v, [name]: value }));
@@ -81,6 +98,96 @@ export default function DisputeForm({
     router.push(`/dispute/${encodeURIComponent(disputeId)}?${params.toString()}`);
   }
 
+  function renderField(f: FormField) {
+    if (f.type === "textarea") {
+      return (
+        <textarea
+          id={f.name}
+          className="input min-h-[110px] resize-y"
+          placeholder={f.placeholder}
+          value={values[f.name] || ""}
+          onChange={(e) => setField(f.name, e.target.value)}
+        />
+      );
+    }
+    if (f.type === "file") {
+      return (
+        <div>
+          <label
+            htmlFor={f.name}
+            className="group flex cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed border-surface-border bg-surface-subtle px-5 py-4 transition-colors hover:border-brand/50 hover:bg-brand-50/30"
+          >
+            <span
+              className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${meta.soft} ${meta.text}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.7}
+                className="h-5 w-5"
+              >
+                <path
+                  d="M12 16V4m0 0L8 8m4-4 4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-slate-700">
+                Drop a file or click to browse
+              </span>
+              <span className="mt-0.5 block text-xs text-slate-400">
+                Pinned to IPFS via Pinata — fills the URL field automatically
+              </span>
+            </span>
+            <span className="hidden shrink-0 rounded-lg border border-surface-border bg-surface px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors group-hover:border-brand/40 group-hover:text-brand sm:block">
+              Browse
+            </span>
+            <input
+              id={f.name}
+              type="file"
+              className="hidden"
+              onChange={(e) => handleFile(f, e.target.files?.[0] || null)}
+            />
+          </label>
+          {typeof uploadPct[f.name] === "number" && (
+            <div className="mt-2.5">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-muted">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${uploadPct[f.name]}%` }}
+                  transition={{ ease: "easeOut" }}
+                />
+              </div>
+              <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                {uploadPct[f.name] === 100 ? (
+                  <>
+                    <span className="text-emerald-500">✓</span> Uploaded to IPFS
+                  </>
+                ) : (
+                  `Uploading… ${uploadPct[f.name]}%`
+                )}
+              </p>
+            </div>
+          )}
+        </div>
+      );
+    }
+    return (
+      <input
+        id={f.name}
+        type={f.type === "number" ? "number" : "text"}
+        className="input"
+        placeholder={f.placeholder}
+        value={values[f.name] || ""}
+        onChange={(e) => setField(f.name, e.target.value)}
+      />
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -88,135 +195,84 @@ export default function DisputeForm({
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       className="card overflow-hidden"
     >
-      {/* accent header */}
-      <div
-        className={`relative bg-gradient-to-r ${meta.gradient} px-6 py-7 text-white sm:px-8`}
-      >
-        <div className="pointer-events-none absolute inset-0 opacity-25 [background:radial-gradient(400px_circle_at_85%_-20%,white,transparent)]" />
-        <span className="relative inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
-          {meta.title} dispute
-        </span>
-        <h1 className="relative mt-3 text-2xl font-bold">{meta.tagline}</h1>
-      </div>
+      {/* Slim category accent strip — identity without a heavy banner. */}
+      <div className={`h-1.5 bg-gradient-to-r ${meta.gradient}`} />
 
-      <div className="space-y-5 p-6 sm:p-8">
-        {fields.map((f, i) => (
-          <motion.div
-            key={f.name}
-            initial={{ opacity: 0, y: 12 }}
+      <div className="p-6 sm:p-8">
+        {groups.map((g, gi) => (
+          <motion.section
+            key={gi}
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.05 * i }}
+            transition={{ duration: 0.45, delay: 0.08 * gi }}
+            className={gi > 0 ? "mt-9" : undefined}
           >
-            <label className="label" htmlFor={f.name}>
-              {f.label}
-              {f.required && <span className={meta.text}> *</span>}
-            </label>
-
-            {f.type === "textarea" ? (
-              <textarea
-                id={f.name}
-                className="input min-h-[100px] resize-y"
-                placeholder={f.placeholder}
-                value={values[f.name] || ""}
-                onChange={(e) => setField(f.name, e.target.value)}
-              />
-            ) : f.type === "file" ? (
-              <div>
-                <label
-                  htmlFor={f.name}
-                  className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-surface-border bg-surface-subtle px-4 py-6 text-center transition-colors hover:border-brand/50 hover:bg-brand-50/40"
+            {g.section && (
+              <div className="mb-5 flex items-center gap-3">
+                <span
+                  className="font-mono text-xs font-bold tabular-nums"
+                  style={{ color: meta.accent }}
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.7}
-                    className="h-7 w-7 text-slate-400"
-                  >
-                    <path
-                      d="M12 16V4m0 0L8 8m4-4 4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span className="text-sm font-medium text-slate-600">
-                    Click to upload evidence
-                  </span>
-                  <span className="text-xs text-slate-400">
-                    Pinned to IPFS via Pinata
-                  </span>
-                  <input
-                    id={f.name}
-                    type="file"
-                    className="hidden"
-                    onChange={(e) =>
-                      handleFile(f, e.target.files?.[0] || null)
-                    }
-                  />
-                </label>
-                {typeof uploadPct[f.name] === "number" && (
-                  <div className="mt-2.5">
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-muted">
-                      <motion.div
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${uploadPct[f.name]}%` }}
-                        transition={{ ease: "easeOut" }}
-                      />
-                    </div>
-                    <p className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                      {uploadPct[f.name] === 100 ? (
-                        <>
-                          <span className="text-emerald-500">✓</span> Uploaded to
-                          IPFS
-                        </>
-                      ) : (
-                        `Uploading… ${uploadPct[f.name]}%`
-                      )}
-                    </p>
-                  </div>
-                )}
+                  {String(gi + 1).padStart(2, "0")}
+                </span>
+                <span className="font-sans text-sm font-semibold uppercase tracking-wider text-slate-700">
+                  {g.section}
+                </span>
+                <span className="h-px flex-1 bg-surface-border" />
               </div>
-            ) : (
-              <input
-                id={f.name}
-                type={f.type === "number" ? "number" : "text"}
-                className="input"
-                placeholder={f.placeholder}
-                value={values[f.name] || ""}
-                onChange={(e) => setField(f.name, e.target.value)}
-              />
             )}
 
-            {f.help && (
-              <p className="mt-1.5 text-xs text-slate-400">{f.help}</p>
-            )}
-          </motion.div>
+            <div className="space-y-5">
+              {g.fields.map((f) => (
+                <div key={f.name}>
+                  <label className="label" htmlFor={f.name}>
+                    {f.label}
+                    {f.required && <span className={meta.text}> *</span>}
+                  </label>
+                  {renderField(f)}
+                  {f.help && (
+                    <p className="mt-1.5 text-xs text-slate-400">{f.help}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.section>
         ))}
 
         {error && (
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
+            className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-600"
           >
             {error}
           </motion.div>
         )}
 
-        <SubmitButton
-          category={category}
-          getValues={() => values}
-          validate={validate}
-          onError={setError}
-          onSuccess={onSuccess}
-          disabled={uploading}
-        />
-
-        <p className="text-center text-xs text-slate-400">
-          Evidence is pinned to IPFS, then validators independently fetch it and
-          reach consensus on-chain.
-        </p>
+        <div className="mt-8 border-t border-surface-border pt-6">
+          <SubmitButton
+            category={category}
+            getValues={() => values}
+            validate={validate}
+            onError={setError}
+            onSuccess={onSuccess}
+            disabled={uploading}
+          />
+          <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-slate-400">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              className="h-3.5 w-3.5 shrink-0"
+            >
+              <rect x="5" y="11" width="14" height="9" rx="2" />
+              <path d="M8 11V8a4 4 0 018 0v3" strokeLinecap="round" />
+            </svg>
+            Evidence is pinned to IPFS; validators fetch it independently and
+            settle the verdict on-chain.
+          </p>
+        </div>
       </div>
     </motion.div>
   );

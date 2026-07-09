@@ -8,6 +8,7 @@ const fields: FormField[] = [
     name: "listingUrl",
     label: "Seller listing URL",
     type: "url",
+    section: "Case details",
     placeholder: "https://ebay.com/itm/...",
     defaultValue:
       "https://gateway.pinata.cloud/ipfs/bafkreihc6ramgg7qgyyeeb3lhkp6sv7ksqq4ygd7ov3batogaz5d3bziea",
@@ -18,6 +19,7 @@ const fields: FormField[] = [
     name: "evidenceFile",
     label: "Evidence (photos of item received)",
     type: "file",
+    section: "Evidence",
     target: "evidenceUrl",
     help: "Uploaded to IPFS — fills the evidence URL below automatically.",
   },
