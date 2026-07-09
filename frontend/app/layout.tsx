@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PrivyAppProvider from "@/components/PrivyAppProvider";
 import PageTransition from "@/components/PageTransition";
+import BootLoader from "@/components/BootLoader";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -30,6 +31,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
+        <BootLoader />
         <PrivyAppProvider>
           <Navbar />
           <main>
