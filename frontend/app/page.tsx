@@ -449,7 +449,7 @@ export default function Home() {
             </p>
             <Link
               href="#categories"
-              className="btn-shine relative mt-8 inline-flex items-center justify-center rounded-xl bg-white px-7 py-3.5 font-semibold text-brand shadow-soft transition-transform duration-300 hover:scale-105"
+              className="btn-shine relative mt-8 inline-flex items-center justify-center rounded-xl bg-[#ffffff] px-7 py-3.5 font-semibold text-brand shadow-soft transition-transform duration-300 hover:scale-105"
             >
               Get started →
             </Link>

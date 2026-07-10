@@ -7,7 +7,10 @@ import { motion } from 'framer-motion';
 import ConsensusTracker from '@/components/ConsensusTracker';
 import VerdictCard, { type Verdict } from '@/components/VerdictCard';
 import FraudAlert from '@/components/FraudAlert';
+import EvidenceGallery, { type EvidenceItem } from '@/components/EvidenceGallery';
+import WatchButton from '@/components/WatchButton';
 import { CATEGORIES, explorerTx, type Category } from '@/lib/contracts';
+import { getRecentDisputes } from '@/lib/recentDisputes';
 
 export default function DisputePage() {
   const params = useParams<{ id: string }>();
@@ -20,6 +23,7 @@ export default function DisputePage() {
   const [status, setStatus] = useState<string>('SUBMITTED');
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [submitter, setSubmitter] = useState<string>('');
+  const [evidence, setEvidence] = useState<EvidenceItem[]>([]);
   const [copied, setCopied] = useState(false);
   const markedRef = useRef(false);
 
@@ -34,12 +38,24 @@ export default function DisputePage() {
         /* keep last status */
       }
     }
-    // 2. Verdict (once resolved).
+    // 2. Verdict (once resolved) + evidence previews. The evidence URLs live
+    // in the specialist tx calldata, so pass the tx hash along - from the URL
+    // when present, otherwise from this browser's local dispute index.
     try {
+      const evidenceTx =
+        txHash || getRecentDisputes().find((rd) => rd.id === id)?.tx || '';
       const r = await fetch(
-        `/api/verdict/${encodeURIComponent(id)}?category=${encodeURIComponent(category)}`,
+        `/api/verdict/${encodeURIComponent(id)}?category=${encodeURIComponent(category)}&tx=${encodeURIComponent(evidenceTx)}`,
       );
       const d = await r.json();
+      if (Array.isArray(d.evidence) && d.evidence.length > 0) {
+        setEvidence((prev) =>
+          prev.length === d.evidence.length &&
+          prev.every((p: EvidenceItem, i: number) => p.url === d.evidence[i].url)
+            ? prev
+            : d.evidence,
+        );
+      }
       if (d.verdict) {
         setVerdict(d.verdict);
         if (d.record?.submitter) setSubmitter(d.record.submitter); // 3. Once the specialist has a resolved verdict, mark it resolved in the
@@ -110,13 +126,23 @@ export default function DisputePage() {
                 </p>
                 <p className="mt-1 break-all font-mono text-sm font-medium">{id}</p>
               </div>
-              <button
-                type="button"
-                onClick={copyId}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-white/20 px-3.5 py-2 text-sm font-semibold backdrop-blur transition-colors hover:bg-white/30"
-              >
-                {copied ? 'Copied ✓' : 'Copy ID'}
-              </button>
+              <div className="flex items-center gap-2">
+                {category && (
+                  <WatchButton
+                    id={id}
+                    category={category}
+                    txHash={txHash || undefined}
+                    variant="onGradient"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={copyId}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-white/20 px-3.5 py-2 text-sm font-semibold backdrop-blur transition-colors hover:bg-white/30"
+                >
+                  {copied ? 'Copied ✓' : 'Copy ID'}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -147,8 +173,15 @@ export default function DisputePage() {
 
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <ConsensusTracker status={status} />
-          <VerdictCard verdict={verdict} />
+          <VerdictCard verdict={verdict} disputeId={id} category={category} />
         </div>
+
+        {/* Submitted evidence, rendered as inline IPFS previews. */}
+        {evidence.length > 0 && (
+          <div className="mt-6">
+            <EvidenceGallery items={evidence} />
+          </div>
+        )}
 
         {/* Fraud flag badge for the disputant (if any). */}
         {submitter && (
