@@ -142,6 +142,16 @@ export const CONTRACTS: {
   },
 ];
 
+/** Category → its specialist contract address (from deployments/bradbury.json). */
+export const SPECIALIST_BY_CATEGORY: Record<Category, `0x${string}`> =
+  CONTRACTS.reduce(
+    (acc, c) => {
+      if (c.category) acc[c.category] = c.address as `0x${string}`;
+      return acc;
+    },
+    {} as Record<Category, `0x${string}`>,
+  );
+
 /** Lower-cased address → its contract config (category lookup for feed rows). */
 export const CONTRACT_BY_ADDRESS: Record<
   string,

@@ -4,7 +4,12 @@ import { useCallback } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { createClient } from "genlayer-js";
 import { testnetBradbury } from "genlayer-js/chains";
-import { CATEGORIES, REGISTRY_ADDRESS, type Category } from "@/lib/contracts";
+import {
+  CATEGORIES,
+  REGISTRY_ADDRESS,
+  SPECIALIST_BY_CATEGORY,
+  type Category,
+} from "@/lib/contracts";
 
 const REGISTRY = REGISTRY_ADDRESS;
 
@@ -96,16 +101,11 @@ export function useWalletDispute() {
       // Ensure the wallet is on the GenLayer Bradbury network before writing.
       await client.connect("testnetBradbury");
 
-      // 1. Discover the specialist contract via the registry.
-      const specialist = String(
-        await client.readContract({
-          address: REGISTRY,
-          functionName: "get_contract_for_category",
-          args: [sub.category],
-        }),
-      );
+      // 1. Specialist contract from deployments/bradbury.json - the same
+      // address set the registry routes to, so no on-chain discovery read.
+      const specialist = SPECIALIST_BY_CATEGORY[sub.category];
       if (!specialist)
-        throw new Error(`Registry has no contract for ${sub.category}`);
+        throw new Error(`No deployed contract for ${sub.category}`);
 
       // 2. Raise the dispute on the specialist (user signs).
       const method = CATEGORIES[sub.category].method;
