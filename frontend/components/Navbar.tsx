@@ -14,18 +14,18 @@ const NAV = [
     href: `/${c.slug}`,
     label: c.title,
   })),
-  { href: '/activity', label: 'Activity' },
-  { href: '/analytics', label: 'Analytics' },
-  { href: '/validator', label: 'Validators' },
-  { href: '/docs', label: 'Docs' },
-];
-
-// New tool pages live in a compact "More" dropdown on desktop (the flat list
-// above already fills the bar) and inline in the mobile menu.
-const MORE_NAV = [
   { href: '/explorer', label: 'Explorer' },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/simulator', label: 'Simulator' },
+  { href: '/docs', label: 'Docs' },
+];
+
+// Secondary pages live in a compact "More" dropdown on desktop (the flat list
+// above already fills the bar) and inline in the mobile menu.
+const MORE_NAV = [
+  { href: '/activity', label: 'Activity' },
+  { href: '/analytics', label: 'Analytics' },
+  { href: '/validator', label: 'Validators' },
   { href: '/suggestions', label: 'Suggestions' },
 ];
 
