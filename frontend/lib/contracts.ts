@@ -1,14 +1,16 @@
 // Contract addresses + category routing.
 //
-// The frontend only needs the REGISTRY address (set in .env.local). Specialist
-// addresses are discovered at runtime via the registry's
-// get_contract_for_category view, so the UI never hardcodes them. The static
-// fallbacks below are filled from deployments/bradbury.json after deploy.
+// Addresses come straight from deployments/bradbury.json (written by the
+// deploy script), so a re-deploy only needs that file updated - no .env.local
+// required. Specialist addresses are also discoverable at runtime via the
+// registry's get_contract_for_category view.
+
+import deployment from "../../deployments/bradbury.json";
 
 export type Category = "RENTAL" | "PRODUCT" | "SOURCING" | "DELIVERY";
 
-export const REGISTRY_ADDRESS = (process.env.NEXT_PUBLIC_VERBNB_REGISTRY ||
-  "") as `0x${string}`;
+export const REGISTRY_ADDRESS = deployment.contracts
+  .verBnb_registry as `0x${string}`;
 
 export interface CategoryMeta {
   key: Category;
@@ -106,8 +108,7 @@ export const EXPLORER_API_BASE = `${EXPLORER_BASE}/api/v1`;
 
 /**
  * Deployed specialist + registry addresses (deployments/bradbury.json). The
- * live feed pulls transactions for each of these. Env vars override so the
- * same UI works against a re-deploy without a code change.
+ * live feed pulls transactions for each of these.
  */
 export const CONTRACTS: {
   key: string;
@@ -116,37 +117,27 @@ export const CONTRACTS: {
 }[] = [
   {
     key: "Registry",
-    address:
-      process.env.NEXT_PUBLIC_VERBNB_REGISTRY ||
-      "0x032806fb59020560538DC470A0C44dd1ebCD8B34",
+    address: deployment.contracts.verBnb_registry,
     category: null,
   },
   {
     key: "Rental",
-    address:
-      process.env.NEXT_PUBLIC_VERBNB_RENTAL ||
-      "0x19441393f5F1EE033D1502A6557F87705A20f4CC",
+    address: deployment.contracts.listing_accuracy_judge,
     category: "RENTAL",
   },
   {
     key: "Marketplace",
-    address:
-      process.env.NEXT_PUBLIC_VERBNB_PRODUCT ||
-      "0x9cBC4d4d0d0Aeefd6891FF2717D56Df14Ff8bD39",
+    address: deployment.contracts.not_as_described,
     category: "PRODUCT",
   },
   {
     key: "Sourcing",
-    address:
-      process.env.NEXT_PUBLIC_VERBNB_SOURCING ||
-      "0x691d014c332eF75387708CaDd2E22f28B6a11C00",
+    address: deployment.contracts.ethical_sourcing,
     category: "SOURCING",
   },
   {
     key: "Delivery",
-    address:
-      process.env.NEXT_PUBLIC_VERBNB_DELIVERY ||
-      "0x757cA36D2e9BbdF60fCE646592cD04B7DC2BD6B5",
+    address: deployment.contracts.delivery_adjudicator,
     category: "DELIVERY",
   },
 ];
@@ -170,16 +161,14 @@ export const REGISTRY_CONTRACT =
 /**
  * Phase 2 extension tracker addresses (appeal/reputation/fraud/analytics).
  * Standalone contracts orchestrated off-chain; the registry also exposes these
- * via get_extension_addresses. Env vars override after a re-deploy.
+ * via get_extension_addresses.
  */
 export const CONTRACT_ADDRESSES = {
   registry: REGISTRY_CONTRACT,
-  appeal_manager: (process.env.NEXT_PUBLIC_APPEAL_MANAGER || "") as string,
-  reputation_tracker: (process.env.NEXT_PUBLIC_REPUTATION_TRACKER ||
-    "") as string,
-  fraud_detector: (process.env.NEXT_PUBLIC_FRAUD_DETECTOR || "") as string,
-  analytics_tracker: (process.env.NEXT_PUBLIC_ANALYTICS_TRACKER ||
-    "") as string,
+  appeal_manager: deployment.contracts.appeal_manager,
+  reputation_tracker: deployment.contracts.reputation_tracker,
+  fraud_detector: deployment.contracts.fraud_detector,
+  analytics_tracker: deployment.contracts.analytics_tracker,
 };
 
 // Active network metadata for display. Mirrors the genlayer-js chain objects so

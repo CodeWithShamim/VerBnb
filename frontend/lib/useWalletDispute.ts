@@ -4,10 +4,9 @@ import { useCallback } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { createClient } from "genlayer-js";
 import { testnetBradbury } from "genlayer-js/chains";
-import { CATEGORIES, type Category } from "@/lib/contracts";
+import { CATEGORIES, REGISTRY_ADDRESS, type Category } from "@/lib/contracts";
 
-const REGISTRY = (process.env.NEXT_PUBLIC_VERBNB_REGISTRY ||
-  "") as `0x${string}`;
+const REGISTRY = REGISTRY_ADDRESS;
 
 export interface DisputeSubmission {
   category: Category;
