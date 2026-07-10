@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CATEGORIES, getChainInfo } from '@/lib/contracts';
 import ConnectWallet from '@/components/ConnectWallet';
 import ThemeToggle from '@/components/ThemeToggle';
+import NotificationBell from '@/components/NotificationBell';
 
 const NAV = [
   ...Object.values(CATEGORIES).map((c) => ({
@@ -19,12 +20,39 @@ const NAV = [
   { href: '/docs', label: 'Docs' },
 ];
 
+// New tool pages live in a compact "More" dropdown on desktop (the flat list
+// above already fills the bar) and inline in the mobile menu.
+const MORE_NAV = [
+  { href: '/explorer', label: 'Explorer' },
+  { href: '/leaderboard', label: 'Leaderboard' },
+  { href: '/simulator', label: 'Simulator' },
+];
+
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, 'change', (y) => setScrolled(y > 8));
+
+  // Close the "More" dropdown on outside click / Escape.
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMoreOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [moreOpen]);
 
   const chain = getChainInfo();
 
@@ -70,6 +98,43 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          {/* More - new tool pages */}
+          <div ref={moreRef} className="relative">
+            <button
+              type="button"
+              aria-expanded={moreOpen}
+              onClick={() => setMoreOpen((o) => !o)}
+              className="inline-flex items-center gap-1 font-manrope text-[14px] font-medium text-slate-700 transition-opacity hover:opacity-80 dark:text-white"
+            >
+              More
+              <svg viewBox="0 0 24 24" fill="none" className={`h-3.5 w-3.5 transition-transform ${moreOpen ? 'rotate-180' : ''}`}>
+                <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <AnimatePresence>
+              {moreOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute left-1/2 top-full z-50 mt-3 w-44 -translate-x-1/2 overflow-hidden rounded-xl border border-surface-border bg-white/95 py-1.5 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-hero-dark"
+                >
+                  {MORE_NAV.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMoreOpen(false)}
+                      className="block px-4 py-2 font-manrope text-[14px] font-medium text-slate-700 transition-colors hover:bg-surface-subtle dark:text-white dark:hover:bg-white/10"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Right cluster */}
@@ -82,6 +147,8 @@ export default function Navbar() {
           </Link>
 
           <ThemeToggle />
+
+          <NotificationBell />
 
           <ConnectWallet />
 
@@ -125,7 +192,7 @@ export default function Navbar() {
             className="fixed inset-0 z-40 flex flex-col bg-white dark:bg-black lg:hidden"
           >
             <div className="flex flex-1 flex-col items-center justify-center gap-8 py-4">
-              {NAV.map((item) => {
+              {[...NAV, ...MORE_NAV].map((item) => {
                 return (
                   <Link
                     key={item.href}

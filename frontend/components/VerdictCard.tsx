@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import TrustScoreBadge from './TrustScoreBadge';
 import ReputationBadge from './ReputationBadge';
+import ShareVerdict from './ShareVerdict';
 
 export interface Verdict {
   resolved?: boolean;
@@ -33,11 +34,16 @@ export default function VerdictCard({
   disputant,
   counterparty,
   consensusRate,
+  disputeId,
+  category,
 }: {
   verdict: Verdict | null;
   disputant?: string;
   counterparty?: string;
   consensusRate?: number;
+  /** Optional - when provided along with `category`, share actions render. */
+  disputeId?: string;
+  category?: string;
 }) {
   if (!verdict || verdict.error) {
     return (
@@ -154,6 +160,10 @@ export default function VerdictCard({
             </div>
           )}
         </div>
+      )}
+
+      {verdict.resolved && !verdict.error && disputeId && category && (
+        <ShareVerdict id={disputeId} category={category} verdict={verdict} />
       )}
     </motion.div>
   );
