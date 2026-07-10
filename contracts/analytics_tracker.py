@@ -77,6 +77,7 @@ def _tokens(text: str) -> set:
 
 
 class AnalyticsTracker(gl.Contract):
+    owner: str
     category_stats: TreeMap[str, CategoryStats]
     dispute_records: TreeMap[str, DisputeOutcomeRecord]
     # category -> ids, so similar-case search stays category-scoped.
@@ -86,11 +87,16 @@ class AnalyticsTracker(gl.Contract):
     total_first_round: u256
 
     def __init__(self) -> None:
+        self.owner = gl.message.sender_address.as_hex.lower()
         self.total_resolution_time = u256(0)
         self.total_records = u256(0)
         self.total_first_round = u256(0)
 
     # ---------------------------------------------------------------- helpers
+
+    def _only_owner(self) -> None:
+        if gl.message.sender_address.as_hex.lower() != self.owner:
+            raise gl.vm.UserError("unauthorized: owner only")
 
     def _now(self) -> int:
         return int(datetime.now(timezone.utc).timestamp())
@@ -129,6 +135,7 @@ class AnalyticsTracker(gl.Contract):
         appeals: u8,
         claim_snippet: str,
     ) -> None:
+        self._only_owner()
         cat = self._norm_category(category)
         if cat == "":
             raise gl.vm.UserError(f"unknown category: {category}")

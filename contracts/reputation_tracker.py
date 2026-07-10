@@ -79,13 +79,18 @@ def _credibility(rep: UserReputation) -> int:
 
 
 class ReputationTracker(gl.Contract):
+    owner: str
     reputations: TreeMap[str, UserReputation]
     activity_log: TreeMap[str, DynArray[ActivityEvent]]
 
     def __init__(self) -> None:
-        pass
+        self.owner = gl.message.sender_address.as_hex.lower()
 
     # ---------------------------------------------------------------- helpers
+
+    def _only_owner(self) -> None:
+        if gl.message.sender_address.as_hex.lower() != self.owner:
+            raise gl.vm.UserError("unauthorized: owner only")
 
     def _key(self, address: str) -> str:
         return address.lower()
@@ -134,6 +139,7 @@ class ReputationTracker(gl.Contract):
 
     @gl.public.write
     def record_dispute_filed(self, address: str, dispute_id: str) -> None:
+        self._only_owner()
         rep = self._get_or_create(address)
         rep.disputes_filed = u32(int(rep.disputes_filed) + 1)
         self._refresh_score(rep)
@@ -147,6 +153,7 @@ class ReputationTracker(gl.Contract):
         dispute_id: str,
         verdict_string: str,
     ) -> None:
+        self._only_owner()
         winner = self._get_or_create(winner_address)
         winner.disputes_won = u32(int(winner.disputes_won) + 1)
         self._refresh_score(winner)
@@ -165,6 +172,7 @@ class ReputationTracker(gl.Contract):
 
     @gl.public.write
     def record_validator_round(self, validator_address: str, agreed_with_majority: bool) -> None:
+        self._only_owner()
         rep = self._get_or_create(validator_address)
         rep.validator_rounds = u32(int(rep.validator_rounds) + 1)
         if agreed_with_majority:
@@ -177,6 +185,7 @@ class ReputationTracker(gl.Contract):
 
     @gl.public.write
     def record_appeal_outcome(self, appellant_address: str, appeal_won: bool) -> None:
+        self._only_owner()
         rep = self._get_or_create(appellant_address)
         rep.appeal_filed = u8(min(255, int(rep.appeal_filed) + 1))
         event_type = EVENT_APPEAL_FILED

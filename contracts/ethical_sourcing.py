@@ -21,6 +21,11 @@ VALID_CONFIDENCE = ("HIGH", "MEDIUM", "LOW")
 VALID_VERDICT = ("VERIFIED", "UNVERIFIED", "MISLEADING", "FALSE")
 
 
+def _claim_key(brand_id: str, claim: str) -> str:
+    """Length-prefixed so a ':' inside brand_id can't collide with another pair."""
+    return f"{len(brand_id)}:{brand_id}:{claim}"
+
+
 def _clamp_score(value: object) -> int:
     try:
         score = int(round(float(str(value).strip())))
@@ -145,7 +150,7 @@ class EthicalSourcing(gl.Contract):
 
         score = _clamp_score(result["trust_score"])
         now = int(datetime.now(timezone.utc).timestamp())
-        key = f"{brand_id}:{claim}"
+        key = _claim_key(brand_id, claim)
 
         self.trust_scores[brand_id] = u8(score)
         self.claim_verdicts[key] = json.dumps(
@@ -169,7 +174,7 @@ class EthicalSourcing(gl.Contract):
 
     @gl.public.view
     def get_claim_verdict(self, brand_id: str, claim: str) -> str:
-        key = f"{brand_id}:{claim}"
+        key = _claim_key(brand_id, claim)
         v = self.claim_verdicts.get(key)
         if v is None:
             return json.dumps({"error": "not_found", "brand_id": brand_id, "claim": claim})

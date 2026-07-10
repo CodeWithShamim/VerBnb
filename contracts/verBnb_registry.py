@@ -34,6 +34,7 @@ class DisputeRecord:
 
 
 class VerBnbRegistry(gl.Contract):
+    owner: str
     listing_judge_address: str
     not_described_address: str
     sourcing_address: str
@@ -61,6 +62,7 @@ class VerBnbRegistry(gl.Contract):
         fraud_detector_address: str = "",
         analytics_tracker_address: str = "",
     ) -> None:
+        self.owner = gl.message.sender_address.as_hex.lower()
         self.listing_judge_address = listing_judge_address
         self.not_described_address = not_described_address
         self.sourcing_address = sourcing_address
@@ -71,6 +73,13 @@ class VerBnbRegistry(gl.Contract):
         self.analytics_tracker_address = analytics_tracker_address
         self.total_disputes = u256(0)
         self.total_resolved = u256(0)
+
+    def _sender(self) -> str:
+        return gl.message.sender_address.as_hex.lower()
+
+    def _only_owner(self) -> None:
+        if self._sender() != self.owner:
+            raise gl.vm.UserError("unauthorized: owner only")
 
     def _address_for_category(self, category: str) -> str:
         cat = category.upper()
@@ -93,6 +102,15 @@ class VerBnbRegistry(gl.Contract):
             raise gl.vm.UserError(f"unknown category: {category}")
         if dispute_id in self.all_disputes:
             raise gl.vm.UserError(f"dispute already registered: {dispute_id}")
+        # The recorded specialist address must be the one this registry routes
+        # the category to - otherwise anyone could point a dispute at an
+        # arbitrary contract and poison the resolve/analytics pipeline that
+        # later reads the verdict from it.
+        expected = self._address_for_category(cat)
+        if expected == "" or contract_address.lower() != expected.lower():
+            raise gl.vm.UserError(
+                f"contract_address does not match the registered {cat} contract"
+            )
 
         submitter = gl.message.sender_address.as_hex
         now = int(datetime.now(timezone.utc).timestamp())
@@ -113,6 +131,9 @@ class VerBnbRegistry(gl.Contract):
         record = self.all_disputes.get(dispute_id)
         if record is None:
             raise gl.vm.UserError(f"unknown dispute: {dispute_id}")
+        sender = self._sender()
+        if sender != self.owner and sender != record.submitter.lower():
+            raise gl.vm.UserError("unauthorized: only owner or dispute submitter")
         if record.resolved:
             return
         record.resolved = True
@@ -132,6 +153,7 @@ class VerBnbRegistry(gl.Contract):
         trackers without a redeploy. Empty strings are ignored so callers can
         update a subset.
         """
+        self._only_owner()
         if appeal_manager_address:
             self.appeal_manager_address = appeal_manager_address
         if reputation_tracker_address:
@@ -141,7 +163,20 @@ class VerBnbRegistry(gl.Contract):
         if analytics_tracker_address:
             self.analytics_tracker_address = analytics_tracker_address
 
+    @gl.public.write
+    def transfer_ownership(self, new_owner: str) -> None:
+        """Hand the registry to a new owner (e.g. a rotated orchestrator key)."""
+        self._only_owner()
+        candidate = new_owner.lower()
+        if not (candidate.startswith("0x") and len(candidate) == 42):
+            raise gl.vm.UserError(f"invalid owner address: {new_owner}")
+        self.owner = candidate
+
     # ----------------------------------------------------------------- views
+
+    @gl.public.view
+    def get_owner(self) -> str:
+        return self.owner
 
     @gl.public.view
     def get_contract_for_category(self, category: str) -> str:

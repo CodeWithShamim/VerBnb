@@ -31,6 +31,7 @@ class ListingDispute:
     verdict: str
     refund_percentage: u8
     resolved: bool
+    submitter: str
 
 
 def _clamp_percentage(value: object) -> int:
@@ -134,6 +135,7 @@ class ListingAccuracyJudge(gl.Contract):
         if dispute_id in self.disputes and self.disputes[dispute_id].resolved:
             raise gl.vm.UserError("dispute already resolved")
 
+        submitter = gl.message.sender_address.as_hex.lower()
         claimed_int = int(claimed_amount)
 
         def leader_fn() -> dict:
@@ -165,6 +167,7 @@ class ListingAccuracyJudge(gl.Contract):
             verdict=verdict,
             refund_percentage=u8(refund),
             resolved=True,
+            submitter=submitter,
         )
 
     @gl.public.view
@@ -179,5 +182,6 @@ class ListingAccuracyJudge(gl.Contract):
                 "refund_percentage": int(d.refund_percentage),
                 "claimed_amount": int(d.claimed_amount),
                 "resolved": d.resolved,
+                "submitter": d.submitter,
             }
         )

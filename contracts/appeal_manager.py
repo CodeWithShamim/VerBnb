@@ -66,6 +66,7 @@ def _validators_for_round(round_no: int) -> int:
 
 
 class AppealManager(gl.Contract):
+    owner: str
     appeals: TreeMap[str, AppealRecord]
     # dispute_id -> the currently-open (non-finalized) appeal id, if any.
     active_appeals: TreeMap[str, str]
@@ -74,9 +75,17 @@ class AppealManager(gl.Contract):
     total_appeals: u256
 
     def __init__(self) -> None:
+        self.owner = gl.message.sender_address.as_hex.lower()
         self.total_appeals = u256(0)
 
     # ---------------------------------------------------------------- helpers
+
+    def _sender(self) -> str:
+        return gl.message.sender_address.as_hex.lower()
+
+    def _only_owner(self) -> None:
+        if self._sender() != self.owner:
+            raise gl.vm.UserError("unauthorized: owner only")
 
     def _last_round_for(self, dispute_id: str) -> int:
         """Highest consensus round already filed for a dispute (0 if none)."""
@@ -117,6 +126,13 @@ class AppealManager(gl.Contract):
         """
         if not original_dispute_id:
             raise gl.vm.UserError("missing original_dispute_id")
+
+        # The verdict facts (timestamps, parties) are caller-supplied, so only
+        # the orchestrator (owner) may file on someone's behalf; anyone else
+        # must be filing as themselves.
+        sender = self._sender()
+        if sender != self.owner and sender != appellant_address.lower():
+            raise gl.vm.UserError("unauthorized: sender is not the appellant")
 
         now = int(datetime.now(timezone.utc).timestamp())
 
@@ -163,7 +179,9 @@ class AppealManager(gl.Contract):
 
         Sets appeal_verdict + status FINALIZED and returns a JSON object:
         {did_overturn_original, new_refund_percentage, original_refund_percentage}.
+        Only the orchestrator (owner) may write outcomes.
         """
+        self._only_owner()
         rec = self.appeals.get(appeal_id)
         if rec is None:
             raise gl.vm.UserError(f"unknown appeal: {appeal_id}")

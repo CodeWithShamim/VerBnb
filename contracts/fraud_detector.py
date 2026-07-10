@@ -73,6 +73,7 @@ def _severity_for(confidence: int) -> str:
 
 
 class FraudDetector(gl.Contract):
+    owner: str
     fraud_flags: TreeMap[str, FraudFlag]
     pattern_history: TreeMap[str, PatternRecord]
     # address -> dispute timestamps (drives the rapid-cycling window check).
@@ -82,9 +83,14 @@ class FraudDetector(gl.Contract):
     total_flags: u256
 
     def __init__(self) -> None:
+        self.owner = gl.message.sender_address.as_hex.lower()
         self.total_flags = u256(0)
 
     # ---------------------------------------------------------------- helpers
+
+    def _only_owner(self) -> None:
+        if gl.message.sender_address.as_hex.lower() != self.owner:
+            raise gl.vm.UserError("unauthorized: owner only")
 
     def _key(self, address: str) -> str:
         return address.lower()
@@ -191,6 +197,7 @@ class FraudDetector(gl.Contract):
         Returns a JSON object: {flagged: bool, flag_type, severity, confidence,
         flag_id}. flagged is False when confidence < 40.
         """
+        self._only_owner()
         rec = self._get_or_create(address)
         ts = int(timestamp) if int(timestamp) > 0 else self._now()
 
@@ -241,6 +248,7 @@ class FraudDetector(gl.Contract):
     @gl.public.write
     def resolve_flag(self, flag_id: str) -> None:
         """Mark a flag resolved (e.g. after manual review cleared the address)."""
+        self._only_owner()
         flag = self.fraud_flags.get(flag_id)
         if flag is None:
             raise gl.vm.UserError(f"unknown flag: {flag_id}")

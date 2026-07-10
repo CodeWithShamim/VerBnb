@@ -29,6 +29,7 @@ class DeliveryDispute:
     verdict: str
     refund_due: bool
     resolved: bool
+    submitter: str
 
 
 def _fetch(url: str) -> str:
@@ -127,6 +128,8 @@ class DeliveryAdjudicator(gl.Contract):
         if dispute_id in self.disputes and self.disputes[dispute_id].resolved:
             raise gl.vm.UserError("dispute already resolved")
 
+        submitter = gl.message.sender_address.as_hex.lower()
+
         def leader_fn() -> dict:
             return _evaluate(order_id, courier_evidence_url, customer_claim, expected_address)
 
@@ -154,6 +157,7 @@ class DeliveryAdjudicator(gl.Contract):
             verdict=result["verdict"],
             refund_due=result["refund_due"],
             resolved=True,
+            submitter=submitter,
         )
 
     @gl.public.view
@@ -168,5 +172,6 @@ class DeliveryAdjudicator(gl.Contract):
                 "verdict": d.verdict,
                 "refund_due": d.refund_due,
                 "resolved": d.resolved,
+                "submitter": d.submitter,
             }
         )
