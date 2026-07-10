@@ -12,6 +12,7 @@
     "appeal_manager": "0x967360d652BedE865Df79EB29B53E1566C3fe73e",
     "reputation_tracker": "0x476362508A3EB421EB75B9B961C7E65db0742a55",
     "fraud_detector": "0xD105f30a6d9028596a42C122652D99cd827E43e4",
-    "analytics_tracker": "0x17226eC667CB9CD1c2cBf04191c491138754efbE"
+    "analytics_tracker": "0x17226eC667CB9CD1c2cBf04191c491138754efbE",
+    "product_suggester": "0x4Cbf2391e2C2Fe33E6cAFc7537C6Cd000A3d1df9"
   }
 }

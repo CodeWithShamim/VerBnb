@@ -56,6 +56,8 @@ EXTENSIONS = [
     ("reputation_tracker", "reputation_tracker.py"),
     ("fraud_detector", "fraud_detector.py"),
     ("analytics_tracker", "analytics_tracker.py"),
+    # Standalone; not wired into the registry (which only tracks the 4 above).
+    ("product_suggester", "product_suggester.py"),
 ]
 REGISTRY = ("verBnb_registry", "verBnb_registry.py")
 
@@ -204,7 +206,7 @@ def main() -> int:
     persist()
 
     print(f"\nWrote {deployment_path} ({len(addresses)} contracts)")
-    print("\nRegistry address (use as NEXT_PUBLIC_VERBNB_REGISTRY in the frontend):")
+    print("\nRegistry address (frontend picks it up from deployments/bradbury.json):")
     print(f"  {addresses[REGISTRY[0]]}")
     return 0
 

@@ -17,7 +17,7 @@ import {
   EXPLORER_BASE,
 } from "./contracts";
 
-/** All 9 deployed contract addresses (registry + 4 specialists + 4 trackers). */
+/** All 10 deployed contract addresses (registry + 4 specialists + 4 trackers + suggester). */
 export const ALL_CONTRACTS = {
   REGISTRY: CONTRACTS.find((c) => c.key === "Registry")?.address || "",
   RENTAL: CONTRACTS.find((c) => c.key === "Rental")?.address || "",
@@ -28,6 +28,7 @@ export const ALL_CONTRACTS = {
   REPUTATION: CONTRACT_ADDRESSES.reputation_tracker,
   FRAUD: CONTRACT_ADDRESSES.fraud_detector,
   ANALYTICS: CONTRACT_ADDRESSES.analytics_tracker,
+  SUGGESTER: CONTRACT_ADDRESSES.product_suggester,
 } as const;
 
 /** Active network display metadata (sourced from contracts.getChainInfo). */

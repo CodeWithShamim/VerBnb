@@ -26,6 +26,12 @@ Four dispute categories, one registry:
 | 🌿 **SOURCING** | Brand ethical-sourcing claim validation |
 | 🚚 **DELIVERY** | Courier delivery-proof adjudication |
 
+Beyond disputes, the **Product Suggester** contract turns the same validator
+consensus into a curation feed: it fetches product-roundup pages from an
+owner-approved allowlist of trusted review sites (e.g. RTINGS), validators
+independently extract the top picks with an LLM, and the agreed list is
+published on-chain - browsable at [/suggestions](https://ver-bnb.vercel.app/suggestions).
+
 ---
 
 ## How It Works
@@ -50,6 +56,7 @@ Four dispute categories, one registry:
 | Reputation Tracker | `0x476362508A3EB421EB75B9B961C7E65db0742a55` |
 | Fraud Detector | `0xD105f30a6d9028596a42C122652D99cd827E43e4` |
 | Analytics Tracker | `0x17226eC667CB9CD1c2cBf04191c491138754efbE` |
+| Product Suggester | `0x4Cbf2391e2C2Fe33E6cAFc7537C6Cd000A3d1df9` |
 
 RPC: `https://rpc-bradbury.genlayer.com` · Explorer: `https://explorer-bradbury.genlayer.com`
 
@@ -83,7 +90,8 @@ verBnb_registry.py              ← Master registry (single entry point)
 ├── appeal_manager.py           ← Appeals & escalation
 ├── reputation_tracker.py       ← User reputation
 ├── fraud_detector.py           ← Pattern detection
-└── analytics_tracker.py        ← Platform statistics
+├── analytics_tracker.py        ← Platform statistics
+└── product_suggester.py        ← Trusted-site product curation (standalone)
 ```
 
 **Registry pattern.** Deploy the 4 specialists first to get their addresses,
@@ -94,6 +102,12 @@ specialist and records every dispute for platform stats.
 contracts orchestrated off-chain: the server-side API routes write to them at the
 existing dispute lifecycle points. The registry stores their addresses and
 exposes them via `get_extension_addresses`; its original interface is unchanged.
+
+**Product Suggester** is also standalone (not registry-routed): the owner
+maintains a trusted-domain allowlist, `refresh_suggestions(topic, source_url)`
+has the leader fetch the page and LLM-extract up to 5 products, and validators
+agree when at least half of the product names overlap. The frontend reads it
+via `/api/suggestions` and renders the picks at `/suggestions`.
 
 **Consensus strategy.** All AI adjudication uses a leader/validator pair via
 `gl.vm.run_nondet` - never `strict_eq`, because LLM output is non-deterministic:
@@ -168,7 +182,7 @@ npm run build
 ## Deployment
 
 ```bash
-# Deploy all 9 contracts (writes deployments/bradbury.json incrementally)
+# Deploy all 10 contracts (writes deployments/bradbury.json incrementally)
 python tools/deploy.py --network testnet_bradbury
 
 # Add only the 4 Phase 2 trackers to an already-deployed 5-contract setup
@@ -216,13 +230,13 @@ No single model, operator, or platform decides the outcome.
 
 ```
 VerBnb/
-├── contracts/            # 9 intelligent contracts (Python)
+├── contracts/            # 10 intelligent contracts (Python)
 ├── tests/
 │   ├── direct/           # Mocked unit tests (pytest)
 │   └── integration/      # Full consensus tests (gltest)
 ├── tools/deploy.py       # Deployment script
 ├── deployments/
-│   └── bradbury.json     # All 9 deployed addresses
+│   └── bradbury.json     # All 10 deployed addresses
 ├── frontend/
 │   ├── app/              # Next.js App Router pages (incl. /docs user guide)
 │   ├── components/       # React components (2D + 3D)

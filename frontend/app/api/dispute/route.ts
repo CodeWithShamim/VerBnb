@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAccount } from "genlayer-js";
 import { testnetBradbury, localnet, studionet } from "genlayer-js/chains";
-import { CATEGORIES, type Category } from "@/lib/contracts";
+import { CATEGORIES, REGISTRY_ADDRESS, type Category } from "@/lib/contracts";
 
 export const runtime = "nodejs";
 
@@ -73,10 +73,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing disputeId" }, { status: 400 });
     }
 
-    const registry = process.env.NEXT_PUBLIC_VERBNB_REGISTRY as `0x${string}`;
+    const registry = REGISTRY_ADDRESS;
     if (!registry) {
       return NextResponse.json(
-        { error: "NEXT_PUBLIC_VERBNB_REGISTRY not configured" },
+        { error: "Registry address missing from deployments/bradbury.json" },
         { status: 500 }
       );
     }

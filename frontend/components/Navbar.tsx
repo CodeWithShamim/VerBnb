@@ -26,6 +26,7 @@ const MORE_NAV = [
   { href: '/explorer', label: 'Explorer' },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/simulator', label: 'Simulator' },
+  { href: '/suggestions', label: 'Suggestions' },
 ];
 
 export default function Navbar() {

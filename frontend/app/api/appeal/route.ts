@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     const appealManager = CONTRACT_ADDRESSES.appeal_manager;
     if (!appealManager) {
       return NextResponse.json(
-        { error: "NEXT_PUBLIC_APPEAL_MANAGER not configured" },
+        { error: "Appeal manager address missing from deployments/bradbury.json" },
         { status: 500 }
       );
     }

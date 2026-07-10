@@ -179,6 +179,11 @@ export const CONTRACT_ADDRESSES = {
   reputation_tracker: deployment.contracts.reputation_tracker,
   fraud_detector: deployment.contracts.fraud_detector,
   analytics_tracker: deployment.contracts.analytics_tracker,
+  // Suggested-products curator. Deployed after the core set, so the key may be
+  // absent from bradbury.json - read it loosely and fall back to "" so the UI
+  // can render its "not deployed yet" state instead of breaking the build.
+  product_suggester:
+    (deployment.contracts as Record<string, string>).product_suggester ?? "",
 };
 
 // Active network metadata for display. Mirrors the genlayer-js chain objects so

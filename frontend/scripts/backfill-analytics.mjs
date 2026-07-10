@@ -11,8 +11,8 @@
  * duplicates).
  *
  * Usage: node scripts/backfill-analytics.mjs [--dry-run]
- * Reads .env.local for NEXT_PUBLIC_VERBNB_REGISTRY, NEXT_PUBLIC_ANALYTICS_TRACKER,
- * GENLAYER_PRIVATE_KEY, NEXT_PUBLIC_GL_NETWORK.
+ * Contract addresses come from deployments/bradbury.json; .env.local supplies
+ * GENLAYER_PRIVATE_KEY and NEXT_PUBLIC_GL_NETWORK.
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -30,14 +30,17 @@ const CHAINS = { testnet_bradbury: testnetBradbury, localnet, studionet };
 const chain =
   CHAINS[process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury"] ||
   testnetBradbury;
-const REGISTRY = process.env.NEXT_PUBLIC_VERBNB_REGISTRY;
-const ANALYTICS = process.env.NEXT_PUBLIC_ANALYTICS_TRACKER;
+const deployment = JSON.parse(
+  readFileSync(join(dirname(root), "deployments", "bradbury.json"), "utf8"),
+);
+const REGISTRY = deployment.contracts.verBnb_registry;
+const ANALYTICS = deployment.contracts.analytics_tracker;
 const KEY = process.env.GENLAYER_PRIVATE_KEY;
 const dryRun = process.argv.includes("--dry-run");
 
 if (!REGISTRY || !ANALYTICS || !KEY) {
   console.error(
-    "Missing NEXT_PUBLIC_VERBNB_REGISTRY / NEXT_PUBLIC_ANALYTICS_TRACKER / GENLAYER_PRIVATE_KEY",
+    "Missing registry/analytics address in deployments/bradbury.json or GENLAYER_PRIVATE_KEY",
   );
   process.exit(1);
 }

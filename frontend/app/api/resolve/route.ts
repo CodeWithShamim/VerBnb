@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAccount } from "genlayer-js";
 import { testnetBradbury, localnet, studionet } from "genlayer-js/chains";
-import { CONTRACT_ADDRESSES } from "@/lib/contracts";
+import { CONTRACT_ADDRESSES, REGISTRY_ADDRESS } from "@/lib/contracts";
 
 export const runtime = "nodejs";
 
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     if (!disputeId) {
       return NextResponse.json({ error: "Missing disputeId" }, { status: 400 });
     }
-    const registry = process.env.NEXT_PUBLIC_VERBNB_REGISTRY as `0x${string}`;
+    const registry = REGISTRY_ADDRESS;
     const key = process.env.GENLAYER_PRIVATE_KEY;
     if (!registry || !key) {
       return NextResponse.json(

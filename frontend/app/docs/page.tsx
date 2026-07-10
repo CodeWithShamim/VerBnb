@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     'A plain-English guide to raising disputes, AI validator consensus, appeals, and the contracts that power VerBnb.',
 };
 
-/** Ordered list of all 9 deployed contracts for the address table. */
+/** Ordered list of all 10 deployed contracts for the address table. */
 const CONTRACT_ROWS: { label: string; address: string }[] = [
   { label: 'Registry (entry point)', address: ALL_CONTRACTS.REGISTRY },
   { label: 'Rental judge', address: ALL_CONTRACTS.RENTAL },
@@ -22,6 +22,7 @@ const CONTRACT_ROWS: { label: string; address: string }[] = [
   { label: 'Reputation tracker', address: ALL_CONTRACTS.REPUTATION },
   { label: 'Fraud detector', address: ALL_CONTRACTS.FRAUD },
   { label: 'Analytics tracker', address: ALL_CONTRACTS.ANALYTICS },
+  { label: 'Product suggester', address: ALL_CONTRACTS.SUGGESTER },
 ];
 
 const STEPS: { title: string; body: string }[] = [
@@ -75,6 +76,10 @@ const FAQ: { q: string; a: string }[] = [
   {
     q: 'What does it cost?',
     a: "Only the network gas for your dispute transaction. On the Bradbury testnet, grab free GEN from the faucet - there's no platform fee.",
+  },
+  {
+    q: 'What are Suggested Products?',
+    a: 'A curation feature, not a dispute. The product-suggester contract fetches roundup pages from an allowlist of trusted review sites, validators independently extract the top picks with an LLM, and the consensus result is published on-chain at /suggestions.',
   },
 ];
 
@@ -229,12 +234,36 @@ export default function DocsPage() {
           </div>
         </section>
 
+        {/* Suggested products */}
+        <section className="mt-16">
+          <Reveal>
+            <SectionTitle kicker="Beyond disputes" title="Suggested Products" />
+            <div className="card space-y-3 p-6 text-slate-600">
+              <p>
+                The same validator consensus that settles disputes also powers a curation feed. The{' '}
+                <strong className="text-slate-800">product-suggester</strong> contract fetches
+                roundup pages from an owner-approved allowlist of trusted review sites, each
+                validator independently extracts the top products with an LLM, and the picks are
+                accepted only when the validators' lists agree.
+              </p>
+              <p>
+                Every suggestion is published on-chain with its source link and timestamp - browse
+                them on the{' '}
+                <Link href="/suggestions" className="font-semibold text-brand hover:underline">
+                  Suggestions page
+                </Link>
+                .
+              </p>
+            </div>
+          </Reveal>
+        </section>
+
         {/* Contract addresses */}
         <section className="mt-16">
           <Reveal>
             <SectionTitle kicker="On-chain" title="Deployed contracts" />
             <p className="mb-4 text-sm text-slate-500">
-              All 9 contracts run on {NETWORK.NAME} (Chain ID {NETWORK.CHAIN_ID}). Tap any address
+              All 10 contracts run on {NETWORK.NAME} (Chain ID {NETWORK.CHAIN_ID}). Tap any address
               to copy it.
             </p>
             <div className="card divide-y divide-surface-border p-2">

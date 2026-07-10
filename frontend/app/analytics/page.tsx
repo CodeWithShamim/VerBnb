@@ -115,11 +115,12 @@ export default function AnalyticsPage() {
 
         {!loading && !all && !health && (
           <div className="card p-8 text-center text-slate-500">
-            Analytics tracker is not configured yet. Set{' '}
+            Analytics tracker is not configured yet. Deploy the Phase 2
+            contracts so their addresses land in{' '}
             <code className="rounded bg-surface-subtle px-1.5 py-0.5 text-xs">
-              NEXT_PUBLIC_ANALYTICS_TRACKER
-            </code>{' '}
-            after deploying the Phase 2 contracts.
+              deployments/bradbury.json
+            </code>
+            .
           </div>
         )}
 
