@@ -2,16 +2,16 @@
   "network": "testnet_bradbury",
   "rpc": "https://rpc-bradbury.genlayer.com",
   "chain_id": 4221,
-  "deployer": "0xbD96D8b2218d42D743B6338f55fF0ACaAc9BF9a7",
+  "deployer": "0x32d1DC49677547189793DbC29964B8b6B4573036",
   "contracts": {
-    "listing_accuracy_judge": "0x76e3Ff31Ca5cB4e6ce46EF109c52272F27151b32",
-    "not_as_described": "0xBF6Efed489B28c2680FE0b3eF8Dffe4288e50548",
-    "ethical_sourcing": "0xb516DB96E8DefE26dE624dfF1f7D0802a828996D",
-    "delivery_adjudicator": "0x63FFE6DE2988ABC6f49F3b3fd56415ef2A16d3AF",
-    "verBnb_registry": "0x5d6DF470903AbC697B5F3b75a3f895470E65aE6C",
-    "appeal_manager": "0x86d5E6DAe032fb62EdA7cE345F37374BCbb96e19",
-    "reputation_tracker": "0x5A92cd40E7FE241177b924bb4Ed5dEE5d0CaCfa9",
-    "fraud_detector": "0x27e840Bc1fa7C0448FeF03AA34E64ddcf76010E2",
-    "analytics_tracker": "0x840B72a83aa2707AF8aD84e4537B6a5c78459A4B"
+    "listing_accuracy_judge": "0x19441393f5F1EE033D1502A6557F87705A20f4CC",
+    "not_as_described": "0x9cBC4d4d0d0Aeefd6891FF2717D56Df14Ff8bD39",
+    "ethical_sourcing": "0x691d014c332eF75387708CaDd2E22f28B6a11C00",
+    "delivery_adjudicator": "0x757cA36D2e9BbdF60fCE646592cD04B7DC2BD6B5",
+    "verBnb_registry": "0x032806fb59020560538DC470A0C44dd1ebCD8B34",
+    "appeal_manager": "0x967360d652BedE865Df79EB29B53E1566C3fe73e",
+    "reputation_tracker": "0x476362508A3EB421EB75B9B961C7E65db0742a55",
+    "fraud_detector": "0xD105f30a6d9028596a42C122652D99cd827E43e4",
+    "analytics_tracker": "0x17226eC667CB9CD1c2cBf04191c491138754efbE"
   }
 }

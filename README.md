@@ -41,15 +41,15 @@ Four dispute categories, one registry:
 
 | Contract | Address |
 | --- | --- |
-| Registry (entry point) | `0x5d6DF470903AbC697B5F3b75a3f895470E65aE6C` |
-| RENTAL - `listing_accuracy_judge` | `0x76e3Ff31Ca5cB4e6ce46EF109c52272F27151b32` |
-| PRODUCT - `not_as_described` | `0xBF6Efed489B28c2680FE0b3eF8Dffe4288e50548` |
-| SOURCING - `ethical_sourcing` | `0xb516DB96E8DefE26dE624dfF1f7D0802a828996D` |
-| DELIVERY - `delivery_adjudicator` | `0x63FFE6DE2988ABC6f49F3b3fd56415ef2A16d3AF` |
-| Appeal Manager | `0x86d5E6DAe032fb62EdA7cE345F37374BCbb96e19` |
-| Reputation Tracker | `0x5A92cd40E7FE241177b924bb4Ed5dEE5d0CaCfa9` |
-| Fraud Detector | `0x27e840Bc1fa7C0448FeF03AA34E64ddcf76010E2` |
-| Analytics Tracker | `0x840B72a83aa2707AF8aD84e4537B6a5c78459A4B` |
+| Registry (entry point) | `0x032806fb59020560538DC470A0C44dd1ebCD8B34` |
+| RENTAL - `listing_accuracy_judge` | `0x19441393f5F1EE033D1502A6557F87705A20f4CC` |
+| PRODUCT - `not_as_described` | `0x9cBC4d4d0d0Aeefd6891FF2717D56Df14Ff8bD39` |
+| SOURCING - `ethical_sourcing` | `0x691d014c332eF75387708CaDd2E22f28B6a11C00` |
+| DELIVERY - `delivery_adjudicator` | `0x757cA36D2e9BbdF60fCE646592cD04B7DC2BD6B5` |
+| Appeal Manager | `0x967360d652BedE865Df79EB29B53E1566C3fe73e` |
+| Reputation Tracker | `0x476362508A3EB421EB75B9B961C7E65db0742a55` |
+| Fraud Detector | `0xD105f30a6d9028596a42C122652D99cd827E43e4` |
+| Analytics Tracker | `0x17226eC667CB9CD1c2cBf04191c491138754efbE` |
 
 RPC: `https://rpc-bradbury.genlayer.com` · Explorer: `https://explorer-bradbury.genlayer.com`
 
@@ -58,6 +58,17 @@ RPC: `https://rpc-bradbury.genlayer.com` · Explorer: `https://explorer-bradbury
 > hardcodes them. The canonical record lives in
 > [`deployments/bradbury.json`](deployments/bradbury.json). All addresses are
 > env-overridable so the same UI works against a re-deploy without a code change.
+
+### Previous deployments (historical tx lookups)
+
+Superseded deployments stay live on Bradbury - use these addresses on the
+[explorer](https://explorer-bradbury.genlayer.com) to check disputes and
+transactions raised before the cut-over date. Full address sets live in
+[`deployments/archive/`](deployments/archive/).
+
+| Retired | Registry | Record |
+| --- | --- | --- |
+| 2026-07-10 | `0x5d6DF470903AbC697B5F3b75a3f895470E65aE6C` | [`bradbury-2026-07-10-registry-0x5d6DF470.json`](deployments/archive/bradbury-2026-07-10-registry-0x5d6DF470.json) |
 
 ---
 
