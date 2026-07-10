@@ -118,35 +118,35 @@ export const CONTRACTS: {
     key: "Registry",
     address:
       process.env.NEXT_PUBLIC_VERBNB_REGISTRY ||
-      "0x5d6DF470903AbC697B5F3b75a3f895470E65aE6C",
+      "0x032806fb59020560538DC470A0C44dd1ebCD8B34",
     category: null,
   },
   {
     key: "Rental",
     address:
       process.env.NEXT_PUBLIC_VERBNB_RENTAL ||
-      "0x76e3Ff31Ca5cB4e6ce46EF109c52272F27151b32",
+      "0x19441393f5F1EE033D1502A6557F87705A20f4CC",
     category: "RENTAL",
   },
   {
     key: "Marketplace",
     address:
       process.env.NEXT_PUBLIC_VERBNB_PRODUCT ||
-      "0xBF6Efed489B28c2680FE0b3eF8Dffe4288e50548",
+      "0x9cBC4d4d0d0Aeefd6891FF2717D56Df14Ff8bD39",
     category: "PRODUCT",
   },
   {
     key: "Sourcing",
     address:
       process.env.NEXT_PUBLIC_VERBNB_SOURCING ||
-      "0xb516DB96E8DefE26dE624dfF1f7D0802a828996D",
+      "0x691d014c332eF75387708CaDd2E22f28B6a11C00",
     category: "SOURCING",
   },
   {
     key: "Delivery",
     address:
       process.env.NEXT_PUBLIC_VERBNB_DELIVERY ||
-      "0x63FFE6DE2988ABC6f49F3b3fd56415ef2A16d3AF",
+      "0x757cA36D2e9BbdF60fCE646592cD04B7DC2BD6B5",
     category: "DELIVERY",
   },
 ];
