@@ -4,6 +4,7 @@
 
 [Live App](https://ver-bnb.vercel.app) ·
 [Docs](https://ver-bnb.vercel.app/docs) ·
+[Roadmap](ROADMAP.md) ·
 [Explorer](https://explorer-bradbury.genlayer.com) ·
 [GenLayer Portal](https://portal.genlayer.foundation) ·
 [Faucet](https://testnet-faucet.genlayer.foundation)
@@ -242,7 +243,8 @@ VerBnb/
 │   ├── components/       # React components (2D + 3D)
 │   ├── lib/              # Client, constants, utilities
 │   └── scripts/          # Maintenance (e.g. backfill-analytics.mjs)
-└── README.md
+├── README.md
+└── ROADMAP.md            # Phased roadmap (shipped → planned → exploring)
 ```
 
 ---

@@ -83,6 +83,54 @@ const FAQ: { q: string; a: string }[] = [
   },
 ];
 
+type PhaseStatus = 'Shipped' | 'In progress' | 'Planned' | 'Exploring';
+
+const PHASE_BADGE: Record<PhaseStatus, string> = {
+  Shipped: 'bg-emerald-50 text-emerald-700',
+  'In progress': 'bg-amber-50 text-amber-700',
+  Planned: 'bg-sky-50 text-sky-700',
+  Exploring: 'bg-slate-100 text-slate-600',
+};
+
+const ROADMAP: { phase: string; status: PhaseStatus; title: string; body: string }[] = [
+  {
+    phase: 'Phase 1',
+    status: 'Shipped',
+    title: 'Core dispute resolution',
+    body: 'Four dispute categories behind a single registry, leader/validator AI consensus, IPFS evidence, and live consensus tracking - all on-chain.',
+  },
+  {
+    phase: 'Phase 2',
+    status: 'Shipped',
+    title: 'Trust & platform layer',
+    body: 'Appeals with a 7-day window, user reputation, fraud pattern detection, and platform analytics - each with its own contract and page.',
+  },
+  {
+    phase: 'Phase 3',
+    status: 'In progress',
+    title: 'Curation (Product Suggester)',
+    body: 'Validator-consensus product picks from trusted review sites, live at /suggestions. Next: home-page surfacing, scheduled auto-refresh, and more trusted sources.',
+  },
+  {
+    phase: 'Phase 4',
+    status: 'Planned',
+    title: 'Real settlement',
+    body: 'Escrow so verdicts actually move funds: buyer money held at purchase and released per the refund split, with bonded appeals to deter abuse.',
+  },
+  {
+    phase: 'Phase 5',
+    status: 'Planned',
+    title: 'Production hardening',
+    body: 'Dispute-state notifications, a security review before any value-bearing deployment, and GenLayer mainnet when the network launches.',
+  },
+  {
+    phase: 'Phase 6',
+    status: 'Exploring',
+    title: 'Open platform',
+    body: 'A marketplace SDK/API so other platforms can plug in disputes, community governance of trusted domains, and new dispute categories.',
+  },
+];
+
 const LINKS: { label: string; href: string; external?: boolean }[] = [
   { label: 'GenLayer docs', href: 'https://docs.genlayer.com', external: true },
   { label: 'Testnet faucet', href: NETWORK.FAUCET, external: true },
@@ -278,6 +326,46 @@ export default function DocsPage() {
               ))}
             </div>
           </Reveal>
+        </section>
+
+        {/* Roadmap */}
+        <section className="mt-16">
+          <Reveal>
+            <SectionTitle kicker="Where this is going" title="Roadmap" />
+            <p className="mb-4 text-sm text-slate-500">
+              Shipped phases are facts; future phases are intent and may shift with GenLayer's own
+              roadmap. Full detail in{' '}
+              <a
+                href="https://github.com/CodeWithShamim/VerBnb/blob/main/ROADMAP.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-brand hover:underline"
+              >
+                ROADMAP.md ↗
+              </a>
+              .
+            </p>
+          </Reveal>
+          <div className="space-y-3">
+            {ROADMAP.map((p, i) => (
+              <Reveal key={p.phase} delay={i * 0.04}>
+                <div className="card p-5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      {p.phase}
+                    </span>
+                    <span
+                      className={`rounded-md px-2 py-0.5 text-xs font-semibold ${PHASE_BADGE[p.status]}`}
+                    >
+                      {p.status}
+                    </span>
+                  </div>
+                  <p className="mt-1.5 font-semibold text-slate-900">{p.title}</p>
+                  <p className="mt-0.5 text-sm text-slate-500">{p.body}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </section>
 
         {/* FAQ */}
