@@ -6,10 +6,31 @@
 // + transaction status/block) - the local part is only the id list, never the
 // status. See components/LiveTransactions.tsx + app/api/transactions/route.ts.
 
-import type { Category } from "@/lib/contracts";
+import { REGISTRY_ADDRESS, type Category } from "@/lib/contracts";
 
-const KEY = "verbnb.recentDisputes.v1";
+// The ledger is scoped to the LIVE registry (deployments/bradbury.json). A
+// redeploy changes the registry address, so the key changes too and disputes
+// raised on retired registries never resurface in the UI. Old-registry keys
+// left in localStorage are pruned on load so their stale data is actually gone.
+const KEY_PREFIX = "verbnb.recentDisputes.";
+const KEY = `${KEY_PREFIX}${(REGISTRY_ADDRESS || "unknown").toLowerCase()}`;
 const MAX = 50;
+
+// Drop ledgers scoped to any other (retired) registry, plus the legacy
+// unscoped "v1" key, so only the current live contracts' disputes remain.
+if (typeof window !== "undefined") {
+  try {
+    for (let i = window.localStorage.length - 1; i >= 0; i--) {
+      const k = window.localStorage.key(i);
+      if (!k || k === KEY) continue;
+      if (k === `${KEY_PREFIX}v1` || k.startsWith(KEY_PREFIX)) {
+        window.localStorage.removeItem(k);
+      }
+    }
+  } catch {
+    /* storage disabled - nothing to prune */
+  }
+}
 
 export interface RecentDispute {
   id: string;

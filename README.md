@@ -63,20 +63,20 @@ RPC: `https://rpc-bradbury.genlayer.com` · Explorer: `https://explorer-bradbury
 
 > The frontend connects **only** to the registry; the four specialist addresses
 > are discovered at runtime via `get_contract_for_category`, so the UI never
-> hardcodes them. The canonical record lives in
-> [`deployments/bradbury.json`](deployments/bradbury.json). All addresses are
-> env-overridable so the same UI works against a re-deploy without a code change.
+> hardcodes them. The single source of truth is
+> [`deployments/bradbury.json`](deployments/bradbury.json) (written by the deploy
+> script) - the frontend reads addresses straight from it, so a re-deploy needs
+> no code or env change. Contract addresses are **not** read from `.env`.
 
 ### Previous deployments (historical tx lookups)
 
 Superseded deployments stay live on Bradbury - every contract below is kept so
 the team can check disputes and transactions raised before each cut-over on the
-[explorer](https://explorer-bradbury.genlayer.com). Each address links to its
-explorer page; full address sets are also archived in
-[`deployments/archive/`](deployments/archive/).
+[explorer](https://explorer-bradbury.genlayer.com). This table is the record;
+each address links to its explorer page.
 
 <details>
-<summary><strong>Retired 2026-07-15</strong> — registry <code>0x032806fb…8B34</code> (deployer <code>0x32d1DC49…3036</code>) · <a href="deployments/archive/bradbury-2026-07-15-registry-0x032806fb.json">archive JSON</a></summary>
+<summary><strong>Retired 2026-07-15</strong> — registry <code>0x032806fb…8B34</code> (deployer <code>0x32d1DC49…3036</code>)</summary>
 
 | Contract | Address |
 | --- | --- |
@@ -94,7 +94,7 @@ explorer page; full address sets are also archived in
 </details>
 
 <details>
-<summary><strong>Retired 2026-07-10</strong> — registry <code>0x5d6DF470…aE6C</code> (deployer <code>0xbD96D8b2…F9a7</code>) · <a href="deployments/archive/bradbury-2026-07-10-registry-0x5d6DF470.json">archive JSON</a></summary>
+<summary><strong>Retired 2026-07-10</strong> — registry <code>0x5d6DF470…aE6C</code> (deployer <code>0xbD96D8b2…F9a7</code>)</summary>
 
 | Contract | Address |
 | --- | --- |

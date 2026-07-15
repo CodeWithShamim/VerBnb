@@ -9,10 +9,28 @@
 // by the notification poller + an unread flag); live truth always comes from
 // the chain via /api/verdict and /api/tx (see components/NotificationBell.tsx).
 
-import type { Category } from "@/lib/contracts";
+import { REGISTRY_ADDRESS, type Category } from "@/lib/contracts";
 
-const KEY = "verbnb.watchlist.v1";
+// Scoped to the LIVE registry (deployments/bradbury.json) so a redeploy starts
+// a clean watchlist — entries pointing at retired contracts never resurface.
+// Watchlists scoped to other registries (and the legacy "v1" key) are pruned.
+const KEY_PREFIX = "verbnb.watchlist.";
+const KEY = `${KEY_PREFIX}${(REGISTRY_ADDRESS || "unknown").toLowerCase()}`;
 const MAX = 100;
+
+if (typeof window !== "undefined") {
+  try {
+    for (let i = window.localStorage.length - 1; i >= 0; i--) {
+      const k = window.localStorage.key(i);
+      if (!k || k === KEY) continue;
+      if (k === `${KEY_PREFIX}v1` || k.startsWith(KEY_PREFIX)) {
+        window.localStorage.removeItem(k);
+      }
+    }
+  } catch {
+    /* storage disabled - nothing to prune */
+  }
+}
 
 /** Custom event fired on every write so same-tab subscribers refresh. */
 export const WATCHLIST_EVENT = "verbnb:watchlist";
