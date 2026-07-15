@@ -251,8 +251,12 @@ export default function DocsPage() {
               </p>
               <p>
                 An appeal triggers re-evaluation by a{' '}
-                <strong className="text-slate-800">larger set of validators</strong>, which makes
-                the second verdict harder to overturn. One appeal per dispute.
+                <strong className="text-slate-800">larger set of validators</strong> with a{' '}
+                <strong className="text-slate-800">stricter agreement bar</strong>, which makes the
+                second verdict harder to overturn. The judge re-runs consensus on the{' '}
+                <strong className="text-slate-800">same on-chain evidence</strong> and the appeal
+                manager records the result straight from that contract state — the outcome is never
+                supplied off-chain. One appeal per dispute.
               </p>
             </div>
           </Reveal>

@@ -193,3 +193,66 @@ def test_full_flow_with_appeals():
 
     stats = json.loads(registry.get_platform_stats().call())
     assert stats["total_resolved"] >= 1
+
+
+def test_on_chain_appeal_derived_from_authenticated_state():
+    """The state-derived appeal path: the specialist re-runs consensus over its
+    OWN stored evidence (resolve_appeal) and the appeal_manager finalizes by
+    reading that outcome cross-contract (finalize_appeal_from_state). No verdict
+    is ever supplied off-chain.
+
+    Cross-contract calls only execute on live GenVM, so this runs under
+    --network localnet / testnet_bradbury (not the single-contract direct harness).
+    """
+    product = _factory("not_as_described.py").deploy(args=[])
+    appeals = _factory("appeal_manager.py").deploy(args=[])
+
+    # 1. Original PRODUCT dispute → real consensus verdict on the specialist.
+    assert tx_execution_succeeded(
+        product.raise_dispute(
+            args=["prod-9", LISTING_URL, EVIDENCE_URL], **WAIT
+        ).transact()
+    )
+    verdict = json.loads(product.get_verdict(args=["prod-9"]).call())
+    assert verdict["resolved"] is True
+    original_refund = int(verdict["refund_percentage"])
+
+    now = int(datetime.now(timezone.utc).timestamp())
+
+    # 2. File the appeal (bookkeeping only).
+    assert tx_execution_succeeded(
+        appeals.create_appeal(
+            args=[
+                "prod-9",
+                GUEST,
+                now,
+                original_refund,
+                GUEST,
+                HOST,
+                "Please re-review with a stricter panel",
+                EVIDENCE_URL,
+            ]
+        ).transact()
+    )
+    appeal_id = "prod-9-appeal-1"
+
+    # 3. Specialist re-runs consensus over its authenticated stored evidence.
+    assert tx_execution_succeeded(
+        product.resolve_appeal(args=["prod-9", 1], **WAIT).transact()
+    )
+    outcome = json.loads(product.get_appeal_outcome(args=["prod-9"]).call())
+    assert outcome["resolved"] is True
+    assert outcome["round_no"] == 1
+    assert outcome["tolerance"] == 10  # stricter than the original +/-15
+
+    # 4. Appeal manager finalizes by READING the specialist outcome on-chain.
+    #    The verdict/refund it records must equal the specialist's, not an arg.
+    assert tx_execution_succeeded(
+        appeals.finalize_appeal_from_state(
+            args=[appeal_id, product.address], **WAIT
+        ).transact()
+    )
+    final_appeal = json.loads(appeals.get_appeal(args=[appeal_id]).call())
+    assert final_appeal["appeal_status"] == "FINALIZED"
+    assert final_appeal["appeal_refund_pct"] == outcome["appeal_refund_pct"]
+    assert final_appeal["appeal_verdict"] == outcome["appeal_verdict"]

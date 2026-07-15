@@ -3,16 +3,27 @@
 Verdix - Appeal Manager (appeal + escalation system)
 
 Lets a disputed party appeal a finalized verdict within a 7-day window. Each
-appeal opens a fresh consensus round that the off-chain orchestrator re-runs
-with MORE validators (N + 2) and a higher bar, then writes the outcome back
-via finalize_appeal.
+appeal opens a fresh consensus round that is re-run with MORE validators
+(N + 2) and a stricter equivalence bar.
 
-Deterministic only: this contract holds appeal bookkeeping. The original
-dispute facts it needs for the 7-day window check (verdict time, the two
-parties, the original refund %) are supplied by the caller at appeal time,
-because the specialist verdicts live in separate standalone contracts that this
-contract cannot read on-chain. The frontend/registry reads those verdicts and
-passes them in.
+Two finalize paths exist:
+
+  * finalize_appeal(appeal_id, verdict, refund) — legacy: the outcome is
+    computed off-chain and written by the owner/orchestrator. Kept for
+    backwards compatibility and for specialists that do not (yet) expose an
+    on-chain appeal re-run.
+
+  * finalize_appeal_from_state(appeal_id, specialist_address) — preferred: the
+    specialist judge re-runs consensus on its OWN authenticated evidence
+    (specialist.resolve_appeal) and this contract reads the resulting
+    AppealOutcome back via gl.get_contract_at().view(). The verdict is therefore
+    DERIVED FROM AUTHENTICATED CONTRACT STATE — the orchestrator only sequences
+    the two on-chain calls and cannot choose the outcome.
+
+The create_appeal bookkeeping still takes the original verdict time / parties /
+refund % as caller input for the 7-day window and party checks; the finalized
+verdict itself no longer needs to be trusted from off-chain when the
+state-derived path is used.
 """
 
 import json
@@ -205,6 +216,58 @@ class AppealManager(gl.Contract):
                 "did_overturn_original": did_overturn,
                 "new_refund_percentage": new_pct,
                 "original_refund_percentage": original_pct,
+            }
+        )
+
+    @gl.public.write
+    def finalize_appeal_from_state(self, appeal_id: str, specialist_address: str) -> str:
+        """Finalize an appeal using the verdict the specialist produced ON-CHAIN.
+
+        Instead of trusting an off-chain-computed verdict passed as an argument
+        (see finalize_appeal), this reads the AppealOutcome straight from the
+        specialist judge via get_contract_at().view() — i.e. the original facts
+        and the re-run consensus result are derived from authenticated contract
+        state. The orchestrator only triggers it; it cannot choose the outcome.
+
+        The specialist must have already run resolve_appeal for this dispute.
+        NOTE: cross-contract reads execute on live GenVM (localnet/testnet); the
+        single-contract direct/glsim harness cannot exercise this path.
+        """
+        self._only_owner()
+        rec = self.appeals.get(appeal_id)
+        if rec is None:
+            raise gl.vm.UserError(f"unknown appeal: {appeal_id}")
+        if rec.appeal_status == STATUS_FINALIZED:
+            raise gl.vm.UserError("appeal already finalized")
+        if not specialist_address:
+            raise gl.vm.UserError("missing specialist_address")
+
+        specialist = gl.get_contract_at(Address(specialist_address))
+        raw = specialist.view().get_appeal_outcome(rec.original_dispute_id)
+        outcome = json.loads(raw)
+        if not outcome.get("resolved"):
+            raise gl.vm.UserError(
+                "specialist has no resolved appeal outcome; call resolve_appeal first"
+            )
+
+        new_pct = _clamp_pct(outcome.get("appeal_refund_pct", 0))
+        new_verdict = str(outcome.get("appeal_verdict", ""))[:1000]
+        original_pct = int(rec.original_refund_pct)
+        did_overturn = new_pct != original_pct
+
+        rec.appeal_verdict = new_verdict
+        rec.appeal_refund_pct = u8(new_pct)
+        rec.appeal_status = STATUS_FINALIZED
+        self.active_appeals[rec.original_dispute_id] = ""
+
+        return json.dumps(
+            {
+                "appeal_id": appeal_id,
+                "did_overturn_original": did_overturn,
+                "new_refund_percentage": new_pct,
+                "original_refund_percentage": original_pct,
+                "source": "on_chain_consensus",
+                "specialist_address": specialist_address,
             }
         )
 

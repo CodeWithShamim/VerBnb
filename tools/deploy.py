@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -78,7 +79,14 @@ def _extract_address(receipt) -> str:
     raise ValueError(f"Could not find contract address in receipt: {receipt}")
 
 
-def deploy_one(client, account, filename: str, args: list) -> str:
+# Bradbury's public RPC flaps (502s, transient "Transaction failed", HTML error
+# pages instead of JSON). A single hiccup shouldn't abort an 11-contract deploy,
+# so each contract is retried a few times before giving up.
+DEPLOY_ATTEMPTS = 5
+RETRY_BACKOFF_SECONDS = 12
+
+
+def _deploy_once(client, account, filename: str, args: list) -> str:
     code = (CONTRACTS / filename).read_bytes()
     print(f"  submitting {filename} ...", flush=True)
     tx_hash = client.deploy_contract(code=code, account=account, args=args)
@@ -92,6 +100,24 @@ def deploy_one(client, account, filename: str, args: list) -> str:
     addr = _extract_address(receipt)
     print(f"  deployed {filename} -> {addr}", flush=True)
     return addr
+
+
+def deploy_one(client, account, filename: str, args: list) -> str:
+    last_err: Exception | None = None
+    for attempt in range(1, DEPLOY_ATTEMPTS + 1):
+        try:
+            return _deploy_once(client, account, filename, args)
+        except Exception as e:  # noqa: BLE001 - RPC errors are heterogeneous
+            last_err = e
+            if attempt < DEPLOY_ATTEMPTS:
+                wait = RETRY_BACKOFF_SECONDS * attempt
+                print(
+                    f"  ! {filename} attempt {attempt}/{DEPLOY_ATTEMPTS} failed "
+                    f"({type(e).__name__}: {str(e)[:120]}); retrying in {wait}s ...",
+                    flush=True,
+                )
+                time.sleep(wait)
+    raise RuntimeError(f"deploy of {filename} failed after {DEPLOY_ATTEMPTS} attempts") from last_err
 
 
 def main() -> int:
