@@ -48,22 +48,24 @@ published on-chain - browsable at [/suggestions](https://ver-bnb.vercel.app/sugg
 
 | Contract | Address |
 | --- | --- |
-| Registry (entry point) | `0xa8FA18DED9Fd2Be0B28169FdD1023599d4B5B685` |
-| RENTAL - `listing_accuracy_judge` | `0x8C857c96cC39A51AC401D0270b6D53905e45972E` |
-| PRODUCT - `not_as_described` | `0xA42Ba690D16D54E8c8a62100b07D213e3FAc2aa8` |
-| SOURCING - `ethical_sourcing` | `0xDaEb60AA8F4A5e8514e546f72775b3CD46148964` |
-| DELIVERY - `delivery_adjudicator` | `0x0a454Cc6f1509b171D43c97E9dA8D40b8dD20d06` |
-| Appeal Manager | `0x820b3096923b57Ed3F280bA30BbbdE69deF34dff` |
-| Reputation Tracker | `0xC469fF9382DfFdB7E7C70b3a080fE083da7779C0` |
-| Fraud Detector | `0x50a9ada4DdBd5306ddB470a7D67B1c4Ba0B47FaC` |
-| Analytics Tracker | `0x4982D3873A85C9702e587Ea9Da0C5bDe80E19A04` |
-| Product Suggester | `0xf19bdD5d35CF87F3958b3A5cBd262D22f7A63886` |
+| Registry (entry point) | `0x2ED0bc29e4bCa70269aa856437143f7f39DD9812` |
+| RENTAL - `listing_accuracy_judge` | `0x274BE5789048a67ba78E327a08D4d7074a5962d7` |
+| PRODUCT - `not_as_described` | `0x20B0dE0876a32EaDF2331eBf8A082C76Df67fEA1` |
+| SOURCING - `ethical_sourcing` | `0xb46c414efC01bD7dd3996AA016AC017B4596e3bf` |
+| DELIVERY - `delivery_adjudicator` | `0x1DBcEd07C0A32Cc0000fD01ae8722C3cCaB35e80` |
+| Appeal Manager | `0x866B7B6225c53b096FbA85c0a66c8CaAB14B679c` |
+| Reputation Tracker | `0x115377C9a1Ce1C6D620373AC4097d0474a9a3af3` |
+| Fraud Detector | `0x0286e1418042E350FB9e4cA4721Fef216309c1e9` |
+| Analytics Tracker | `0x491a34f5c8edEf6D759bAA9D5b527bb278bdAA11` |
+| Product Suggester | `0x7fd2cfe4650AaD4d4fCCa409F589Fde265d02558` |
 
-This deployment (2026-07-17) brings **on-chain appeal consensus to every
-specialist judge** — all four categories support
-`resolve_appeal`/`get_appeal_outcome`, and the registry gained an owner-only
-`set_specialist_addresses` so future single-judge upgrades no longer force a
-full redeploy.
+This full deployment (2026-07-17, all 10 contracts) brings **round-bound
+on-chain appeal consensus**: all four judges support `resolve_appeal` with
+strictly monotonic rounds, store every round's outcome under its own round key
+(`get_appeal_outcome_for_round`), and the appeal manager finalizes **only**
+from the outcome recorded for the appeal's exact round
+(`finalize_appeal_from_state`) — the legacy owner-written `finalize_appeal`
+path is removed.
 
 RPC: `https://rpc-bradbury.genlayer.com` · Explorer: `https://explorer-bradbury.genlayer.com`
 
@@ -80,6 +82,24 @@ Superseded deployments stay live on Bradbury - every contract below is kept so
 the team can check disputes and transactions raised before each cut-over on the
 [explorer](https://explorer-bradbury.genlayer.com). This table is the record;
 each address links to its explorer page.
+
+<details>
+<summary><strong>Retired 2026-07-17 (pre round-binding)</strong> — registry <code>0xa8FA18DE…B685</code> (deployer <code>0x32d1DC49…3036</code>)</summary>
+
+| Contract | Address |
+| --- | --- |
+| Registry (entry point) | [`0xa8FA18DED9Fd2Be0B28169FdD1023599d4B5B685`](https://explorer-bradbury.genlayer.com/address/0xa8FA18DED9Fd2Be0B28169FdD1023599d4B5B685) |
+| RENTAL - `listing_accuracy_judge` | [`0x8C857c96cC39A51AC401D0270b6D53905e45972E`](https://explorer-bradbury.genlayer.com/address/0x8C857c96cC39A51AC401D0270b6D53905e45972E) |
+| PRODUCT - `not_as_described` | [`0xA42Ba690D16D54E8c8a62100b07D213e3FAc2aa8`](https://explorer-bradbury.genlayer.com/address/0xA42Ba690D16D54E8c8a62100b07D213e3FAc2aa8) |
+| SOURCING - `ethical_sourcing` | [`0xDaEb60AA8F4A5e8514e546f72775b3CD46148964`](https://explorer-bradbury.genlayer.com/address/0xDaEb60AA8F4A5e8514e546f72775b3CD46148964) |
+| DELIVERY - `delivery_adjudicator` | [`0x0a454Cc6f1509b171D43c97E9dA8D40b8dD20d06`](https://explorer-bradbury.genlayer.com/address/0x0a454Cc6f1509b171D43c97E9dA8D40b8dD20d06) |
+| Appeal Manager | [`0x820b3096923b57Ed3F280bA30BbbdE69deF34dff`](https://explorer-bradbury.genlayer.com/address/0x820b3096923b57Ed3F280bA30BbbdE69deF34dff) |
+| Reputation Tracker | [`0xC469fF9382DfFdB7E7C70b3a080fE083da7779C0`](https://explorer-bradbury.genlayer.com/address/0xC469fF9382DfFdB7E7C70b3a080fE083da7779C0) |
+| Fraud Detector | [`0x50a9ada4DdBd5306ddB470a7D67B1c4Ba0B47FaC`](https://explorer-bradbury.genlayer.com/address/0x50a9ada4DdBd5306ddB470a7D67B1c4Ba0B47FaC) |
+| Analytics Tracker | [`0x4982D3873A85C9702e587Ea9Da0C5bDe80E19A04`](https://explorer-bradbury.genlayer.com/address/0x4982D3873A85C9702e587Ea9Da0C5bDe80E19A04) |
+| Product Suggester | [`0xf19bdD5d35CF87F3958b3A5cBd262D22f7A63886`](https://explorer-bradbury.genlayer.com/address/0xf19bdD5d35CF87F3958b3A5cBd262D22f7A63886) |
+
+</details>
 
 <details>
 <summary><strong>Retired 2026-07-17</strong> — registry <code>0x535E67E2…49Da</code> (deployer <code>0x32d1DC49…3036</code>)</summary>
@@ -237,6 +257,7 @@ npm run dev   # → http://localhost:3000
 # Contracts
 genvm-lint check contracts/*.py --json
 pytest tests/direct/ -v          # fast mocked unit tests
+pytest tests/sim/ -v             # reproducible state-derived appeal flow (glsim, no network/keys)
 gltest tests/integration/ -v -s  # full consensus integration
 
 # Frontend
@@ -288,7 +309,12 @@ validator set is more likely to reach the correct answer than any single model.
    within ±15, or an exact verdict string for delivery).
 3. Majority agree → accepted, written on-chain.
 4. Majority disagree → the leader rotates and the round repeats.
-5. Anyone can **appeal** → a larger validator set re-evaluates.
+5. Anyone can **appeal** → a larger validator set re-evaluates. The specialist
+   re-runs consensus over its own stored evidence (`resolve_appeal`) and stamps
+   the outcome with its **consensus round**; the appeal manager finalizes only
+   from that round-bound on-chain state (`finalize_appeal_from_state`) — there
+   is no path that accepts a caller-supplied verdict, and an outcome recorded
+   for one round can never finalize an appeal of another round.
 
 No single model, operator, or platform decides the outcome.
 
@@ -301,6 +327,7 @@ VerBnb/
 ├── contracts/            # 10 intelligent contracts (Python)
 ├── tests/
 │   ├── direct/           # Mocked unit tests (pytest)
+│   ├── sim/              # Reproducible cross-contract appeal flow (glsim, in-process)
 │   └── integration/      # Full consensus tests (gltest)
 ├── tools/deploy.py       # Deployment script
 ├── deployments/

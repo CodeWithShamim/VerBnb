@@ -37,6 +37,12 @@ Standalone tracker contracts orchestrated off-chain at dispute lifecycle points.
   agreement bar per round (`resolve_appeal`), and the appeal manager finalizes
   by reading that outcome cross-contract (`finalize_appeal_from_state`); the
   verdict is never supplied off-chain
+- ✅ Round-bound appeal outcomes — every outcome is stored under its consensus
+  round, rounds are strictly monotonic, the appeal manager only accepts the
+  outcome recorded for the appeal's exact round, and the legacy owner-written
+  `finalize_appeal` path is removed; validated reproducibly in `tests/sim/`
+  (glsim, no network or LLM keys) and surfaced in the UI as a full round
+  history with per-round escalation
 - ✅ Reputation Tracker — per-user reputation from dispute history
 - ✅ Fraud Detector — pattern detection across disputes
 - ✅ Analytics Tracker — platform statistics powering `/analytics`

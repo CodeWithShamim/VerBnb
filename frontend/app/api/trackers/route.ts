@@ -33,6 +33,8 @@ function ok(body: any) {
  *   similar         ?category=RENTAL&snippet=...
  *   appeals         ?disputeId=...
  *   appeal          ?appealId=...
+ *   appeal_outcome  ?disputeId=...&round=N   (round-bound specialist outcome;
+ *                   omit round for the latest resolved round)
  *
  * All values come straight from contract views and are JSON-decoded where the
  * view returns a JSON string. Missing contract addresses return a soft
@@ -156,6 +158,25 @@ export async function GET(req: NextRequest) {
         if (!appeal_manager) return ok({ configured: false });
         const appealId = sp.get("appealId") || "";
         return ok(await readJson(client, appeal_manager, "get_appeal", [appealId]));
+      }
+      case "appeal_outcome": {
+        // The specialist judge's on-chain AppealOutcome, bound to its recorded
+        // consensus round. The specialist is discovered via the registry so the
+        // UI never supplies (or trusts) a contract address.
+        if (!REGISTRY_ADDRESS) return ok({ configured: false, resolved: false });
+        const disputeId = sp.get("disputeId") || "";
+        const round = parseInt(sp.get("round") || "0", 10);
+        const record = await readJson(client, REGISTRY_ADDRESS, "get_dispute", [disputeId]);
+        const specialist = record?.contract_address;
+        if (!specialist) return ok({ configured: false, resolved: false });
+        const outcome =
+          round > 0
+            ? await readJson(client, specialist, "get_appeal_outcome_for_round", [
+                disputeId,
+                round,
+              ])
+            : await readJson(client, specialist, "get_appeal_outcome", [disputeId]);
+        return ok(outcome);
       }
       default:
         return NextResponse.json(

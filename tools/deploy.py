@@ -133,6 +133,17 @@ def main() -> int:
             "set_extension_addresses). Leaves the 5 existing contracts untouched."
         ),
     )
+    parser.add_argument(
+        "--upgrade-appeals",
+        action="store_true",
+        help=(
+            "Redeploy the 4 specialist judges + appeal_manager (round-bound "
+            "appeal outcomes, no arbitrary finalize path) and repoint the "
+            "existing registry at them via set_specialist_addresses / "
+            "set_extension_addresses. Registry, trackers, and suggester keep "
+            "their addresses."
+        ),
+    )
     args = parser.parse_args()
 
     load_dotenv(args.env, override=True)
@@ -202,6 +213,58 @@ def main() -> int:
             transaction_hash=tx_hash, status=TransactionStatus.ACCEPTED, interval=8000, retries=45
         )
         print(f"  registry {registry_addr} updated with 4 extension addresses")
+        persist()
+        print(f"\nWrote {deployment_path} ({len(addresses)} contracts)")
+        return 0
+
+    if args.upgrade_appeals:
+        registry_addr = addresses.get(REGISTRY[0])
+        if not registry_addr:
+            print(
+                "ERROR: --upgrade-appeals needs an existing registry in "
+                "deployments/bradbury.json. Run a full deploy first.",
+                file=sys.stderr,
+            )
+            return 1
+
+        print("Redeploying specialist judges (round-bound appeals)...")
+        for name, filename in SPECIALISTS:
+            addresses[name] = deploy_one(client, account, filename, args=[])
+            persist()
+
+        print("Redeploying appeal manager (state-derived finalize only)...")
+        addresses["appeal_manager"] = deploy_one(
+            client, account, "appeal_manager.py", args=[]
+        )
+        persist()
+
+        print("Repointing the existing registry at the new judges...")
+        tx_hash = client.write_contract(
+            address=registry_addr,
+            function_name="set_specialist_addresses",
+            account=account,
+            args=[
+                addresses["listing_accuracy_judge"],
+                addresses["not_as_described"],
+                addresses["ethical_sourcing"],
+                addresses["delivery_adjudicator"],
+            ],
+        )
+        client.wait_for_transaction_receipt(
+            transaction_hash=tx_hash, status=TransactionStatus.ACCEPTED, interval=8000, retries=45
+        )
+        print(f"  registry {registry_addr} updated with 4 specialist addresses")
+
+        tx_hash = client.write_contract(
+            address=registry_addr,
+            function_name="set_extension_addresses",
+            account=account,
+            args=[addresses["appeal_manager"], "", "", ""],
+        )
+        client.wait_for_transaction_receipt(
+            transaction_hash=tx_hash, status=TransactionStatus.ACCEPTED, interval=8000, retries=45
+        )
+        print(f"  registry {registry_addr} updated with new appeal_manager")
         persist()
         print(f"\nWrote {deployment_path} ({len(addresses)} contracts)")
         return 0

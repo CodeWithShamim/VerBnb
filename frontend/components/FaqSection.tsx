@@ -9,7 +9,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Can I appeal a verdict?',
-    a: 'Yes - within 7 days of finalization. Open the verdict page and click "Appeal". A larger set of validators then re-evaluates the case.',
+    a: 'Yes - within 7 days of finalization. Open the verdict page and click "Appeal". A larger set of validators re-evaluates the case entirely on-chain, and once a round finalizes you can escalate to the next round - each adds 2 validators and a stricter agreement bar.',
   },
   {
     q: 'Is my data private?',

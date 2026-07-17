@@ -59,7 +59,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Can I appeal a verdict?',
-    a: 'Yes - within 7 days of finalization, in every category. Open the verdict page and click "Appeal". The judge re-runs validator consensus on the same on-chain evidence with a stricter agreement bar, and the result is recorded straight from contract state.',
+    a: 'Yes - within 7 days of finalization, in every category. Open the verdict page and click "Appeal". The judge re-runs validator consensus on the same on-chain evidence with a stricter agreement bar, and the result is recorded straight from round-bound contract state. Once a round finalizes you can escalate to the next round: each round adds 2 validators and tightens the bar.',
   },
   {
     q: 'Is my data private?',
@@ -254,9 +254,18 @@ export default function DocsPage() {
                 <strong className="text-slate-800">larger set of validators</strong> with a{' '}
                 <strong className="text-slate-800">stricter agreement bar</strong>, which makes the
                 second verdict harder to overturn. The judge re-runs consensus on the{' '}
-                <strong className="text-slate-800">same on-chain evidence</strong> and the appeal
-                manager records the result straight from that contract state — the outcome is never
-                supplied off-chain. One appeal per dispute.
+                <strong className="text-slate-800">same on-chain evidence</strong> and stamps the
+                outcome with its <strong className="text-slate-800">consensus round</strong>; the
+                appeal manager finalizes only from that round-bound contract state — the outcome is
+                never supplied off-chain, and a result recorded for one round can never finalize a
+                different round&apos;s appeal.
+              </p>
+              <p>
+                Appeals can <strong className="text-slate-800">escalate</strong>: once a round
+                finalizes, either party may open the next round (within the same 7-day window).
+                Every round adds 2 validators and tightens the agreement bar, and every
+                round&apos;s outcome stays permanently on-chain — the appeal page shows the full
+                round history.
               </p>
               <p>
                 This works in{' '}

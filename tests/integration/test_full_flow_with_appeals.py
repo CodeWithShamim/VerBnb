@@ -25,7 +25,8 @@ This test:
   4. Records the verdict into reputation_tracker, fraud_detector, analytics.
   5. Files an appeal in appeal_manager (within the 7-day window).
   6. Asserts the appeal uses MORE validators than the original round.
-  7. Finalizes the appeal with a new verdict; asserts it overturns + records.
+  7. Re-runs consensus on the specialist (resolve_appeal) and finalizes from
+     that round-bound on-chain state (finalize_appeal_from_state).
   8. Asserts all tracker state changed.
 """
 
@@ -166,31 +167,41 @@ def test_full_flow_with_appeals():
     assert appeal_validators > original_validators
     assert appeal["validators_this_round"] == appeal_validators
 
-    # 7. Re-evaluate with the bigger panel and finalize, overturning the result.
-    new_refund = 90 if original_refund != 90 else 20
-    result = json.loads(
-        appeals.finalize_appeal(args=[appeal_id, "REFUND_GRANTED", new_refund]).call()
-    )
+    # 7. Re-evaluate ON-CHAIN with the bigger panel: the specialist re-runs
+    #    consensus over its own stored evidence (resolve_appeal) and the
+    #    appeal manager finalizes from that ROUND-BOUND state — no verdict is
+    #    ever supplied off-chain.
     assert tx_execution_succeeded(
-        appeals.finalize_appeal(args=[appeal_id, "REFUND_GRANTED", new_refund]).transact()
+        listing.resolve_appeal(args=["rent-1", 1], **WAIT).transact()
     )
-    assert result["did_overturn_original"] is True
-    assert result["new_refund_percentage"] == new_refund
+    outcome = json.loads(
+        listing.get_appeal_outcome_for_round(args=["rent-1", 1]).call()
+    )
+    assert outcome["resolved"] is True
+    assert outcome["round_no"] == 1
+
+    assert tx_execution_succeeded(
+        appeals.finalize_appeal_from_state(
+            args=[appeal_id, listing.address], **WAIT
+        ).transact()
+    )
+    did_overturn = bool(outcome["overturned"])
 
     # Record the appeal outcome in reputation.
     assert tx_execution_succeeded(
-        reputation.record_appeal_outcome(args=[winner, True]).transact()
+        reputation.record_appeal_outcome(args=[winner, did_overturn]).transact()
     )
 
-    # 8. Assert appeal verdict overwrote the original + all state propagated.
+    # 8. Assert the appeal record carries the specialist's round-1 outcome.
     final_appeal = json.loads(appeals.get_appeal(args=[appeal_id]).call())
     assert final_appeal["appeal_status"] == "FINALIZED"
-    assert final_appeal["appeal_refund_pct"] == new_refund
+    assert final_appeal["appeal_verdict"] == outcome["appeal_verdict"]
+    assert final_appeal["appeal_refund_pct"] == int(outcome["appeal_refund_pct"])
     assert final_appeal["original_refund_pct"] == original_refund
 
     rep_after = json.loads(reputation.get_reputation(args=[winner]).call())
     assert rep_after["appeal_filed"] == 1
-    assert rep_after["appeal_won"] == 1
+    assert rep_after["appeal_won"] == (1 if did_overturn else 0)
 
     stats = json.loads(registry.get_platform_stats().call())
     assert stats["total_resolved"] >= 1
@@ -245,6 +256,19 @@ def test_on_chain_appeal_derived_from_authenticated_state():
     assert outcome["resolved"] is True
     assert outcome["round_no"] == 1
     assert outcome["tolerance"] == 10  # stricter than the original +/-15
+
+    # The outcome is bound to its round: the round-1 record matches the latest
+    # view, and no round-2 record exists yet.
+    by_round = json.loads(
+        product.get_appeal_outcome_for_round(args=["prod-9", 1]).call()
+    )
+    assert by_round == outcome
+    assert (
+        json.loads(product.get_appeal_outcome_for_round(args=["prod-9", 2]).call())[
+            "resolved"
+        ]
+        is False
+    )
 
     # 4. Appeal manager finalizes by READING the specialist outcome on-chain.
     #    The verdict/refund it records must equal the specialist's, not an arg.

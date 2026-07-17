@@ -1,5 +1,9 @@
 # Python toolchain for Verdix / VerBnb intelligent contracts
 # Install with:  pip install -r requirements.txt
+#
+# genlayer-test[sim] ships the glsim engine used by tests/sim/ to validate the
+# state-derived PRODUCT appeal flow reproducibly (in-process, strict mocks —
+# no Docker, network, or LLM keys):  pytest tests/sim/ -v
 genlayer-test[sim]==0.29.2
 genvm-linter==0.11.0
 genlayer-py==0.16.3

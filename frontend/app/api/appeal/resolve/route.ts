@@ -125,9 +125,14 @@ export async function POST(req: NextRequest) {
       value: 0n,
     });
 
-    const outcome = await readJson(client, specialist, "get_appeal_outcome", [
-      disputeId,
-    ]);
+    // Read back the outcome recorded for exactly this round (the same
+    // round-bound record finalize_appeal_from_state consumed).
+    const outcome = await readJson(
+      client,
+      specialist,
+      "get_appeal_outcome_for_round",
+      [disputeId, resolvedRound],
+    );
 
     return NextResponse.json({
       disputeId,

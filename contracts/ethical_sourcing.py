@@ -26,6 +26,11 @@ VALID_CONFIDENCE = ("HIGH", "MEDIUM", "LOW")
 VALID_VERDICT = ("VERIFIED", "UNVERIFIED", "MISLEADING", "FALSE")
 
 
+def _outcome_key(dispute_id: str, round_no: int) -> str:
+    """Storage key binding an appeal outcome to its consensus round."""
+    return f"{dispute_id}#r{int(round_no)}"
+
+
 def _appeal_tolerance(round_no: int) -> int:
     """Stricter trust-score agreement bar for appeal round `round_no` (1-indexed)."""
     r = max(1, int(round_no))
@@ -168,7 +173,11 @@ class EthicalSourcing(gl.Contract):
     claim_verdicts: TreeMap[str, str]
     last_checked: TreeMap[str, u256]
     disputes: TreeMap[str, SourcingDispute]
+    # Keyed by "<dispute_id>#r<round>" so every round's outcome is kept and an
+    # outcome can only ever be read back for the round it was recorded for.
     appeal_outcomes: TreeMap[str, AppealOutcome]
+    # dispute_id -> highest appeal round resolved so far (rounds are monotonic).
+    latest_appeal_round: TreeMap[str, u8]
 
     def __init__(self) -> None:
         pass
@@ -251,10 +260,23 @@ class EthicalSourcing(gl.Contract):
         get_contract_at().view() when it finalizes.
 
         Only claims filed with a dispute_id (via validate_claim) are appealable.
+
+        Rounds are strictly monotonic: round_no must be exactly one past the
+        last resolved round, and each round's outcome is stored under its own
+        round-bound key, so a past round can never be re-run or overwritten.
         """
         d = self.disputes.get(dispute_id)
         if d is None or not d.resolved:
             raise gl.vm.UserError(f"no resolved dispute to appeal: {dispute_id}")
+
+        prev = self.latest_appeal_round.get(dispute_id)
+        last_round = int(prev) if prev is not None else 0
+        round_no = int(round_no)
+        if round_no != last_round + 1:
+            raise gl.vm.UserError(
+                f"appeal round mismatch: next round for {dispute_id} is "
+                f"{last_round + 1}, got {round_no}"
+            )
 
         # Authenticated original facts (from storage, not the caller).
         brand_id = d.brand_id
@@ -287,9 +309,10 @@ class EthicalSourcing(gl.Contract):
         new_verdict = result["verdict"]
         overturned = new_verdict != original_verdict
 
-        self.appeal_outcomes[dispute_id] = AppealOutcome(
+        key = _outcome_key(dispute_id, round_no)
+        self.appeal_outcomes[key] = AppealOutcome(
             dispute_id=dispute_id,
-            round_no=u8(min(255, max(1, int(round_no)))),
+            round_no=u8(min(255, round_no)),
             tolerance=u8(tolerance),
             original_verdict=original_verdict,
             original_trust_score=u8(original_score),
@@ -298,13 +321,29 @@ class EthicalSourcing(gl.Contract):
             overturned=overturned,
             resolved=True,
         )
-        return self._serialize_outcome(self.appeal_outcomes[dispute_id])
+        self.latest_appeal_round[dispute_id] = u8(min(255, round_no))
+        return self._serialize_outcome(self.appeal_outcomes[key])
 
     @gl.public.view
     def get_appeal_outcome(self, dispute_id: str) -> str:
-        o = self.appeal_outcomes.get(dispute_id)
-        if o is None:
+        """Latest round's outcome (round-specific: get_appeal_outcome_for_round)."""
+        last = self.latest_appeal_round.get(dispute_id)
+        if last is None:
             return json.dumps({"error": "not_found", "dispute_id": dispute_id, "resolved": False})
+        return self.get_appeal_outcome_for_round(dispute_id, int(last))
+
+    @gl.public.view
+    def get_appeal_outcome_for_round(self, dispute_id: str, round_no: int) -> str:
+        o = self.appeal_outcomes.get(_outcome_key(dispute_id, round_no))
+        if o is None:
+            return json.dumps(
+                {
+                    "error": "not_found",
+                    "dispute_id": dispute_id,
+                    "round_no": int(round_no),
+                    "resolved": False,
+                }
+            )
         return self._serialize_outcome(o)
 
     def _serialize_outcome(self, o: AppealOutcome) -> str:

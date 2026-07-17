@@ -10,12 +10,12 @@ Run against a live GenLayer environment (local Studio or testnet Bradbury):
     # testnet Bradbury (needs a funded GENLAYER_PRIVATE_KEY in .env):
     gltest tests/integration/ -v -s --network testnet_bradbury
 
-NOTE ON GLSim: the lightweight `glsim` simulator (genlayer-test[sim]) runs the
-runner natively rather than inside GenVM and currently mishandles contracts that
-use `@allow_storage` dataclasses inside a `TreeMap` (it fails class storage
-re-registration on deploy). The contract storage layout is verified instead by
-the 34 direct-mode tests (which execute the *same* py-genlayer-std SDK in
-process). Use Studio or testnet for true end-to-end consensus validation.
+NOTE ON GLSim: the lightweight `glsim` simulator that ships with the pinned
+genlayer-test[sim]==0.29.2 handles these contracts (including `@allow_storage`
+dataclasses inside a `TreeMap`) and cross-contract reads. The state-derived
+appeal flow is validated reproducibly against it in
+tests/sim/test_product_appeal_state_derived.py — no Docker, network, or LLM
+keys required. Use Studio or testnet for true end-to-end consensus validation.
 
 This test:
   1. Deploys all 4 specialist contracts.

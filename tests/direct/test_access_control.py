@@ -115,6 +115,8 @@ def test_transfer_ownership(direct_vm, direct_deploy, direct_alice, direct_bob):
 
 
 def test_finalize_appeal_owner_only(direct_vm, direct_deploy, direct_alice):
+    from .specialist_stub import SPECIALIST_ADDRESS
+
     mgr = direct_deploy(APPEAL)
     now = int(time.time())
     direct_vm.sender = direct_alice
@@ -122,8 +124,9 @@ def test_finalize_appeal_owner_only(direct_vm, direct_deploy, direct_alice):
         "disp-1", _hex(direct_alice), now, 40, _hex(direct_alice), "0x" + "b" * 40,
         "verdict ignored my evidence", "",
     )
+    # The owner check fires before any cross-contract read, so no stub needed.
     with direct_vm.expect_revert("unauthorized"):
-        mgr.finalize_appeal("disp-1-appeal-1", "UPHELD", 40)
+        mgr.finalize_appeal_from_state("disp-1-appeal-1", SPECIALIST_ADDRESS)
 
 
 def test_create_appeal_sender_must_be_appellant(
@@ -147,8 +150,18 @@ def test_create_appeal_sender_must_be_appellant(
         _hex(direct_bob), "reason", "",
     )
     assert appeal_id == "disp-2-appeal-1"
-    # And the owner can finalize it.
-    out = json.loads(mgr.finalize_appeal(appeal_id, "OVERTURNED", 70))
+    # And the owner can finalize it — from the specialist's round-bound state.
+    from .specialist_stub import (
+        SPECIALIST_ADDRESS,
+        install_specialist_stub,
+        outcome_for,
+    )
+
+    install_specialist_stub(
+        direct_vm,
+        {("disp-2", 1): outcome_for("disp-2", 1, appeal_refund_pct=70, overturned=True)},
+    )
+    out = json.loads(mgr.finalize_appeal_from_state(appeal_id, SPECIALIST_ADDRESS))
     assert out["did_overturn_original"] is True
 
 
