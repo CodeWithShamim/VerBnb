@@ -40,11 +40,14 @@ function buildSpecialistArgs(
     case "PRODUCT":
       return [disputeId, body.listingUrl, body.evidenceUrl];
     case "SOURCING":
+      // dispute_id lets the specialist persist the evidence URLs so the
+      // claim can be appealed on-chain (resolve_appeal) later.
       return [
         body.brandId,
         body.claim,
         body.certificationUrl,
         body.supplierRegistryUrl,
+        disputeId,
       ];
     case "DELIVERY":
       return [

@@ -65,7 +65,7 @@ const MARQUEE_CHIPS = [
   '🔍 Publicly auditable verdicts',
 ];
 
-/** All 9 deployed contracts, in registry-first order, for the home table. */
+/** All 10 deployed contracts, in registry-first order, for the home table. */
 const CONTRACT_ROWS: { label: string; address: string }[] = [
   { label: 'Registry - entry point', address: ALL_CONTRACTS.REGISTRY },
   { label: 'Rental judge', address: ALL_CONTRACTS.RENTAL },
@@ -76,6 +76,7 @@ const CONTRACT_ROWS: { label: string; address: string }[] = [
   { label: 'Reputation tracker', address: ALL_CONTRACTS.REPUTATION },
   { label: 'Fraud detector', address: ALL_CONTRACTS.FRAUD },
   { label: 'Analytics tracker', address: ALL_CONTRACTS.ANALYTICS },
+  { label: 'Product suggester', address: ALL_CONTRACTS.SUGGESTER },
 ];
 
 export default function Home() {
@@ -122,7 +123,7 @@ export default function Home() {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-pop-lime" />
               </span>
               <span className="font-cabin text-sm font-medium text-slate-800 dark:text-white">
-                Live on GenLayer Bradbury testnet · 9 contracts on-chain
+                Live on GenLayer Bradbury testnet · 10 contracts on-chain
               </span>
             </span>
           </Reveal>
@@ -389,6 +390,7 @@ export default function Home() {
               {[
                 'The registry is the single entry point - it routes each case to its judge.',
                 'Judges are specialists: rental, marketplace, sourcing and delivery read different evidence.',
+                'Every judge re-runs appeal consensus on-chain over its own stored evidence - verdicts are never supplied off-chain.',
                 'Appeals, reputation, fraud signals and analytics run as support contracts.',
               ].map((line) => (
                 <li key={line} className="flex items-start gap-3">

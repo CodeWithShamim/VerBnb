@@ -32,6 +32,28 @@ class DeliveryDispute:
     submitter: str
 
 
+@allow_storage
+@dataclass
+class AppealOutcome:
+    """The re-evaluated verdict for a dispute, produced ON-CHAIN by re-running
+    validator consensus over this contract's own authenticated evidence (the
+    stored courier evidence + claim) — never supplied by an off-chain caller.
+
+    DELIVERY consensus already demands an EXACT verdict-string match — the
+    strictest possible bar — so appeal rounds re-run with the same rule and
+    `tolerance` is always 0."""
+
+    dispute_id: str
+    round_no: u8
+    tolerance: u8
+    original_verdict: str
+    original_refund_due: bool
+    appeal_verdict: str
+    appeal_refund_due: bool
+    overturned: bool
+    resolved: bool
+
+
 def _fetch(url: str) -> str:
     try:
         content = gl.nondet.web.render(url, mode="text")
@@ -112,6 +134,7 @@ def _evaluate(order_id: str, evidence_url: str, customer_claim: str, expected_ad
 
 class DeliveryAdjudicator(gl.Contract):
     disputes: TreeMap[str, DeliveryDispute]
+    appeal_outcomes: TreeMap[str, AppealOutcome]
 
     def __init__(self) -> None:
         pass
@@ -158,6 +181,91 @@ class DeliveryAdjudicator(gl.Contract):
             refund_due=result["refund_due"],
             resolved=True,
             submitter=submitter,
+        )
+
+    @gl.public.write
+    def resolve_appeal(self, dispute_id: str, round_no: int) -> str:
+        """Re-run validator consensus for an appeal, ON-CHAIN.
+
+        Nothing here is caller-supplied: the evidence re-evaluated is read from
+        this contract's own authenticated storage (the order, courier evidence
+        URL, claim, and address recorded when the dispute was first resolved),
+        and the new verdict is produced by a fresh `gl.vm.run_nondet` round.
+        DELIVERY consensus already requires an exact verdict match, so appeals
+        keep that same (strictest) bar. The result is persisted as an
+        AppealOutcome that the appeal_manager reads back via
+        get_contract_at().view() when it finalizes.
+        """
+        d = self.disputes.get(dispute_id)
+        if d is None or not d.resolved:
+            raise gl.vm.UserError(f"no resolved dispute to appeal: {dispute_id}")
+
+        # Authenticated original facts (from storage, not the caller).
+        order_id = d.order_id
+        evidence_url = d.courier_evidence_url
+        customer_claim = d.customer_claim
+        expected_address = d.expected_address
+        original_verdict = d.verdict
+        original_refund_due = d.refund_due
+
+        def leader_fn() -> dict:
+            return _evaluate(order_id, evidence_url, customer_claim, expected_address)
+
+        def validator_fn(leaders_res: gl.vm.Result) -> bool:
+            if not isinstance(leaders_res, gl.vm.Return):
+                return False
+            try:
+                own = _evaluate(order_id, evidence_url, customer_claim, expected_address)
+            except Exception:
+                return False
+            leader = leaders_res.calldata
+            if not isinstance(leader, dict) or "verdict" not in leader:
+                return False
+            return own["verdict"] == str(leader["verdict"]).upper()
+
+        result = gl.vm.run_nondet(leader_fn, validator_fn)
+
+        new_verdict = result["verdict"]
+        new_refund_due = result["refund_due"]
+        overturned = new_verdict != original_verdict
+
+        self.appeal_outcomes[dispute_id] = AppealOutcome(
+            dispute_id=dispute_id,
+            round_no=u8(min(255, max(1, int(round_no)))),
+            tolerance=u8(0),
+            original_verdict=original_verdict,
+            original_refund_due=original_refund_due,
+            appeal_verdict=new_verdict,
+            appeal_refund_due=new_refund_due,
+            overturned=overturned,
+            resolved=True,
+        )
+        return self._serialize_outcome(self.appeal_outcomes[dispute_id])
+
+    @gl.public.view
+    def get_appeal_outcome(self, dispute_id: str) -> str:
+        o = self.appeal_outcomes.get(dispute_id)
+        if o is None:
+            return json.dumps({"error": "not_found", "dispute_id": dispute_id, "resolved": False})
+        return self._serialize_outcome(o)
+
+    def _serialize_outcome(self, o: AppealOutcome) -> str:
+        # appeal_refund_pct projects refund_due onto the appeal_manager's
+        # percentage interface: delivery refunds are all-or-nothing.
+        return json.dumps(
+            {
+                "dispute_id": o.dispute_id,
+                "round_no": int(o.round_no),
+                "tolerance": int(o.tolerance),
+                "original_verdict": o.original_verdict,
+                "original_refund_due": o.original_refund_due,
+                "original_refund_pct": 100 if o.original_refund_due else 0,
+                "appeal_verdict": o.appeal_verdict,
+                "appeal_refund_due": o.appeal_refund_due,
+                "appeal_refund_pct": 100 if o.appeal_refund_due else 0,
+                "overturned": o.overturned,
+                "resolved": o.resolved,
+            }
         )
 
     @gl.public.view

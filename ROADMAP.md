@@ -32,6 +32,11 @@ categories, settled on-chain.
 Standalone tracker contracts orchestrated off-chain at dispute lifecycle points.
 
 - ✅ Appeal Manager — 7-day appeal window, escalation to a larger validator set
+- ✅ On-chain appeal consensus in **all four specialist judges** — each judge
+  re-runs `gl.vm.run_nondet` over its own stored evidence with a stricter
+  agreement bar per round (`resolve_appeal`), and the appeal manager finalizes
+  by reading that outcome cross-contract (`finalize_appeal_from_state`); the
+  verdict is never supplied off-chain
 - ✅ Reputation Tracker — per-user reputation from dispute history
 - ✅ Fraud Detector — pattern detection across disputes
 - ✅ Analytics Tracker — platform statistics powering `/analytics`

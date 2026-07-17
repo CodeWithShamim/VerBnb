@@ -69,9 +69,9 @@ async function fetchRegistryRecord(
 }
 
 /**
- * Specialist verdict for a dispute. SOURCING verdicts are keyed by
- * brand:claim (not dispute id), so they can't be looked up here — the
- * dispute detail page handles that case with its extra params.
+ * Specialist verdict for a dispute. Every judge (including SOURCING, since
+ * validate_claim gained a dispute_id) exposes a dispute-id-keyed get_verdict;
+ * legacy SOURCING claims filed without a dispute_id return not_found → null.
  */
 async function fetchVerdict(
   client: Reader,
@@ -79,7 +79,7 @@ async function fetchVerdict(
   category: string,
   disputeId: string
 ): Promise<any | null> {
-  if (!specialist || category === "SOURCING") return null;
+  if (!specialist) return null;
   try {
     const verdict = await readJson(
       client,

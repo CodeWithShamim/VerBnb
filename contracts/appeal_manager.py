@@ -253,7 +253,9 @@ class AppealManager(gl.Contract):
         new_pct = _clamp_pct(outcome.get("appeal_refund_pct", 0))
         new_verdict = str(outcome.get("appeal_verdict", ""))[:1000]
         original_pct = int(rec.original_refund_pct)
-        did_overturn = new_pct != original_pct
+        # Prefer the specialist's own authenticated overturned flag — judges
+        # without a refund percentage (SOURCING, DELIVERY) compare verdicts.
+        did_overturn = bool(outcome.get("overturned", new_pct != original_pct))
 
         rec.appeal_verdict = new_verdict
         rec.appeal_refund_pct = u8(new_pct)

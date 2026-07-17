@@ -78,17 +78,20 @@ function normalize(
   const args = decoded?.args || [];
 
   // args[0] is the dispute id for raise_dispute / register_dispute /
-  // validate_claim / mark_resolved. For register_dispute, args[1] is the
+  // mark_resolved. validate_claim keys by brand and carries the (optional)
+  // dispute id as its 5th arg. For register_dispute, args[1] is the
   // category - a stronger signal than the contract (the registry handles all
   // categories).
   const idMethods = new Set([
     "raise_dispute",
     "register_dispute",
-    "validate_claim",
     "mark_resolved",
   ]);
-  const disputeId =
+  let disputeId: string | null =
     idMethods.has(method) && typeof args[0] === "string" ? args[0] : null;
+  if (method === "validate_claim" && typeof args[4] === "string" && args[4]) {
+    disputeId = args[4];
+  }
 
   let category: Category | null = contractCategory;
   if (method === "register_dispute" && typeof args[1] === "string") {

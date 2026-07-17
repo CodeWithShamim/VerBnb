@@ -42,7 +42,15 @@ function specialistArgs(s: DisputeSubmission): any[] {
     case "PRODUCT":
       return [s.disputeId, s.listingUrl, s.evidenceUrl];
     case "SOURCING":
-      return [s.brandId, s.claim, s.certificationUrl, s.supplierRegistryUrl];
+      // dispute_id lets the specialist persist the evidence URLs so the
+      // claim can be appealed on-chain (resolve_appeal) later.
+      return [
+        s.brandId,
+        s.claim,
+        s.certificationUrl,
+        s.supplierRegistryUrl,
+        s.disputeId,
+      ];
     case "DELIVERY":
       return [
         s.disputeId,

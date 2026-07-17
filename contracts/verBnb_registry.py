@@ -140,6 +140,32 @@ class VerBnbRegistry(gl.Contract):
         self.total_resolved += u256(1)
 
     @gl.public.write
+    def set_specialist_addresses(
+        self,
+        listing_judge_address: str,
+        not_described_address: str,
+        sourcing_address: str,
+        delivery_address: str,
+    ) -> None:
+        """Repoint dispute categories at upgraded specialist contracts.
+
+        Lets an existing registry adopt a redeployed judge without a full
+        redeploy (mirrors set_extension_addresses). Empty strings are ignored
+        so callers can update a subset. NOTE: disputes already registered keep
+        their original contract_address; only NEW register_dispute calls are
+        validated against (and routed to) the updated addresses.
+        """
+        self._only_owner()
+        if listing_judge_address:
+            self.listing_judge_address = listing_judge_address
+        if not_described_address:
+            self.not_described_address = not_described_address
+        if sourcing_address:
+            self.sourcing_address = sourcing_address
+        if delivery_address:
+            self.delivery_address = delivery_address
+
+    @gl.public.write
     def set_extension_addresses(
         self,
         appeal_manager_address: str,

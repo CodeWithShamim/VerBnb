@@ -4,15 +4,15 @@
   "chain_id": 4221,
   "deployer": "0x32d1DC49677547189793DbC29964B8b6B4573036",
   "contracts": {
-    "listing_accuracy_judge": "0x9941940c3E7Ff7574EB50738F3c7D7C8cc08880E",
-    "not_as_described": "0x701aF3b64a1595ee628A48654ec9773633cAB11B",
-    "ethical_sourcing": "0xe3EFBD1873781ee47a6C2D9399EC07C36D0d3B91",
-    "delivery_adjudicator": "0x20Bf0E57ab63D545CFA483a8b152eaDddBe4dbAf",
-    "verBnb_registry": "0x535E67E23913B5B0A79adC39Ca2B05fe696149Da",
-    "appeal_manager": "0x501E579CD5784516cB7200fCb2165F1DC77dFd40",
-    "reputation_tracker": "0xe7E76C8e1Cf0BC2651FE06E4cCEEe97e09F417D3",
-    "fraud_detector": "0xAfC36aBEE699195c87e6c0E1E0d59CB621a6E36F",
-    "analytics_tracker": "0xD74D14fD3e3a545b19db9BE88F48593c4AD86Cb6",
-    "product_suggester": "0x6c3C7a4D70628210362C074C28fF9F88b1C0805B"
+    "listing_accuracy_judge": "0x8C857c96cC39A51AC401D0270b6D53905e45972E",
+    "not_as_described": "0xA42Ba690D16D54E8c8a62100b07D213e3FAc2aa8",
+    "ethical_sourcing": "0xDaEb60AA8F4A5e8514e546f72775b3CD46148964",
+    "delivery_adjudicator": "0x0a454Cc6f1509b171D43c97E9dA8D40b8dD20d06",
+    "verBnb_registry": "0xa8FA18DED9Fd2Be0B28169FdD1023599d4B5B685",
+    "appeal_manager": "0x820b3096923b57Ed3F280bA30BbbdE69deF34dff",
+    "reputation_tracker": "0xC469fF9382DfFdB7E7C70b3a080fE083da7779C0",
+    "fraud_detector": "0x50a9ada4DdBd5306ddB470a7D67B1c4Ba0B47FaC",
+    "analytics_tracker": "0x4982D3873A85C9702e587Ea9Da0C5bDe80E19A04",
+    "product_suggester": "0xf19bdD5d35CF87F3958b3A5cBd262D22f7A63886"
   }
 }

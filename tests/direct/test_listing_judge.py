@@ -99,3 +99,72 @@ def test_view_returns_not_found(direct_vm, direct_deploy, direct_alice):
     c = direct_deploy(CONTRACT)
     out = json.loads(c.get_verdict("does-not-exist"))
     assert out["error"] == "not_found"
+
+
+# --------------------------------------------------------------- appeal consensus
+
+
+def test_resolve_appeal_reruns_consensus_from_stored_state(direct_vm, direct_deploy, direct_alice):
+    """resolve_appeal re-evaluates the ORIGINAL stored evidence on-chain and
+    records an authenticated AppealOutcome — no verdict is passed in."""
+    c = direct_deploy(CONTRACT)
+    direct_vm.sender = direct_alice
+
+    # Original round grants a partial refund.
+    _mock_clean(direct_vm, refund=50, misleading=True, severity="MODERATE")
+    c.raise_dispute("rent-appeal-1", "https://airbnb.com/rooms/9", "https://ipfs.io/e9", 200000)
+    assert json.loads(c.get_verdict("rent-appeal-1"))["refund_percentage"] == 50
+
+    # Appeal round re-runs consensus; this time validators land on a full refund.
+    direct_vm.clear_mocks()
+    _mock_clean(direct_vm, refund=95, misleading=True, severity="FRAUDULENT")
+    out = json.loads(c.resolve_appeal("rent-appeal-1", 1))
+    assert out["resolved"] is True
+    assert out["round_no"] == 1
+    assert out["tolerance"] == 10  # REFUND_TOLERANCE(15) - 5*round(1)
+    assert out["original_refund_pct"] == 50
+    assert out["appeal_refund_pct"] == 95
+    assert out["overturned"] is True
+
+    # Persisted + readable (this is what appeal_manager reads cross-contract).
+    stored = json.loads(c.get_appeal_outcome("rent-appeal-1"))
+    assert stored["appeal_refund_pct"] == 95
+    assert stored["overturned"] is True
+    # The ORIGINAL dispute record is left intact for comparison.
+    assert json.loads(c.get_verdict("rent-appeal-1"))["refund_percentage"] == 50
+
+
+def test_resolve_appeal_tightens_tolerance_each_round(direct_vm, direct_deploy, direct_alice):
+    c = direct_deploy(CONTRACT)
+    direct_vm.sender = direct_alice
+    _mock_clean(direct_vm, refund=40)
+    c.raise_dispute("rent-appeal-2", "https://airbnb.com/rooms/10", "https://ipfs.io/e10", 100000)
+
+    assert json.loads(c.resolve_appeal("rent-appeal-2", 1))["tolerance"] == 10
+    assert json.loads(c.resolve_appeal("rent-appeal-2", 2))["tolerance"] == 5
+    assert json.loads(c.resolve_appeal("rent-appeal-2", 3))["tolerance"] == 5  # floored
+
+
+def test_resolve_appeal_upheld_not_overturned(direct_vm, direct_deploy, direct_alice):
+    c = direct_deploy(CONTRACT)
+    direct_vm.sender = direct_alice
+    _mock_clean(direct_vm, refund=60, misleading=True, severity="MAJOR")
+    c.raise_dispute("rent-appeal-3", "https://airbnb.com/rooms/11", "https://ipfs.io/e11", 100000)
+    # Same verdict on re-run → original stands.
+    out = json.loads(c.resolve_appeal("rent-appeal-3", 1))
+    assert out["overturned"] is False
+    assert out["appeal_verdict"] == "REFUND_GRANTED"
+
+
+def test_resolve_appeal_requires_resolved_dispute(direct_vm, direct_deploy, direct_alice):
+    c = direct_deploy(CONTRACT)
+    direct_vm.sender = direct_alice
+    with direct_vm.expect_revert("no resolved dispute to appeal"):
+        c.resolve_appeal("does-not-exist", 1)
+
+
+def test_get_appeal_outcome_not_found(direct_vm, direct_deploy):
+    c = direct_deploy(CONTRACT)
+    out = json.loads(c.get_appeal_outcome("nope"))
+    assert out["resolved"] is False
+    assert out["error"] == "not_found"

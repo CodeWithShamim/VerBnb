@@ -144,10 +144,22 @@ export async function GET(
     if (specialist) {
       try {
         if (category === "SOURCING") {
-          // Sourcing keys verdicts by brand:claim; surface trust score by brand.
+          // Sourcing claims filed with a dispute_id have a dispute-keyed
+          // verdict; older claims fall back to the brand:claim lookup.
+          try {
+            const raw = (await client.readContract({
+              address: specialist as `0x${string}`,
+              functionName: "get_verdict",
+              args: [id],
+            })) as string;
+            const parsed = JSON.parse(raw);
+            if (parsed && !parsed.error) verdict = parsed;
+          } catch {
+            verdict = null;
+          }
           const brandId = req.nextUrl.searchParams.get("brandId") || "";
           const claim = req.nextUrl.searchParams.get("claim") || "";
-          if (brandId && claim) {
+          if (!verdict && brandId && claim) {
             const raw = (await client.readContract({
               address: specialist as `0x${string}`,
               functionName: "get_claim_verdict",

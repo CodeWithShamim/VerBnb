@@ -48,16 +48,22 @@ published on-chain - browsable at [/suggestions](https://ver-bnb.vercel.app/sugg
 
 | Contract | Address |
 | --- | --- |
-| Registry (entry point) | `0x535E67E23913B5B0A79adC39Ca2B05fe696149Da` |
-| RENTAL - `listing_accuracy_judge` | `0x9941940c3E7Ff7574EB50738F3c7D7C8cc08880E` |
-| PRODUCT - `not_as_described` | `0x701aF3b64a1595ee628A48654ec9773633cAB11B` |
-| SOURCING - `ethical_sourcing` | `0xe3EFBD1873781ee47a6C2D9399EC07C36D0d3B91` |
-| DELIVERY - `delivery_adjudicator` | `0x20Bf0E57ab63D545CFA483a8b152eaDddBe4dbAf` |
-| Appeal Manager | `0x501E579CD5784516cB7200fCb2165F1DC77dFd40` |
-| Reputation Tracker | `0xe7E76C8e1Cf0BC2651FE06E4cCEEe97e09F417D3` |
-| Fraud Detector | `0xAfC36aBEE699195c87e6c0E1E0d59CB621a6E36F` |
-| Analytics Tracker | `0xD74D14fD3e3a545b19db9BE88F48593c4AD86Cb6` |
-| Product Suggester | `0x6c3C7a4D70628210362C074C28fF9F88b1C0805B` |
+| Registry (entry point) | `0xa8FA18DED9Fd2Be0B28169FdD1023599d4B5B685` |
+| RENTAL - `listing_accuracy_judge` | `0x8C857c96cC39A51AC401D0270b6D53905e45972E` |
+| PRODUCT - `not_as_described` | `0xA42Ba690D16D54E8c8a62100b07D213e3FAc2aa8` |
+| SOURCING - `ethical_sourcing` | `0xDaEb60AA8F4A5e8514e546f72775b3CD46148964` |
+| DELIVERY - `delivery_adjudicator` | `0x0a454Cc6f1509b171D43c97E9dA8D40b8dD20d06` |
+| Appeal Manager | `0x820b3096923b57Ed3F280bA30BbbdE69deF34dff` |
+| Reputation Tracker | `0xC469fF9382DfFdB7E7C70b3a080fE083da7779C0` |
+| Fraud Detector | `0x50a9ada4DdBd5306ddB470a7D67B1c4Ba0B47FaC` |
+| Analytics Tracker | `0x4982D3873A85C9702e587Ea9Da0C5bDe80E19A04` |
+| Product Suggester | `0xf19bdD5d35CF87F3958b3A5cBd262D22f7A63886` |
+
+This deployment (2026-07-17) brings **on-chain appeal consensus to every
+specialist judge** — all four categories support
+`resolve_appeal`/`get_appeal_outcome`, and the registry gained an owner-only
+`set_specialist_addresses` so future single-judge upgrades no longer force a
+full redeploy.
 
 RPC: `https://rpc-bradbury.genlayer.com` · Explorer: `https://explorer-bradbury.genlayer.com`
 
@@ -74,6 +80,24 @@ Superseded deployments stay live on Bradbury - every contract below is kept so
 the team can check disputes and transactions raised before each cut-over on the
 [explorer](https://explorer-bradbury.genlayer.com). This table is the record;
 each address links to its explorer page.
+
+<details>
+<summary><strong>Retired 2026-07-17</strong> — registry <code>0x535E67E2…49Da</code> (deployer <code>0x32d1DC49…3036</code>)</summary>
+
+| Contract | Address |
+| --- | --- |
+| Registry (entry point) | [`0x535E67E23913B5B0A79adC39Ca2B05fe696149Da`](https://explorer-bradbury.genlayer.com/address/0x535E67E23913B5B0A79adC39Ca2B05fe696149Da) |
+| RENTAL - `listing_accuracy_judge` | [`0x9941940c3E7Ff7574EB50738F3c7D7C8cc08880E`](https://explorer-bradbury.genlayer.com/address/0x9941940c3E7Ff7574EB50738F3c7D7C8cc08880E) |
+| PRODUCT - `not_as_described` | [`0x701aF3b64a1595ee628A48654ec9773633cAB11B`](https://explorer-bradbury.genlayer.com/address/0x701aF3b64a1595ee628A48654ec9773633cAB11B) |
+| SOURCING - `ethical_sourcing` | [`0xe3EFBD1873781ee47a6C2D9399EC07C36D0d3B91`](https://explorer-bradbury.genlayer.com/address/0xe3EFBD1873781ee47a6C2D9399EC07C36D0d3B91) |
+| DELIVERY - `delivery_adjudicator` | [`0x20Bf0E57ab63D545CFA483a8b152eaDddBe4dbAf`](https://explorer-bradbury.genlayer.com/address/0x20Bf0E57ab63D545CFA483a8b152eaDddBe4dbAf) |
+| Appeal Manager | [`0x501E579CD5784516cB7200fCb2165F1DC77dFd40`](https://explorer-bradbury.genlayer.com/address/0x501E579CD5784516cB7200fCb2165F1DC77dFd40) |
+| Reputation Tracker | [`0xe7E76C8e1Cf0BC2651FE06E4cCEEe97e09F417D3`](https://explorer-bradbury.genlayer.com/address/0xe7E76C8e1Cf0BC2651FE06E4cCEEe97e09F417D3) |
+| Fraud Detector | [`0xAfC36aBEE699195c87e6c0E1E0d59CB621a6E36F`](https://explorer-bradbury.genlayer.com/address/0xAfC36aBEE699195c87e6c0E1E0d59CB621a6E36F) |
+| Analytics Tracker | [`0xD74D14fD3e3a545b19db9BE88F48593c4AD86Cb6`](https://explorer-bradbury.genlayer.com/address/0xD74D14fD3e3a545b19db9BE88F48593c4AD86Cb6) |
+| Product Suggester | [`0x6c3C7a4D70628210362C074C28fF9F88b1C0805B`](https://explorer-bradbury.genlayer.com/address/0x6c3C7a4D70628210362C074C28fF9F88b1C0805B) |
+
+</details>
 
 <details>
 <summary><strong>Retired 2026-07-15</strong> — registry <code>0x032806fb…8B34</code> (deployer <code>0x32d1DC49…3036</code>)</summary>

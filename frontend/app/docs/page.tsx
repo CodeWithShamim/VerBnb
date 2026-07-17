@@ -59,7 +59,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'Can I appeal a verdict?',
-    a: 'Yes - within 7 days of finalization. Open the verdict page and click "Appeal". A larger set of validators re-evaluates the case.',
+    a: 'Yes - within 7 days of finalization, in every category. Open the verdict page and click "Appeal". The judge re-runs validator consensus on the same on-chain evidence with a stricter agreement bar, and the result is recorded straight from contract state.',
   },
   {
     q: 'Is my data private?',
@@ -257,6 +257,12 @@ export default function DocsPage() {
                 <strong className="text-slate-800">same on-chain evidence</strong> and the appeal
                 manager records the result straight from that contract state — the outcome is never
                 supplied off-chain. One appeal per dispute.
+              </p>
+              <p>
+                This works in{' '}
+                <strong className="text-slate-800">all four dispute categories</strong>: every
+                specialist judge — rental, marketplace, sourcing, and delivery — stores its
+                evidence on-chain and can re-run appeal consensus over it itself.
               </p>
             </div>
           </Reveal>

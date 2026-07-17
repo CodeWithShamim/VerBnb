@@ -34,6 +34,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pytest
 from gltest import get_contract_factory
 from gltest.assertions import tx_execution_succeeded
 
@@ -256,3 +257,89 @@ def test_on_chain_appeal_derived_from_authenticated_state():
     assert final_appeal["appeal_status"] == "FINALIZED"
     assert final_appeal["appeal_refund_pct"] == outcome["appeal_refund_pct"]
     assert final_appeal["appeal_verdict"] == outcome["appeal_verdict"]
+
+
+# Every specialist judge must support the state-derived appeal path, not just
+# PRODUCT (covered above). Each case: (contract file, raise method, raise args
+# for a dispute id, expected round-1 appeal tolerance). DELIVERY consensus is
+# an exact verdict match, so its tolerance is always 0.
+SPECIALIST_APPEAL_CASES = [
+    pytest.param(
+        "listing_accuracy_judge.py",
+        "raise_dispute",
+        lambda did: [did, LISTING_URL, EVIDENCE_URL, 500000],
+        10,
+        id="rental",
+    ),
+    pytest.param(
+        "ethical_sourcing.py",
+        "validate_claim",
+        lambda did: ["brand-itg", "fair trade certified", LISTING_URL, EVIDENCE_URL, did],
+        10,
+        id="sourcing",
+    ),
+    pytest.param(
+        "delivery_adjudicator.py",
+        "raise_dispute",
+        lambda did: [did, "ORD-77", EVIDENCE_URL, "parcel never arrived", "1 Main St"],
+        0,
+        id="delivery",
+    ),
+]
+
+
+@pytest.mark.parametrize("filename,method,args_for,expected_tolerance", SPECIALIST_APPEAL_CASES)
+def test_on_chain_appeal_every_specialist(filename, method, args_for, expected_tolerance):
+    """Same state-derived appeal flow as above, for the other 3 specialists:
+    resolve_appeal re-runs consensus over the judge's own stored evidence and
+    finalize_appeal_from_state reads the outcome back cross-contract."""
+    dispute_id = f"itg-{filename.removesuffix('.py')}-1"
+    specialist = _factory(filename).deploy(args=[])
+    appeals = _factory("appeal_manager.py").deploy(args=[])
+
+    # 1. Original dispute → real consensus verdict stored on the specialist.
+    assert tx_execution_succeeded(
+        getattr(specialist, method)(args=args_for(dispute_id), **WAIT).transact()
+    )
+    verdict = json.loads(specialist.get_verdict(args=[dispute_id]).call())
+    assert verdict["resolved"] is True
+    original_refund = int(verdict.get("refund_percentage", 0))
+
+    now = int(datetime.now(timezone.utc).timestamp())
+
+    # 2. File the appeal (bookkeeping only).
+    assert tx_execution_succeeded(
+        appeals.create_appeal(
+            args=[
+                dispute_id,
+                GUEST,
+                now,
+                original_refund,
+                GUEST,
+                HOST,
+                "Please re-review with a stricter panel",
+                EVIDENCE_URL,
+            ]
+        ).transact()
+    )
+    appeal_id = f"{dispute_id}-appeal-1"
+
+    # 3. Specialist re-runs consensus over its authenticated stored evidence.
+    assert tx_execution_succeeded(
+        specialist.resolve_appeal(args=[dispute_id, 1], **WAIT).transact()
+    )
+    outcome = json.loads(specialist.get_appeal_outcome(args=[dispute_id]).call())
+    assert outcome["resolved"] is True
+    assert outcome["round_no"] == 1
+    assert outcome["tolerance"] == expected_tolerance
+
+    # 4. Appeal manager finalizes by READING the specialist outcome on-chain.
+    assert tx_execution_succeeded(
+        appeals.finalize_appeal_from_state(
+            args=[appeal_id, specialist.address], **WAIT
+        ).transact()
+    )
+    final_appeal = json.loads(appeals.get_appeal(args=[appeal_id]).call())
+    assert final_appeal["appeal_status"] == "FINALIZED"
+    assert final_appeal["appeal_verdict"] == outcome["appeal_verdict"]
+    assert final_appeal["appeal_refund_pct"] == int(outcome.get("appeal_refund_pct", 0))
