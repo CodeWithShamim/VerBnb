@@ -2,19 +2,30 @@
 // Writes happen server-side (see app/api/dispute/route.ts) so no private key
 // ever reaches the client.
 import { createClient } from "genlayer-js";
-import { testnetBradbury, localnet, studionet } from "genlayer-js/chains";
+import { localnet, studionet } from "genlayer-js/chains";
 
-type ChainKey = "testnet_bradbury" | "localnet" | "studionet";
+type ChainKey = "localnet" | "studionet";
 
 const CHAINS = {
-  testnet_bradbury: testnetBradbury,
   localnet,
   studionet,
 } as const;
 
 export function getChain() {
-  const key = (process.env.NEXT_PUBLIC_GL_NETWORK as ChainKey) || "testnet_bradbury";
-  return CHAINS[key] ?? testnetBradbury;
+  const key = (process.env.NEXT_PUBLIC_GL_NETWORK as ChainKey) || "studionet";
+  return CHAINS[key] ?? studionet;
+}
+
+// genlayer-js Network name (client.connect / wallet flows) for each ChainKey.
+const NETWORK_NAMES: Record<ChainKey, "localnet" | "studionet"> = {
+  localnet: "localnet",
+  studionet: "studionet",
+};
+
+/** The genlayer-js Network name for the active chain (e.g. "studionet"). */
+export function getNetworkName() {
+  const key = (process.env.NEXT_PUBLIC_GL_NETWORK as ChainKey) || "studionet";
+  return NETWORK_NAMES[key] ?? "studionet";
 }
 
 // A read-only client. readContract does not require an account. The client is

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { CATEGORIES, type Category } from '@/lib/contracts';
+import { CATEGORIES, getChainInfo, type Category } from '@/lib/contracts';
 import { CategoryIconWith3D } from '@/components/3d';
 
 const STEPS = [
@@ -169,7 +169,7 @@ export default function FormSidePanel({ category }: { category: Category }) {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
-                GenLayer Bradbury
+                {getChainInfo().name}
               </span>
               <span className="text-[11px] text-slate-400 dark:text-white/50">
                 5 validators · live

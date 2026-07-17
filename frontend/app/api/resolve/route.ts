@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAccount } from "genlayer-js";
-import { testnetBradbury, localnet, studionet } from "genlayer-js/chains";
+import { localnet, studionet } from "genlayer-js/chains";
 import { CONTRACT_ADDRESSES, REGISTRY_ADDRESS } from "@/lib/contracts";
 
 export const runtime = "nodejs";
 
 const CHAINS: Record<string, any> = {
-  testnet_bradbury: testnetBradbury,
   localnet,
   studionet,
 };
@@ -48,8 +47,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const chainKey = process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury";
-    const chain = CHAINS[chainKey] || testnetBradbury;
+    const chainKey = process.env.NEXT_PUBLIC_GL_NETWORK || "studionet";
+    const chain = CHAINS[chainKey] || studionet;
     const account = createAccount(key as `0x${string}`);
     const client = createClient({ chain, account });
 

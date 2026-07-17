@@ -25,7 +25,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'What does it cost?',
-    a: "Only the network gas for your dispute transaction. On the Bradbury testnet, grab free GEN from the faucet - there's no platform fee.",
+    a: "Only the network gas for your dispute transaction. On test networks, grab free GEN from the faucet - there's no platform fee.",
   },
 ];
 

@@ -11,14 +11,15 @@
  * duplicates).
  *
  * Usage: node scripts/backfill-analytics.mjs [--dry-run]
- * Contract addresses come from deployments/bradbury.json; .env.local supplies
- * GENLAYER_PRIVATE_KEY and NEXT_PUBLIC_GL_NETWORK.
+ * Contract addresses come from deployments/<network>.json; .env.local supplies
+ * GENLAYER_PRIVATE_KEY, NEXT_PUBLIC_GL_NETWORK (default studionet) and
+ * optionally NEXT_PUBLIC_GL_RPC.
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { createClient, createAccount } from "genlayer-js";
-import { testnetBradbury, localnet, studionet } from "genlayer-js/chains";
+import { localnet, studionet } from "genlayer-js/chains";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 for (const line of readFileSync(join(root, ".env.local"), "utf8").split("\n")) {
@@ -26,12 +27,20 @@ for (const line of readFileSync(join(root, ".env.local"), "utf8").split("\n")) {
   if (m && !(m[1] in process.env)) process.env[m[1]] = m[2];
 }
 
-const CHAINS = { testnet_bradbury: testnetBradbury, localnet, studionet };
-const chain =
-  CHAINS[process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury"] ||
-  testnetBradbury;
+const CHAINS = { localnet, studionet };
+const DEPLOY_FILES = { localnet: "localnet", studionet: "studionet" };
+const networkKey = process.env.NEXT_PUBLIC_GL_NETWORK || "studionet";
+const baseChain = CHAINS[networkKey] || studionet;
+// Optional RPC override (NEXT_PUBLIC_GL_RPC) on top of the chain's default.
+const rpcOverride = process.env.NEXT_PUBLIC_GL_RPC;
+const chain = rpcOverride
+  ? { ...baseChain, rpcUrls: { ...baseChain.rpcUrls, default: { http: [rpcOverride] } } }
+  : baseChain;
 const deployment = JSON.parse(
-  readFileSync(join(dirname(root), "deployments", "bradbury.json"), "utf8"),
+  readFileSync(
+    join(dirname(root), "deployments", `${DEPLOY_FILES[networkKey] || networkKey}.json`),
+    "utf8",
+  ),
 );
 const REGISTRY = deployment.contracts.verBnb_registry;
 const ANALYTICS = deployment.contracts.analytics_tracker;
@@ -40,7 +49,7 @@ const dryRun = process.argv.includes("--dry-run");
 
 if (!REGISTRY || !ANALYTICS || !KEY) {
   console.error(
-    "Missing registry/analytics address in deployments/bradbury.json or GENLAYER_PRIVATE_KEY",
+    "Missing registry/analytics address in the deployments file or GENLAYER_PRIVATE_KEY",
   );
   process.exit(1);
 }
@@ -51,12 +60,29 @@ const client = createClient({ chain, account });
 const readJson = async (address, functionName, args) =>
   JSON.parse(await client.readContract({ address, functionName, args }));
 
-const EXPLORER_API = `${(process.env.NEXT_PUBLIC_GL_EXPLORER || "https://explorer-bradbury.genlayer.com").replace(/\/+$/, "")}/api/v1`;
+// Explorer JSON API for the active network. studionet/localnet have no public
+// explorer, so unless NEXT_PUBLIC_GL_EXPLORER is set the explorer scan is
+// skipped (backfill then finds nothing to do).
+const EXPLORER_BASE = (process.env.NEXT_PUBLIC_GL_EXPLORER || "").replace(
+  /\/+$/,
+  "",
+);
+const EXPLORER_API = EXPLORER_BASE ? `${EXPLORER_BASE}/api/v1` : "";
+let warnedNoExplorer = false;
 
 /** Dispute ids seen in register_dispute / raise_dispute / mark_resolved
  *  calldata of an address's transaction history (all pages). */
 async function disputeIdsFromExplorer(address) {
   const ids = new Set();
+  if (!EXPLORER_API) {
+    if (!warnedNoExplorer) {
+      console.warn(
+        `no explorer API for network "${networkKey}" - skipping calldata scan`,
+      );
+      warnedNoExplorer = true;
+    }
+    return ids;
+  }
   for (let page = 1; page <= 20; page++) {
     const res = await fetch(
       `${EXPLORER_API}/transactions?address=${address}&page=${page}&page_size=50`,

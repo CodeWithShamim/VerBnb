@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Human-style seeder: a FRESH wallet drives the live Bradbury deployment the
+ * Human-style seeder: a FRESH wallet drives the live deployment the
  * way a real user would - one transaction at a time, random pauses between
  * clicks, varied content per run - landing 10-20 txs on every contract in
- * deployments/bradbury.json.
+ * deployments/<network>.json.
  *
  * Wallet split (the contracts enforce it):
  *   - NEW WALLET (permissionless writes): registry.register_dispute, the four
@@ -31,7 +31,7 @@ import { randomBytes, randomInt } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { createClient, createAccount } from "genlayer-js";
-import { testnetBradbury, localnet, studionet } from "genlayer-js/chains";
+import { localnet, studionet } from "genlayer-js/chains";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const envPath = join(root, ".env.local");
@@ -40,15 +40,23 @@ for (const line of readFileSync(envPath, "utf8").split("\n")) {
   if (m && !(m[1] in process.env)) process.env[m[1]] = m[2];
 }
 
-const CHAINS = { testnet_bradbury: testnetBradbury, localnet, studionet };
-const chain =
-  CHAINS[process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury"] ||
-  testnetBradbury;
+const CHAINS = { localnet, studionet };
+const DEPLOY_FILES = { localnet: "localnet", studionet: "studionet" };
+const networkKey = process.env.NEXT_PUBLIC_GL_NETWORK || "studionet";
+const baseChain = CHAINS[networkKey] || studionet;
+// Optional RPC override (NEXT_PUBLIC_GL_RPC) on top of the chain's default.
+const rpcOverride = process.env.NEXT_PUBLIC_GL_RPC;
+const chain = rpcOverride
+  ? { ...baseChain, rpcUrls: { ...baseChain.rpcUrls, default: { http: [rpcOverride] } } }
+  : baseChain;
 const deployment = JSON.parse(
-  readFileSync(join(dirname(root), "deployments", "bradbury.json"), "utf8"),
+  readFileSync(
+    join(dirname(root), "deployments", `${DEPLOY_FILES[networkKey] || networkKey}.json`),
+    "utf8",
+  ),
 );
 const C = deployment.contracts;
-const RPC = deployment.rpc;
+const RPC = rpcOverride || deployment.rpc;
 const FAUCET = "https://testnet-faucet.genlayer.foundation";
 
 const argv = process.argv.slice(2);
@@ -58,9 +66,9 @@ const only = flag("only", "");
 const fast = argv.includes("--fast");
 const skipOwner = argv.includes("--skip-owner");
 const RETRIES = Number(flag("retries", 4));
-// Sequential submission, but Bradbury acceptance takes minutes, so we still
-// track our un-accepted txs per account and pause when a small cap is hit
-// (well under the network's ~20 PENDING/account limit).
+// Sequential submission, but acceptance can take minutes, so we still track our un-accepted txs per
+// account and pause when a small cap is hit (well under the network's
+// ~20 PENDING/account limit).
 const MAX_INFLIGHT = Number(flag("max-inflight", 8));
 
 // ---- wallets ----------------------------------------------------------------

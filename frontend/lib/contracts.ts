@@ -1,11 +1,22 @@
 // Contract addresses + category routing.
 //
-// Addresses come straight from deployments/bradbury.json (written by the
-// deploy script), so a re-deploy only needs that file updated - no .env.local
-// required. Specialist addresses are also discoverable at runtime via the
-// registry's get_contract_for_category view.
+// Addresses come straight from the deployments/<network>.json file for the
+// active network (written by the deploy script), so a re-deploy only needs
+// that file updated - no .env.local required. Specialist addresses are also
+// discoverable at runtime via the registry's get_contract_for_category view.
 
-import deployment from "../../deployments/bradbury.json";
+import studionetDeployment from "../../deployments/studionet.json";
+
+/** Active network key (NEXT_PUBLIC_GL_NETWORK), defaulting to studionet. */
+export const NETWORK_KEY = process.env.NEXT_PUBLIC_GL_NETWORK || "studionet";
+
+// Per-network deployment files. Localnet has no committed deployments file, so
+// it (and any unknown key) falls back to the studionet file.
+const DEPLOYMENTS: Record<string, typeof studionetDeployment> = {
+  studionet: studionetDeployment,
+};
+
+const deployment = DEPLOYMENTS[NETWORK_KEY] ?? studionetDeployment;
 
 export type Category = "RENTAL" | "PRODUCT" | "SOURCING" | "DELIVERY";
 
@@ -93,21 +104,39 @@ export function newDisputeId(category: Category): string {
   return `${category.toLowerCase()}-${Date.now().toString(36)}-${rand}`;
 }
 
-// Block explorer for the active GenLayer network. genlayer-js ships the URL on
-// the chain object; we default to the Bradbury explorer so links work even
-// before the chain object is loaded client-side.
+// Active network metadata for display. Mirrors the genlayer-js chain objects so
+// the UI can show the network name + chain id without loading the SDK client.
+// `explorer` is optional: studionet has no public block explorer, so explorer
+// link helpers return "" there and the UI hides the links.
+const NETWORKS: Record<
+  string,
+  { name: string; chainId: number; short: string; explorer?: string }
+> = {
+  localnet: { name: "GenLayer Localnet", chainId: 61127, short: "Localnet" },
+  studionet: {
+    name: "GenLayer Studio Network",
+    chainId: 61999,
+    short: "Studionet",
+  },
+};
+
+// Block explorer for the active GenLayer network. Env-overridable; empty
+// string when the active network has no public explorer (e.g. studionet) -
+// explorerTx/explorerAddress then return "" and consumers hide the links.
 export const EXPLORER_BASE = (
   process.env.NEXT_PUBLIC_GL_EXPLORER ||
-  "https://explorer-bradbury.genlayer.com"
+  (NETWORKS[NETWORK_KEY] ?? NETWORKS.studionet).explorer ||
+  ""
 ).replace(/\/+$/, "");
 
 // The explorer's JSON API - exposes per-address transaction history with live
 // status, block and decoded calldata. Used by /api/transactions to build the
-// platform-wide live feed across every specialist + the registry.
-export const EXPLORER_API_BASE = `${EXPLORER_BASE}/api/v1`;
+// platform-wide live feed across every specialist + the registry. Empty when
+// the active network has no explorer; the feed degrades to an empty list.
+export const EXPLORER_API_BASE = EXPLORER_BASE ? `${EXPLORER_BASE}/api/v1` : "";
 
 /**
- * Deployed specialist + registry addresses (deployments/bradbury.json). The
+ * Deployed specialist + registry addresses (deployments/<network>.json). The
  * live feed pulls transactions for each of these.
  */
 export const CONTRACTS: {
@@ -142,7 +171,7 @@ export const CONTRACTS: {
   },
 ];
 
-/** Category → its specialist contract address (from deployments/bradbury.json). */
+/** Category → its specialist contract address (from deployments/<network>.json). */
 export const SPECIALIST_BY_CATEGORY: Record<Category, `0x${string}`> =
   CONTRACTS.reduce(
     (acc, c) => {
@@ -180,46 +209,26 @@ export const CONTRACT_ADDRESSES = {
   fraud_detector: deployment.contracts.fraud_detector,
   analytics_tracker: deployment.contracts.analytics_tracker,
   // Suggested-products curator. Deployed after the core set, so the key may be
-  // absent from bradbury.json - read it loosely and fall back to "" so the UI
-  // can render its "not deployed yet" state instead of breaking the build.
+  // absent from the deployments file - read it loosely and fall back to "" so
+  // the UI can render its "not deployed yet" state instead of breaking the build.
   product_suggester:
     (deployment.contracts as Record<string, string>).product_suggester ?? "",
 };
 
-// Active network metadata for display. Mirrors the genlayer-js chain objects so
-// the UI can show the network name + chain id without loading the SDK client.
-const NETWORKS: Record<
-  string,
-  { name: string; chainId: number; short: string }
-> = {
-  testnet_bradbury: {
-    name: "GenLayer Bradbury Testnet",
-    chainId: 4221,
-    short: "Bradbury",
-  },
-  localnet: { name: "GenLayer Localnet", chainId: 61127, short: "Localnet" },
-  studionet: {
-    name: "GenLayer Studio Network",
-    chainId: 61999,
-    short: "Studionet",
-  },
-};
-
 /** The network the app is configured to talk to. */
 export function getChainInfo() {
-  const key = process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury";
-  return NETWORKS[key] || NETWORKS.testnet_bradbury;
+  return NETWORKS[NETWORK_KEY] || NETWORKS.studionet;
 }
 
-/** Explorer URL for a transaction hash (empty string if no hash). */
+/** Explorer URL for a transaction hash ("" if no hash or no explorer). */
 export function explorerTx(hash?: string): string {
-  if (!hash) return "";
+  if (!hash || !EXPLORER_BASE) return "";
   return `${EXPLORER_BASE}/tx/${hash}`;
 }
 
-/** Explorer URL for an address/contract (empty string if no address). */
+/** Explorer URL for an address/contract ("" if no address or no explorer). */
 export function explorerAddress(address?: string): string {
-  if (!address) return "";
+  if (!address || !EXPLORER_BASE) return "";
   return `${EXPLORER_BASE}/address/${address}`;
 }
 

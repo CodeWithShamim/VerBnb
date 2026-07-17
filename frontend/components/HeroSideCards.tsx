@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
+import { getChainInfo } from '@/lib/contracts';
 
 const VALIDATORS = [
   { color: '#a78bfa', delay: 0 },
@@ -121,7 +122,7 @@ export default function HeroSideCards() {
             </span>
           </p>
           <p className="mt-1 text-[10px] text-slate-400 dark:text-white/40">
-            GenLayer Bradbury · immutable
+            {getChainInfo().name} · immutable
           </p>
         </GlassCard>
       </div>

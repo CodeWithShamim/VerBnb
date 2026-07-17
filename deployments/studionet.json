@@ -1,0 +1,18 @@
+{
+  "network": "studionet",
+  "rpc": "https://studio.genlayer.com/api",
+  "chain_id": 61999,
+  "deployer": "0x32d1DC49677547189793DbC29964B8b6B4573036",
+  "contracts": {
+    "listing_accuracy_judge": "0xB384a4951c1627Ec110fdd481f5d4ECf34D25C15",
+    "not_as_described": "0x4CFf6E02EB8ee9BaA3Be68E55B2C0143161C7341",
+    "ethical_sourcing": "0xb378Daef5Af4eeec237521379a37126C585fB970",
+    "delivery_adjudicator": "0x146D6d3cA35A5cF1f38cf2aaa1cA1CaCB3bbeb1b",
+    "verBnb_registry": "0x029DC6adBdF5C5DdBF90a71b9895FC506A0Fd115",
+    "appeal_manager": "0x8BDF93b8011C67766E1C3b82B28D24E62A15581B",
+    "reputation_tracker": "0xD087F6Ab2f4681ff475f69a94Dbdf8bf6d2efc86",
+    "fraud_detector": "0x1184E6972bf4F8290eC168893EBE9037B6bE8fF4",
+    "analytics_tracker": "0x1b8F3Eab2585a161cf3bADe15dE267D90Fdde77c",
+    "product_suggester": "0x72E08498F3d4FDe14D4f230DC56C6353fa8ff19f"
+  }
+}

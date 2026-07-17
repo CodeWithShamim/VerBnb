@@ -8,7 +8,7 @@
 
 import { REGISTRY_ADDRESS, type Category } from "@/lib/contracts";
 
-// The ledger is scoped to the LIVE registry (deployments/bradbury.json). A
+// The ledger is scoped to the LIVE registry (deployments/<network>.json). A
 // redeploy changes the registry address, so the key changes too and disputes
 // raised on retired registries never resurface in the UI. Old-registry keys
 // left in localStorage are pruned on load so their stale data is actually gone.

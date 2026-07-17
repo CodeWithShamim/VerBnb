@@ -36,7 +36,7 @@ export const NETWORK = {
   get CHAIN_ID() {
     return getChainInfo().chainId;
   },
-  RPC: process.env.NEXT_PUBLIC_GL_RPC || "https://rpc-bradbury.genlayer.com",
+  RPC: process.env.NEXT_PUBLIC_GL_RPC || "https://studio.genlayer.com/api",
   get EXPLORER() {
     return EXPLORER_BASE;
   },

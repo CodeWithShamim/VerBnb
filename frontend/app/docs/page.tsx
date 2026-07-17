@@ -75,7 +75,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'What does it cost?',
-    a: "Only the network gas for your dispute transaction. On the Bradbury testnet, grab free GEN from the faucet - there's no platform fee.",
+    a: "Only the network gas for your dispute transaction. On test networks, grab free GEN from the faucet - there's no platform fee.",
   },
   {
     q: 'What are Suggested Products?',
@@ -134,7 +134,10 @@ const ROADMAP: { phase: string; status: PhaseStatus; title: string; body: string
 const LINKS: { label: string; href: string; external?: boolean }[] = [
   { label: 'GenLayer docs', href: 'https://docs.genlayer.com', external: true },
   { label: 'Testnet faucet', href: NETWORK.FAUCET, external: true },
-  { label: 'Chain explorer', href: NETWORK.EXPLORER, external: true },
+  // Studionet has no public explorer - only link one when it exists.
+  ...(NETWORK.EXPLORER
+    ? [{ label: 'Chain explorer', href: NETWORK.EXPLORER, external: true }]
+    : []),
   {
     label: 'GitHub repository',
     href: 'https://github.com/CodeWithShamim/VerBnb',

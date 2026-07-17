@@ -150,23 +150,25 @@ export default function DisputePage() {
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-surface-border px-6 py-3 text-xs text-slate-400 sm:px-8">
               <span>Tx hash:</span>
               <span className="break-all font-mono text-slate-600">{txHash}</span>
-              <a
-                href={explorerTx(txHash)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-medium text-brand transition-colors hover:text-brand/80"
-              >
-                View on explorer
-                <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3">
-                  <path
-                    d="M7 17 17 7M9 7h8v8"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </a>
+              {explorerTx(txHash) && (
+                <a
+                  href={explorerTx(txHash)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-medium text-brand transition-colors hover:text-brand/80"
+                >
+                  View on explorer
+                  <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3">
+                    <path
+                      d="M7 17 17 7M9 7h8v8"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </a>
+              )}
             </div>
           )}
         </motion.div>

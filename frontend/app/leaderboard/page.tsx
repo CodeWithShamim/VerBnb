@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { getRecentDisputes, subscribeRecentDisputes } from "@/lib/recentDisputes";
+import { NETWORK_KEY } from "@/lib/contracts";
 import {
   ADDRESS_RE,
   addManualAddress,
@@ -196,7 +197,7 @@ export default function LeaderboardPage() {
             Reputation tracker is not configured yet. Deploy the Phase 2
             contracts so their addresses land in{" "}
             <code className="rounded bg-surface-subtle px-1.5 py-0.5 text-xs">
-              deployments/bradbury.json
+              {`deployments/${NETWORK_KEY}.json`}
             </code>
             .
           </div>

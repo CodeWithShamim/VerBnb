@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Seed the live Bradbury deployment with ~20 transactions per contract so every
- * contract in deployments/bradbury.json has real, cross-linked on-chain data
+ * Seed the live deployment with ~20 transactions per contract so every
+ * contract in deployments/<network>.json has real, cross-linked on-chain data
  * for the frontend to display (disputes, verdicts, appeals, fraud flags,
  * reputations, analytics, product suggestions).
  *
@@ -25,13 +25,14 @@
  *   node scripts/seed-data.mjs --llm-only
  *
  * Env (frontend/.env.local): GENLAYER_PRIVATE_KEY (must be the contract owner),
- * NEXT_PUBLIC_GL_NETWORK. Addresses come from deployments/bradbury.json.
+ * NEXT_PUBLIC_GL_NETWORK (default studionet), NEXT_PUBLIC_GL_RPC (optional RPC
+ * override). Addresses come from deployments/<network>.json.
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { createClient, createAccount } from "genlayer-js";
-import { testnetBradbury, localnet, studionet } from "genlayer-js/chains";
+import { localnet, studionet } from "genlayer-js/chains";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 for (const line of readFileSync(join(root, ".env.local"), "utf8").split("\n")) {
@@ -39,12 +40,20 @@ for (const line of readFileSync(join(root, ".env.local"), "utf8").split("\n")) {
   if (m && !(m[1] in process.env)) process.env[m[1]] = m[2];
 }
 
-const CHAINS = { testnet_bradbury: testnetBradbury, localnet, studionet };
-const chain =
-  CHAINS[process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury"] ||
-  testnetBradbury;
+const CHAINS = { localnet, studionet };
+const DEPLOY_FILES = { localnet: "localnet", studionet: "studionet" };
+const networkKey = process.env.NEXT_PUBLIC_GL_NETWORK || "studionet";
+const baseChain = CHAINS[networkKey] || studionet;
+// Optional RPC override (NEXT_PUBLIC_GL_RPC) on top of the chain's default.
+const rpcOverride = process.env.NEXT_PUBLIC_GL_RPC;
+const chain = rpcOverride
+  ? { ...baseChain, rpcUrls: { ...baseChain.rpcUrls, default: { http: [rpcOverride] } } }
+  : baseChain;
 const deployment = JSON.parse(
-  readFileSync(join(dirname(root), "deployments", "bradbury.json"), "utf8"),
+  readFileSync(
+    join(dirname(root), "deployments", `${DEPLOY_FILES[networkKey] || networkKey}.json`),
+    "utf8",
+  ),
 );
 const C = deployment.contracts;
 const KEY = process.env.GENLAYER_PRIVATE_KEY;
@@ -86,10 +95,10 @@ const RETRIES = Number(
   (argv.find((a) => a.startsWith("--retries=")) || "").split("=")[1] || 4,
 );
 // GenLayer caps an account's not-yet-accepted (PENDING) transactions (~20).
-// writeContract returns at PENDING and acceptance takes minutes on Bradbury, so
-// we keep our own in-flight PENDING count well under the cap and free slots as
-// txs reach a decided state (ACCEPTED and beyond). State is visible to views at
-// ACCEPTED, so we never wait for the (very slow) FINALIZED window.
+// writeContract returns at PENDING and acceptance can take minutes, so we keep our own in-flight PENDING count
+// well under the cap and free slots as txs reach a decided state (ACCEPTED and
+// beyond). State is visible to views at ACCEPTED, so we never wait for the
+// (very slow) FINALIZED window.
 const MAX_INFLIGHT = Number(
   (argv.find((a) => a.startsWith("--max-inflight=")) || "").split("=")[1] || 10,
 );

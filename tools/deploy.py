@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-Verdix / VerBnb - Bradbury testnet deploy script.
+Verdix / VerBnb - GenLayer deploy script (network-generic).
 
 Deploys the 4 specialist contracts, then the registry (constructor args =
 the 4 specialist addresses), verifies each schema, and writes all addresses to
-deployments/bradbury.json.
+a per-network file: deployments/<network>.json.
 
 Usage:
-    # 1. Put a FUNDED Bradbury key in .env  (GENLAYER_PRIVATE_KEY=0x...)
-    #    Faucet: https://testnet-faucet.genlayer.foundation
+    # 1. Put a key in .env  (GENLAYER_PRIVATE_KEY=0x...)
+    #    (studionet / localnet fund accounts automatically.)
     # 2. Run:
-    python tools/deploy.py
+    python tools/deploy.py --network studionet
     #    or target another network:
     python tools/deploy.py --network localnet
+    # Re-verify an existing deployment without redeploying:
+    python tools/deploy.py --network studionet --verify-only
 
 Prereqs: pip install -r requirements.txt  (genlayer-py, python-dotenv, eth-account)
 """
@@ -30,7 +32,7 @@ import os
 
 from eth_account import Account
 from genlayer_py import create_client
-from genlayer_py.chains import testnet_bradbury, localnet, studionet
+from genlayer_py.chains import localnet, studionet
 from genlayer_py.types import TransactionStatus
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -38,7 +40,6 @@ CONTRACTS = ROOT / "contracts"
 DEPLOYMENTS = ROOT / "deployments"
 
 CHAINS = {
-    "testnet_bradbury": testnet_bradbury,
     "localnet": localnet,
     "studionet": studionet,
 }
@@ -73,14 +74,14 @@ def _extract_address(receipt) -> str:
         data = receipt.get("data")
         if isinstance(data, dict) and data.get("contract_address"):
             return data["contract_address"]
-        # On Bradbury the deployed contract address is the tx recipient.
+        # On GenLayer networks the deployed contract address is the tx recipient.
         if receipt.get("recipient"):
             return receipt["recipient"]
     raise ValueError(f"Could not find contract address in receipt: {receipt}")
 
 
-# Bradbury's public RPC flaps (502s, transient "Transaction failed", HTML error
-# pages instead of JSON). A single hiccup shouldn't abort an 11-contract deploy,
+# Public RPCs flap (502s, transient "Transaction failed", HTML error pages
+# instead of JSON). A single hiccup shouldn't abort an 11-contract deploy,
 # so each contract is retried a few times before giving up.
 DEPLOY_ATTEMPTS = 5
 RETRY_BACKOFF_SECONDS = 12
@@ -120,17 +121,57 @@ def deploy_one(client, account, filename: str, args: list) -> str:
     raise RuntimeError(f"deploy of {filename} failed after {DEPLOY_ATTEMPTS} attempts") from last_err
 
 
+def _unwrap(result):
+    """Tolerate both plain and dict-wrapped results.
+
+    genlayer-py 0.16.3 on some networks wraps gen_call / schema reads in an
+    envelope dict ({"result": ...} etc.); other networks return the value
+    directly. Keep this shim tolerant of both shapes.
+    """
+    if isinstance(result, dict):
+        for key in ("result", "data", "raw", "readable"):
+            if key in result and len(result) <= 2:
+                return _unwrap(result[key])
+    return result
+
+
+def verify_schemas(client, addresses: dict[str, str]) -> bool:
+    """Fetch the on-chain schema of every deployed contract and sanity-check it."""
+    ok = True
+    for name, addr in addresses.items():
+        try:
+            schema = _unwrap(client.get_contract_schema(address=addr))
+            methods = schema.get("methods") if isinstance(schema, dict) else None
+            if isinstance(methods, dict) and methods:
+                print(f"  schema OK   {name} @ {addr} ({len(methods)} methods)")
+            else:
+                print(f"  schema ??   {name} @ {addr}: unexpected shape {str(schema)[:120]}")
+                ok = False
+        except Exception as e:  # noqa: BLE001
+            print(f"  schema FAIL {name} @ {addr}: {type(e).__name__}: {str(e)[:160]}")
+            ok = False
+    return ok
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--network", default=os.getenv("GENLAYER_NETWORK", "testnet_bradbury"))
+    parser.add_argument("--network", default=os.getenv("GENLAYER_NETWORK", "studionet"))
     parser.add_argument("--env", default=str(ROOT / ".env"))
     parser.add_argument(
         "--add-contracts",
         action="store_true",
         help=(
             "Deploy only the Phase 2 extension trackers and wire them into the "
-            "registry already recorded in deployments/bradbury.json (via "
+            "registry already recorded in deployments/<network>.json (via "
             "set_extension_addresses). Leaves the 5 existing contracts untouched."
+        ),
+    )
+    parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        help=(
+            "Skip deployment; fetch and sanity-check the on-chain schema of "
+            "every contract recorded in deployments/<network>.json."
         ),
     )
     parser.add_argument(
@@ -150,7 +191,7 @@ def main() -> int:
     key = os.getenv("GENLAYER_PRIVATE_KEY")
     if not key or key.startswith("0x0000000000000000000000000000000000000000000000000000000000000001"):
         print("ERROR: set a REAL funded GENLAYER_PRIVATE_KEY in .env first.", file=sys.stderr)
-        print("Faucet: https://testnet-faucet.genlayer.foundation", file=sys.stderr)
+        print("(studionet/localnet fund accounts automatically.)", file=sys.stderr)
         return 1
 
     chain = CHAINS.get(args.network)
@@ -162,7 +203,8 @@ def main() -> int:
     client = create_client(chain=chain, account=account)
     print(f"Deploying Verdix to {args.network} as {account.address}")
 
-    deployment_path = DEPLOYMENTS / "bradbury.json"
+    # Per-network deployment record: deployments/<network>.json.
+    deployment_path = DEPLOYMENTS / f"{args.network}.json"
     addresses: dict[str, str] = {}
     if deployment_path.exists():
         try:
@@ -182,12 +224,19 @@ def main() -> int:
         DEPLOYMENTS.mkdir(exist_ok=True)
         deployment_path.write_text(json.dumps(out, indent=2) + "\n")
 
+    if args.verify_only:
+        if not addresses:
+            print(f"ERROR: no contracts recorded in {deployment_path}.", file=sys.stderr)
+            return 1
+        print(f"Verifying schemas of {len(addresses)} contracts on {args.network}...")
+        return 0 if verify_schemas(client, addresses) else 1
+
     if args.add_contracts:
         registry_addr = addresses.get(REGISTRY[0])
         if not registry_addr:
             print(
-                "ERROR: --add-contracts needs an existing registry in "
-                "deployments/bradbury.json. Run a full deploy first.",
+                f"ERROR: --add-contracts needs an existing registry in "
+                f"{deployment_path}. Run a full deploy first.",
                 file=sys.stderr,
             )
             return 1
@@ -221,8 +270,8 @@ def main() -> int:
         registry_addr = addresses.get(REGISTRY[0])
         if not registry_addr:
             print(
-                "ERROR: --upgrade-appeals needs an existing registry in "
-                "deployments/bradbury.json. Run a full deploy first.",
+                f"ERROR: --upgrade-appeals needs an existing registry in "
+                f"{deployment_path}. Run a full deploy first.",
                 file=sys.stderr,
             )
             return 1
@@ -295,8 +344,13 @@ def main() -> int:
     persist()
 
     print(f"\nWrote {deployment_path} ({len(addresses)} contracts)")
-    print("\nRegistry address (frontend picks it up from deployments/bradbury.json):")
+    print(f"\nRegistry address (frontend picks it up from {deployment_path.name}):")
     print(f"  {addresses[REGISTRY[0]]}")
+
+    print("\nVerifying deployed contract schemas...")
+    if not verify_schemas(client, addresses):
+        print("WARNING: schema verification reported problems.", file=sys.stderr)
+        return 1
     return 0
 
 

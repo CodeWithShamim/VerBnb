@@ -4,12 +4,12 @@ import LiveTransactions from '@/components/LiveTransactions';
 import MeshBackground from '@/components/MeshBackground';
 import Reveal from '@/components/Reveal';
 import PlatformStats from '@/components/PlatformStats';
-import { REGISTRY_ADDRESS, explorerAddress } from '@/lib/contracts';
+import { REGISTRY_ADDRESS, explorerAddress, getChainInfo } from '@/lib/contracts';
 
 export const metadata: Metadata = {
   title: 'Live activity - VerBnb',
   description:
-    'Live on-chain dispute activity. Status and block are pulled live from the GenLayer Bradbury network.',
+    'Live on-chain dispute activity. Status and block are pulled live from the GenLayer network.',
 };
 
 export default function ActivityPage() {
@@ -26,7 +26,7 @@ export default function ActivityPage() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
               </span>
-              Live from GenLayer Bradbury testnet
+              Live from {getChainInfo().name}
             </span>
           </Reveal>
 

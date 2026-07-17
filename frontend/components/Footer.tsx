@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { CATEGORIES, explorerAddress, REGISTRY_CONTRACT } from "@/lib/contracts";
+import {
+  CATEGORIES,
+  explorerAddress,
+  getChainInfo,
+  REGISTRY_CONTRACT,
+} from "@/lib/contracts";
 
 export default function Footer() {
   const registryUrl = explorerAddress(REGISTRY_CONTRACT);
@@ -37,8 +42,8 @@ export default function Footer() {
         <div>
           <h4 className="text-sm font-semibold text-slate-900">Network</h4>
           <ul className="mt-4 space-y-2.5 text-sm text-slate-500">
-            <li>GenLayer Bradbury testnet</li>
-            <li>Chain ID 4221</li>
+            <li>{getChainInfo().name}</li>
+            <li>Chain ID {getChainInfo().chainId}</li>
             {registryUrl && (
               <li>
                 <a

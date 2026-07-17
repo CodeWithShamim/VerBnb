@@ -17,7 +17,7 @@ function short(addr?: string) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
-/** Parse a Privy/CAIP wallet chainId ("eip155:4221" | "4221" | 4221) → number. */
+/** Parse a Privy/CAIP wallet chainId ("eip155:61999" | "61999" | 61999) → number. */
 function parseChainId(raw?: string | number): number | null {
   if (raw == null) return null;
   const s = String(raw);
@@ -75,10 +75,11 @@ function ConnectWalletInner() {
     <div className="relative flex items-center gap-2">
       {/* Only surface a network chip when the wallet is on the wrong chain;
           the navbar shows the active network name otherwise. Links to the
-          expected network on the explorer. */}
+          expected network on the explorer when one exists (studionet has
+          none, so the chip is informational there). */}
       {wrongNetwork && (
         <a
-          href={EXPLORER_BASE}
+          href={EXPLORER_BASE || undefined}
           target="_blank"
           rel="noopener noreferrer"
           className="hidden items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-100 sm:inline-flex"
@@ -136,7 +137,7 @@ function ConnectWalletInner() {
                 </span>
               </div>
 
-              {REGISTRY_CONTRACT && (
+              {REGISTRY_CONTRACT && explorerAddress(REGISTRY_CONTRACT) && (
                 <a
                   href={explorerAddress(REGISTRY_CONTRACT)}
                   target="_blank"
@@ -167,24 +168,26 @@ function ConnectWalletInner() {
               >
                 Copy address
               </button>
-              <a
-                href={explorerAddress(address)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setOpen(false)}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm text-slate-600 hover:bg-surface-subtle"
-              >
-                View on explorer
-                <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 text-slate-400">
-                  <path
-                    d="M7 17 17 7M9 7h8v8"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </a>
+              {explorerAddress(address) && (
+                <a
+                  href={explorerAddress(address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm text-slate-600 hover:bg-surface-subtle"
+                >
+                  View on explorer
+                  <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5 text-slate-400">
+                    <path
+                      d="M7 17 17 7M9 7h8v8"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </a>
+              )}
               <button
                 type="button"
                 onClick={() => {

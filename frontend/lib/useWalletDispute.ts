@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { createClient } from "genlayer-js";
-import { testnetBradbury } from "genlayer-js/chains";
+import { getChain, getNetworkName } from "@/lib/genLayerClient";
 import {
   CATEGORIES,
   REGISTRY_ADDRESS,
@@ -85,11 +85,13 @@ export function useWalletDispute() {
       if (!wallet) throw new Error("No wallet connected");
       if (!REGISTRY) throw new Error("Registry address not configured");
 
-      // Ask the wallet to switch to GenLayer Bradbury (chain 4221) first, so the
+      const chain = getChain();
+
+      // Ask the wallet to switch to the active GenLayer network first, so the
       // signing prompt happens on the correct network. External wallets may
       // need to add the chain; embedded Privy wallets switch silently.
       try {
-        await (wallet as any).switchChain?.(testnetBradbury.id as number);
+        await (wallet as any).switchChain?.(chain.id as number);
       } catch {
         // Non-fatal: client.connect() below re-checks and will throw a clear
         // error if the wallet is still on the wrong chain.
@@ -100,16 +102,16 @@ export function useWalletDispute() {
 
       // genlayer-js write client signing through the user's wallet.
       const client = createClient({
-        chain: testnetBradbury,
+        chain,
         account: wallet.address as `0x${string}`,
         // provider field accepts a wallet-SDK EIP-1193 provider (per docs)
         provider,
       });
 
-      // Ensure the wallet is on the GenLayer Bradbury network before writing.
-      await client.connect("testnetBradbury");
+      // Ensure the wallet is on the active GenLayer network before writing.
+      await client.connect(getNetworkName());
 
-      // 1. Specialist contract from deployments/bradbury.json - the same
+      // 1. Specialist contract from deployments/<network>.json - the same
       // address set the registry routes to, so no on-chain discovery read.
       const specialist = SPECIALIST_BY_CATEGORY[sub.category];
       if (!specialist)

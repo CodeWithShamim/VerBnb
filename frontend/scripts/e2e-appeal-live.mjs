@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Live end-to-end acceptance check of the round-bound PRODUCT appeal flow on
- * the CURRENT Bradbury deployment (addresses from deployments/bradbury.json):
+ * the CURRENT live deployment (addresses from deployments/<network>.json,
+ * network from NEXT_PUBLIC_GL_NETWORK, default studionet):
  *
  *   1. registry.register_dispute            (PRODUCT, routed address enforced)
  *   2. product.raise_dispute                (real validator consensus)
@@ -19,7 +20,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { createClient, createAccount } from "genlayer-js";
-import { testnetBradbury } from "genlayer-js/chains";
+import { localnet, studionet } from "genlayer-js/chains";
 
 const frontendDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const rootDir = dirname(frontendDir);
@@ -39,10 +40,25 @@ if (!/^0x[0-9a-fA-F]{64}$/.test(key)) {
   process.exit(1);
 }
 
-const dep = JSON.parse(readFileSync(join(rootDir, "deployments/bradbury.json"), "utf8"));
+const CHAINS = { localnet, studionet };
+const DEPLOY_FILES = { localnet: "localnet", studionet: "studionet" };
+const networkKey = process.env.NEXT_PUBLIC_GL_NETWORK || "studionet";
+const baseChain = CHAINS[networkKey] || studionet;
+// Optional RPC override (NEXT_PUBLIC_GL_RPC) on top of the chain's default.
+const rpcOverride = process.env.NEXT_PUBLIC_GL_RPC;
+const chain = rpcOverride
+  ? { ...baseChain, rpcUrls: { ...baseChain.rpcUrls, default: { http: [rpcOverride] } } }
+  : baseChain;
+
+const dep = JSON.parse(
+  readFileSync(
+    join(rootDir, "deployments", `${DEPLOY_FILES[networkKey] || networkKey}.json`),
+    "utf8",
+  ),
+);
 const C = dep.contracts;
 const account = createAccount(key);
-const client = createClient({ chain: testnetBradbury, account });
+const client = createClient({ chain, account });
 
 // Known validator-reachable pages (same ones the gltest integration suite uses).
 const LISTING_URL = "https://test-server.genlayer.com/static/genvm/hello.html";
@@ -64,8 +80,8 @@ async function read(address, functionName, args) {
   }
 }
 
-// Bradbury's public RPC flaps (transient consensus-contract reverts, 502s).
-// Retry each write with backoff, like tools/deploy.py does.
+// Public RPCs can flap (transient consensus-contract reverts, 502s). Retry
+// each write with backoff, like tools/deploy.py does.
 async function write(address, functionName, args, label, attempts = 5) {
   for (let i = 1; i <= attempts; i++) {
     try {
@@ -99,10 +115,19 @@ async function until(label, fn, pred, tries = 90, delayMs = 10_000) {
   throw new Error(`timeout waiting for: ${label}`);
 }
 
+// Explorer JSON API (only if NEXT_PUBLIC_GL_EXPLORER is set; otherwise tx
+// status reports "unknown"). Diagnostics only - the flow itself is
+// state-polled, never explorer-gated.
+const EXPLORER_BASE = (process.env.NEXT_PUBLIC_GL_EXPLORER || "").replace(
+  /\/+$/,
+  "",
+);
+
 async function txStatus(hash) {
+  if (!EXPLORER_BASE) return "unknown";
   try {
     const r = await fetch(
-      `https://explorer-bradbury.genlayer.com/api/v1/transactions?address=${account.address}&limit=20`,
+      `${EXPLORER_BASE}/api/v1/transactions?address=${account.address}&limit=20`,
     ).then((x) => x.json());
     return r.transactions?.find((t) => t.hash === hash)?.status || "unknown";
   } catch {
@@ -110,7 +135,7 @@ async function txStatus(hash) {
   }
 }
 
-// Bradbury nondet consensus flaps (leader_timeout / validators_timeout /
+// Nondet consensus can flap (leader_timeout / validators_timeout /
 // undetermined) on web+LLM rounds. A consensus write is only done when the
 // TARGET STATE is readable, so: submit, poll state, and resubmit whenever the
 // tx dies with a terminal failure status.
@@ -140,7 +165,7 @@ async function consensusWrite(address, functionName, args, label, readFn, pred, 
   throw new Error(`consensus write never landed: ${label}`);
 }
 
-console.log(`E2E round-bound appeal flow on Bradbury — dispute ${DISPUTE}`);
+console.log(`E2E round-bound appeal flow on ${networkKey} — dispute ${DISPUTE}`);
 console.log(`registry=${C.verBnb_registry} product=${C.not_as_described} appeals=${C.appeal_manager}`);
 
 // 1. Register the dispute in the registry (validates the routed address).

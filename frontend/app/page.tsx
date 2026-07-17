@@ -123,7 +123,7 @@ export default function Home() {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 dark:bg-pop-lime" />
               </span>
               <span className="font-cabin text-sm font-medium text-slate-800 dark:text-white">
-                Live on GenLayer Bradbury testnet · 10 contracts on-chain
+                Live on {NETWORK.NAME} · 10 contracts on-chain
               </span>
             </span>
           </Reveal>

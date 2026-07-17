@@ -13,7 +13,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from '@/lib/charts';
-import { CATEGORIES, type Category } from '@/lib/contracts';
+import { CATEGORIES, NETWORK_KEY, type Category } from '@/lib/contracts';
 import { trackerFetch } from '@/lib/trackerClient';
 
 interface CategoryStat {
@@ -118,7 +118,7 @@ export default function AnalyticsPage() {
             Analytics tracker is not configured yet. Deploy the Phase 2
             contracts so their addresses land in{' '}
             <code className="rounded bg-surface-subtle px-1.5 py-0.5 text-xs">
-              deployments/bradbury.json
+              {`deployments/${NETWORK_KEY}.json`}
             </code>
             .
           </div>

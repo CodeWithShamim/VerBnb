@@ -1,14 +1,14 @@
 """
 Integration test for Verdix / VerBnb - full end-to-end flow.
 
-Run against a live GenLayer environment (local Studio or testnet Bradbury):
+Run against a live GenLayer environment (local Studio or hosted studionet):
 
-    # local Studio (Docker) - full GenVM, recommended:
+    # local Studio (Docker) - full GenVM:
     genlayer up
     gltest tests/integration/ -v -s --network localnet
 
-    # testnet Bradbury (needs a funded GENLAYER_PRIVATE_KEY in .env):
-    gltest tests/integration/ -v -s --network testnet_bradbury
+    # hosted Studio network (accounts auto-funded):
+    gltest tests/integration/ -v -s --network studionet
 
 NOTE ON GLSim: the lightweight `glsim` simulator that ships with the pinned
 genlayer-test[sim]==0.29.2 handles these contracts (including `@allow_storage`

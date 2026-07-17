@@ -18,7 +18,7 @@
     "install:frontend": "npm install --workspace=frontend",
     "contracts:lint": "for f in contracts/*.py; do .venv/bin/genvm-lint check \"$f\" --json || exit 1; done",
     "test:direct": ".venv/bin/python -m pytest tests/direct/ -v",
-    "test:integration": ".venv/bin/gltest tests/integration/ -v -s --network testnet_bradbury",
-    "deploy": ".venv/bin/python tools/deploy.py --network testnet_bradbury"
+    "test:integration": ".venv/bin/gltest tests/integration/ -v -s --network studionet",
+    "deploy": ".venv/bin/python tools/deploy.py --network studionet"
   }
 }

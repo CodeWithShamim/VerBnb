@@ -50,7 +50,7 @@ export default function CopyAddress({
           {copied ? "✓" : "⧉"}
         </span>
       </button>
-      {explorer && value && (
+      {explorer && value && explorerAddress(value) && (
         <a
           href={explorerAddress(value)}
           target="_blank"

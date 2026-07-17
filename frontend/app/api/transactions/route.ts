@@ -122,6 +122,8 @@ async function fetchForContract(
   category: Category | null,
   pageSize: number,
 ): Promise<ChainTxRow[]> {
+  // No explorer API on this network (e.g. studionet) - degrade to an empty feed.
+  if (!EXPLORER_API_BASE) return [];
   const url = `${EXPLORER_API_BASE}/transactions?address=${address}&page=1&page_size=${pageSize}`;
   try {
     const res = await fetch(url, {

@@ -1,14 +1,14 @@
 """
 Integration test for Verdix / VerBnb Phase 2 - full flow with appeals.
 
-Run against a live GenLayer environment (local Studio or testnet Bradbury):
+Run against a live GenLayer environment (local Studio or hosted studionet):
 
-    # local Studio (Docker) - full GenVM, recommended:
+    # local Studio (Docker) - full GenVM:
     genlayer up
     gltest tests/integration/test_full_flow_with_appeals.py -v -s --network localnet
 
-    # testnet Bradbury (needs a funded GENLAYER_PRIVATE_KEY in .env):
-    gltest tests/integration/test_full_flow_with_appeals.py -v -s --network testnet_bradbury
+    # hosted Studio network (accounts auto-funded):
+    gltest tests/integration/test_full_flow_with_appeals.py -v -s --network studionet
 
 The 4 new tracker contracts are STANDALONE and orchestrated off-chain (the
 registry stores their addresses but does not call them synchronously - the
@@ -214,7 +214,7 @@ def test_on_chain_appeal_derived_from_authenticated_state():
     is ever supplied off-chain.
 
     Cross-contract calls only execute on live GenVM, so this runs under
-    --network localnet / testnet_bradbury (not the single-contract direct harness).
+    --network localnet / studionet (not the single-contract direct harness).
     """
     product = _factory("not_as_described.py").deploy(args=[])
     appeals = _factory("appeal_manager.py").deploy(args=[])

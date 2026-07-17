@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAccount } from "genlayer-js";
-import { testnetBradbury, localnet, studionet } from "genlayer-js/chains";
+import { localnet, studionet } from "genlayer-js/chains";
 import { CONTRACT_ADDRESSES } from "@/lib/contracts";
 
 export const runtime = "nodejs";
 
 const CHAINS: Record<string, any> = {
-  testnet_bradbury: testnetBradbury,
   localnet,
   studionet,
 };
@@ -14,8 +13,8 @@ const CHAINS: Record<string, any> = {
 function serverClient() {
   const key = process.env.GENLAYER_PRIVATE_KEY;
   if (!key) throw new Error("GENLAYER_PRIVATE_KEY not configured on the server");
-  const chainKey = process.env.NEXT_PUBLIC_GL_NETWORK || "testnet_bradbury";
-  const chain = CHAINS[chainKey] || testnetBradbury;
+  const chainKey = process.env.NEXT_PUBLIC_GL_NETWORK || "studionet";
+  const chain = CHAINS[chainKey] || studionet;
   const account = createAccount(key as `0x${string}`);
   return createClient({ chain, account });
 }
@@ -35,7 +34,7 @@ export async function POST(req: NextRequest) {
     const appealManager = CONTRACT_ADDRESSES.appeal_manager;
     if (!appealManager) {
       return NextResponse.json(
-        { error: "Appeal manager address missing from deployments/bradbury.json" },
+        { error: "Appeal manager address missing from the active deployments file" },
         { status: 500 }
       );
     }

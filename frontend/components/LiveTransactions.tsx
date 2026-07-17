@@ -150,10 +150,13 @@ function Row({ row, glass = false }: { row: ChainTxRow; glass?: boolean }) {
     <Link href={href} className="block">
       {inner}
     </Link>
-  ) : (
+  ) : href ? (
     <a href={href} target="_blank" rel="noopener noreferrer" className="block">
       {inner}
     </a>
+  ) : (
+    // No explorer on this network - render the row without a link target.
+    <div className="block">{inner}</div>
   );
 }
 

@@ -1,7 +1,7 @@
 # gltest configuration for Verdix / VerBnb
 # Root keys: networks, paths, environment.
-# localnet / studionet / testnet_bradbury are preconfigured networks - we only
-# override what we need. Env vars (${...}) are read from the `environment` file.
+# localnet / studionet are preconfigured networks - we only override what we
+# need. Env vars (${...}) are read from the `environment` file.
 
 environment: .env
 
@@ -10,13 +10,11 @@ paths:
   artifacts: artifacts
 
 networks:
-  default: localnet
+  default: studionet
 
   localnet:
 
-  testnet_bradbury:
-    url: https://rpc-bradbury.genlayer.com
-    accounts:
-      - "${GENLAYER_PRIVATE_KEY}"
-    default_wait_interval: 10000
-    default_wait_retries: 30
+  # Preconfigured: url https://studio.genlayer.com/api (chain id 61999) and
+  # auto-generated accounts (studionet auto-funds them) - no overrides needed.
+  # gltest requires a mapping here ({} inherits all preconfigured values).
+  studionet: {}

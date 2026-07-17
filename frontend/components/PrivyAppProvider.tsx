@@ -1,12 +1,12 @@
 "use client";
 
 import { PrivyProvider } from "@privy-io/react-auth";
-import { testnetBradbury } from "genlayer-js/chains";
 import type { ReactNode } from "react";
+import { getChain } from "@/lib/genLayerClient";
 
-// GenLayer Bradbury as a viem-compatible chain for Privy. genlayer-js already
-// exports a viem-shaped chain object, so we reuse it directly.
-const bradbury = testnetBradbury as any;
+// The active GenLayer network as a viem-compatible chain for Privy. genlayer-js
+// already exports viem-shaped chain objects, so we reuse them directly.
+const activeChain = getChain() as any;
 
 const APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID || "";
 
@@ -33,8 +33,8 @@ export default function PrivyAppProvider({ children }: { children: ReactNode }) 
           createOnLogin: "users-without-wallets",
         },
         loginMethods: ["wallet", "email", "google"],
-        defaultChain: bradbury,
-        supportedChains: [bradbury],
+        defaultChain: activeChain,
+        supportedChains: [activeChain],
       }}
     >
       {children}

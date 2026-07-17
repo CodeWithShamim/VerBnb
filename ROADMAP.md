@@ -1,6 +1,6 @@
 # VerBnb Roadmap
 
-> Last updated: 2026-07-10 · Live on [Bradbury Testnet](https://explorer-bradbury.genlayer.com) · [ver-bnb.vercel.app](https://ver-bnb.vercel.app)
+> Last updated: 2026-07-18 · Live on the [GenLayer Studio Network](https://studio.genlayer.com) · [ver-bnb.vercel.app](https://ver-bnb.vercel.app)
 
 This roadmap tracks where VerBnb is and where it is going. Shipped phases are
 facts; future phases are intent and may be reordered as GenLayer's own roadmap
@@ -87,7 +87,7 @@ the refund percentage enforceable.
 - 🔜 Load/latency benchmarking of the consensus tracker under many concurrent
   disputes
 - 🔜 GenLayer **mainnet** deployment when the network launches (currently
-  Bradbury testnet, chain ID 4221)
+  GenLayer Studio Network, chain ID 61999)
 
 ## Phase 6 — Open Platform 💡
 

@@ -11,7 +11,7 @@
 
 import { REGISTRY_ADDRESS, type Category } from "@/lib/contracts";
 
-// Scoped to the LIVE registry (deployments/bradbury.json) so a redeploy starts
+// Scoped to the LIVE registry (deployments/<network>.json) so a redeploy starts
 // a clean watchlist — entries pointing at retired contracts never resurface.
 // Watchlists scoped to other registries (and the legacy "v1" key) are pruned.
 const KEY_PREFIX = "verbnb.watchlist.";
