@@ -2,6 +2,7 @@ import Link from 'next/link';
 import CategoryCard from '@/components/CategoryCard';
 import PlatformStats from '@/components/PlatformStats';
 import LiveTransactions from '@/components/LiveTransactions';
+import HomeSuggestions from '@/components/HomeSuggestions';
 import { HeroScene3D } from '@/components/3d';
 import HeroSideCards from '@/components/HeroSideCards';
 import HeroBottomBar from '@/components/HeroBottomBar';
@@ -262,6 +263,9 @@ export default function Home() {
           </Reveal>
         </div>
       </section>
+
+      {/* VALIDATOR-CURATED PICKS - renders nothing until a topic is curated */}
+      <HomeSuggestions />
 
       {/* HOW IT WORKS */}
       <section id="how" className="cv-auto relative scroll-mt-24 overflow-hidden py-20">

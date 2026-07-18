@@ -1,18 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getRecentDisputes,
   subscribeRecentDisputes,
   type RecentDispute,
 } from "@/lib/recentDisputes";
-import type { ChainTxRow } from "@/lib/contracts";
 import DisputeGrid from "./DisputeGrid";
 import type { ExplorerDispute } from "./DisputeCard";
 import type { CategoryFilter, StatusFilter } from "./FilterBar";
 
-/** Statuses the chain reports as settled for a transaction. */
+/** Tx statuses the chain reports as settled (no more polling needed). */
 const SETTLED = new Set(["FINALIZED", "ACCEPTED"]);
+
+/** Re-poll cadence while any local dispute is still unresolved. */
+const POLL_MS = 15_000;
 
 function titleCase(s: string): string {
   return s ? s.charAt(0) + s.slice(1).toLowerCase().replace(/_/g, " ") : "";
@@ -20,9 +22,11 @@ function titleCase(s: string): string {
 
 /**
  * Disputes submitted from this browser (localStorage ledger), enriched
- * straight from the chain via the existing /api/transactions feed: live tx
- * status, block timestamp, and a resolved flag when a finalized
- * mark_resolved transaction exists for the id.
+ * straight from the chain: registry record + specialist verdict via
+ * /api/explorer?dispute= (RPC reads — works on every network, including ones
+ * without an explorer API like studionet) and the submission tx's live status
+ * via /api/tx. Unresolved entries re-poll while the tab is visible; resolved
+ * records and settled tx statuses are terminal and cached.
  */
 export default function LocalDisputes({
   category,
@@ -32,8 +36,16 @@ export default function LocalDisputes({
   status: StatusFilter;
 }) {
   const [local, setLocal] = useState<RecentDispute[]>([]);
-  const [rows, setRows] = useState<ChainTxRow[]>([]);
+  const [chain, setChain] = useState<Map<string, ExplorerDispute>>(new Map());
+  const [txStatus, setTxStatus] = useState<Map<string, string>>(new Map());
   const [ready, setReady] = useState(false);
+
+  // Latest enrichment maps, readable from inside load() without re-creating
+  // the callback (which would reset the polling interval) on every fetch.
+  const chainRef = useRef(chain);
+  chainRef.current = chain;
+  const txRef = useRef(txStatus);
+  txRef.current = txStatus;
 
   // localStorage ledger — updates live when a dispute is submitted in-tab.
   useEffect(() => {
@@ -42,64 +54,99 @@ export default function LocalDisputes({
     return subscribeRecentDisputes(refresh);
   }, []);
 
-  const loadChain = useCallback(async () => {
-    try {
-      const res = await fetch("/api/transactions?limit=50", {
-        cache: "no-store",
-      });
-      const data = await res.json();
-      if (Array.isArray(data?.rows)) setRows(data.rows);
-    } catch {
-      /* enrichment is best-effort; cards fall back to local data */
-    } finally {
+  const load = useCallback(async () => {
+    const list = getRecentDisputes();
+    if (list.length === 0) {
       setReady(true);
+      return;
     }
+
+    // Registry record + verdict, skipping disputes already known resolved.
+    const recordJobs = list
+      .filter((d) => !chainRef.current.get(d.id)?.resolved)
+      .map(async (d) => {
+        const res = await fetch(
+          `/api/explorer?dispute=${encodeURIComponent(d.id)}`,
+          { cache: "no-store" }
+        );
+        const data = await res.json();
+        const rec = Array.isArray(data?.records) ? data.records[0] : null;
+        return [d.id, (rec as ExplorerDispute) ?? null] as const;
+      });
+
+    // Live tx status for the specialist submission hash, until it settles.
+    const txJobs = list
+      .filter(
+        (d) => d.tx && !SETTLED.has((txRef.current.get(d.id) || "").toUpperCase())
+      )
+      .map(async (d) => {
+        const res = await fetch(`/api/tx?hash=${encodeURIComponent(d.tx!)}`, {
+          cache: "no-store",
+        });
+        const data = await res.json();
+        return [d.id, String(data?.status || "")] as const;
+      });
+
+    const [recResults, txResults] = await Promise.all([
+      Promise.allSettled(recordJobs),
+      Promise.allSettled(txJobs),
+    ]);
+
+    setChain((prev) => {
+      const next = new Map(prev);
+      for (const r of recResults) {
+        if (r.status === "fulfilled" && r.value[1]) next.set(r.value[0], r.value[1]);
+      }
+      return next;
+    });
+    setTxStatus((prev) => {
+      const next = new Map(prev);
+      for (const r of txResults) {
+        if (r.status === "fulfilled" && r.value[1]) next.set(r.value[0], r.value[1]);
+      }
+      return next;
+    });
+    setReady(true);
   }, []);
 
+  // Fetch on mount / ledger change, then re-poll while the tab is visible so
+  // "Pending" flips to "Resolved" without a manual refresh.
   useEffect(() => {
-    loadChain();
-  }, [loadChain]);
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const start = () => {
+      if (timer) return;
+      load();
+      timer = setInterval(load, POLL_MS);
+    };
+    const stop = () => {
+      if (timer) clearInterval(timer);
+      timer = null;
+    };
+    const onVisibility = () => (document.hidden ? stop() : start());
+    document.addEventListener("visibilitychange", onVisibility);
+    onVisibility();
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      stop();
+    };
+  }, [load, local.length]);
 
   if (local.length === 0) return null;
 
-  // disputeId → { latest tx status/timestamp, resolved via mark_resolved }.
-  const byId = new Map<
-    string,
-    { status: string; timestamp: number | null; from: string; resolved: boolean }
-  >();
-  for (const row of rows) {
-    if (!row.disputeId) continue;
-    const prev = byId.get(row.disputeId);
-    const resolved =
-      (prev?.resolved ?? false) ||
-      (row.method === "mark_resolved" && SETTLED.has(row.status));
-    if (!prev) {
-      byId.set(row.disputeId, {
-        status: row.status,
-        timestamp: row.timestamp,
-        from: row.from,
-        resolved,
-      });
-    } else {
-      // Feed is block-desc; the first row seen is the latest. Only merge the
-      // resolved flag from older rows.
-      prev.resolved = resolved;
-    }
-  }
-
   const records: ExplorerDispute[] = local.map((d) => {
-    const chain = byId.get(d.id);
-    const resolved = chain?.resolved ?? false;
+    const rec = chain.get(d.id) ?? null;
+    const resolved = rec?.resolved ?? false;
+    const tx = txStatus.get(d.id);
     return {
       id: d.id,
-      category: d.category,
+      category: rec?.category || d.category,
       status: resolved ? "RESOLVED" : "PENDING",
       resolved,
-      submitter: d.signer || chain?.from || "",
-      timestamp: chain?.timestamp ?? Math.floor(d.submittedAt / 1000),
-      refundPct: null,
-      summary: null,
-      txStatus: chain ? titleCase(chain.status) : null,
+      submitter: rec?.submitter || d.signer || "",
+      timestamp: rec?.timestamp ?? Math.floor(d.submittedAt / 1000),
+      refundPct: rec?.refundPct ?? null,
+      summary: rec?.summary ?? null,
+      txStatus: tx ? titleCase(tx) : null,
     };
   });
 

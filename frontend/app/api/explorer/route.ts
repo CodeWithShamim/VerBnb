@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getAddress } from "viem";
 import { getReadClient } from "@/lib/genLayerClient";
 import { REGISTRY_ADDRESS, type Category } from "@/lib/contracts";
 
@@ -188,10 +189,21 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // The registry keys user_disputes by the exact submitter hex it stored;
-    // try the query as given plus its lowercase form and merge.
+    // The registry keys user_disputes by the exact submitter hex it stored
+    // (sender_address.as_hex is EIP-55 checksummed); try the query as given
+    // plus its lowercase and checksummed forms and merge.
+    let checksummed: string | null = null;
+    try {
+      checksummed = getAddress(address.toLowerCase());
+    } catch {
+      /* not checksummable — hex form already validated above */
+    }
     const candidates = Array.from(
-      new Set([address, address.toLowerCase()])
+      new Set(
+        [address, address.toLowerCase(), checksummed].filter(
+          (a): a is string => !!a
+        )
+      )
     );
     const idLists = await Promise.allSettled(
       candidates.map((a) =>

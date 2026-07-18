@@ -58,7 +58,9 @@ publish the agreed list on-chain.
 - ✅ `product_suggester` contract — owner-managed trusted-domain allowlist,
   `refresh_suggestions(topic, source_url)`, ≥50 % product-name overlap consensus
 - ✅ `/suggestions` page reading via `/api/suggestions`
-- 🔨 Home-page suggestions surface (`HomeSuggestions`)
+- ✅ Home-page suggestions surface (`HomeSuggestions`) — first curated topic's
+  top picks on the home page; hidden entirely until validators publish a
+  non-empty topic
 - 🔜 Scheduled auto-refresh so topics never go stale (cron-driven
   `refresh_suggestions` runs)
 - 🔜 Broader trusted-domain allowlist beyond the Wirecutter/RTINGS defaults
