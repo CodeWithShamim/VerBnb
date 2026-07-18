@@ -16,8 +16,14 @@ export default function DisputePage() {
   const params = useParams<{ id: string }>();
   const search = useSearchParams();
   const id = decodeURIComponent(params.id);
-  const category = (search.get('category') || '') as Category | '';
+  const urlCategory = (search.get('category') || '') as Category | '';
   const txHash = search.get('tx') || '';
+
+  // Effective category: URL param when present, else learned from the
+  // registry record (covers pasted/shared links without ?category=).
+  const [category, setCategory] = useState<Category | ''>(
+    urlCategory && CATEGORIES[urlCategory] ? urlCategory : '',
+  );
   const meta = category && CATEGORIES[category] ? CATEGORIES[category] : null;
 
   const [status, setStatus] = useState<string>('SUBMITTED');
@@ -56,8 +62,13 @@ export default function DisputePage() {
             : d.evidence,
         );
       }
+      const recordCategory = String(d.record?.category || '').toUpperCase() as Category;
+      if (!category && CATEGORIES[recordCategory]) setCategory(recordCategory);
       if (d.verdict) {
         setVerdict(d.verdict);
+        // A resolved verdict implies the tx finalized - complete the tracker
+        // even when the URL carries no tx hash to poll.
+        if (d.verdict?.resolved && !d.verdict?.error) setStatus('FINALIZED');
         if (d.record?.submitter) setSubmitter(d.record.submitter); // 3. Once the specialist has a resolved verdict, mark it resolved in the
         // registry (idempotent) so platform stats stay accurate. Fire once.
         const isResolved = d.verdict?.resolved === true && !d.verdict?.error;

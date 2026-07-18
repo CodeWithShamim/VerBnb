@@ -114,19 +114,9 @@ export async function GET(
       );
     }
 
-    // Resolve specialist address through the registry.
-    let specialist = "";
-    if (category && CATEGORIES[category]) {
-      specialist = String(
-        await client.readContract({
-          address: REGISTRY_ADDRESS,
-          functionName: "get_contract_for_category",
-          args: [category],
-        })
-      );
-    }
-
-    // Registry record (tracking + resolved flag).
+    // Registry record (tracking + resolved flag). Read first: it also carries
+    // the category and specialist address, so category-less URLs (explorer
+    // cards, pasted links) still resolve to a verdict below.
     let record: any = null;
     try {
       const raw = (await client.readContract({
@@ -135,15 +125,39 @@ export async function GET(
         args: [id],
       })) as string;
       record = JSON.parse(raw);
+      if (record?.error) record = null;
     } catch {
       record = null;
+    }
+
+    // Effective category: query param when valid, else the registry record's.
+    const recordCategory = String(record?.category || "").toUpperCase();
+    const effCategory = (
+      category && CATEGORIES[category]
+        ? category
+        : CATEGORIES[recordCategory as Category]
+        ? recordCategory
+        : ""
+    ) as Category | "";
+
+    // Resolve the specialist: the record stores its address directly; fall
+    // back to the registry's category mapping for pre-record lookups.
+    let specialist = String(record?.contract_address || "");
+    if (!specialist && effCategory) {
+      specialist = String(
+        await client.readContract({
+          address: REGISTRY_ADDRESS,
+          functionName: "get_contract_for_category",
+          args: [effCategory],
+        })
+      );
     }
 
     // Specialist verdict.
     let verdict: any = null;
     if (specialist) {
       try {
-        if (category === "SOURCING") {
+        if (effCategory === "SOURCING") {
           // Sourcing claims filed with a dispute_id have a dispute-keyed
           // verdict; older claims fall back to the brand:claim lookup.
           try {
@@ -183,7 +197,7 @@ export async function GET(
     // Evidence URLs (additive; existing consumers keep working unchanged).
     const txHash = req.nextUrl.searchParams.get("tx") || "";
     const evidence = txHash
-      ? await evidenceFromTx(client, txHash, category)
+      ? await evidenceFromTx(client, txHash, effCategory)
       : [];
 
     return NextResponse.json(
